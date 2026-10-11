@@ -1,7 +1,9 @@
 <?php
 /**
- * The editor choice: per-request switch > user preference exp_oe_editor > [EditorSettings] DefaultEditor, the
- * preference only while switching is allowed, and tiptap only while its bundle is built.
+ * The editor choice since 0.1.1: Tiptap is the engine "tiptap" of ezoe's registry, so there is one choice (ezoe's
+ * EditorEngine, EngineSwitch and preference ezoe_engine). Tested here: the registration, the translation between
+ * ezoe's engines and this extension's two editors, the migration of the 0.1.0 preference exp_oe_editor, the target
+ * of the Tiptap editor's switch button, and the extension's own settings.
  */
 
 require_once __DIR__ . '/bootstrap.php';
@@ -10,10 +12,20 @@ use PHPUnit\Framework\TestCase;
 
 final class EditorChoiceTest extends TestCase
 {
+    protected function setUp(): void
+    {
+        if ( !class_exists( 'expOEEditor' ) )
+            $this->markTestSkipped( 'ezoe has no engine registry in this root' );
+        expOEEditor::reset();
+    }
+
     protected function tearDown(): void
     {
         eZINI::resetInstance( 'exp_oe_tiptap.ini' );
+        eZINI::resetInstance( 'ezoe.ini' );
         expOETiptapEditor::reset();
+        if ( class_exists( 'expOEEditor' ) )
+            expOEEditor::reset();
     }
 
     private function setting( $block, $name, $value )
@@ -21,70 +33,158 @@ final class EditorChoiceTest extends TestCase
         eZINI::instance( 'exp_oe_tiptap.ini' )->setVariable( $block, $name, $value );
     }
 
-    public function testDefaultIsTheSetting()
+    private function ezoe( $name, $value )
     {
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'ezoe', true, null, null, true ) );
-        $this->assertSame( 'tiptap', expOETiptapEditor::choose( 'tiptap', true, null, null, true ) );
+        eZINI::instance( 'ezoe.ini' )->setVariable( 'EditorSettings', $name, $value );
+        expOEEditor::reset();
     }
 
-    public function testUnknownDefaultFallsBackToEzoe()
+    public function testTiptapIsRegisteredInEzoesRegistry()
     {
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'ckeditor', true, null, null, true ) );
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( '', true, '', null, true ) );
+        $registered = expOEEditor::registered();
+        $this->assertSame( 'expOETiptapEngine', $registered['tiptap'] );
+        $this->assertArrayHasKey( 'tinymce3', $registered, 'the extension adds to the list, it never replaces it' );
+        $this->assertArrayHasKey( 'tinymce8', $registered );
     }
 
-    public function testPreferenceWinsOverTheDefault()
+    public function testTheEngineIsAvailableWhileTheBundleIsBuilt()
     {
-        $this->assertSame( 'tiptap', expOETiptapEditor::choose( 'ezoe', true, 'tiptap', null, true ) );
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'tiptap', true, 'ezoe', null, true ) );
+        $engines = expOEEditor::engines();
+        $this->assertArrayHasKey( 'tiptap', $engines );
+        $this->assertInstanceOf( 'expOETiptapEngine', $engines['tiptap'] );
+        $this->assertSame( 'Tiptap', expOEEditor::labels()['tiptap'] );
+        $this->assertSame( array(), expOEEditor::problems() );
     }
 
-    public function testEmptyOrUnknownPreferenceMeansTheDefault()
+    public function testWithoutTheBundleTheEngineIsUnavailableAndNeverChosen()
     {
-        $this->assertSame( 'tiptap', expOETiptapEditor::choose( 'tiptap', true, '', null, true ) );
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'ezoe', true, 'tinymce8', null, true ) );
+        $this->setting( 'EditorSettings', 'Scripts', array( 'exp_oe_tiptap/no-such-bundle.js' ) );
+        expOEEditor::reset();
+        $this->assertArrayNotHasKey( 'tiptap', expOEEditor::engines() );
+        $this->assertSame( 'tinymce3', expOEEditor::resolve( 'tiptap' ) );
+        foreach ( expOEEditor::details() as $row )
+        {
+            if ( $row['identifier'] === 'tiptap' )
+                $this->assertSame( 'unavailable', $row['status'] );
+        }
     }
 
-    public function testRequestChoiceWinsOverThePreference()
+    public function testTheEngineShowsNameVersionDescriptionAndStatus()
     {
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'tiptap', true, 'tiptap', 'ezoe', true ) );
-        $this->assertSame( 'tiptap', expOETiptapEditor::choose( 'ezoe', true, 'ezoe', 'tiptap', true ) );
+        $rows = array();
+        foreach ( expOEEditor::details() as $row )
+            $rows[$row['identifier']] = $row;
+        $this->assertArrayHasKey( 'tiptap', $rows );
+        $this->assertSame( 'Tiptap', $rows['tiptap']['label'] );
+        $this->assertSame( exp_oe_tiptapInfo::info()['Version'], $rows['tiptap']['version'] );
+        $this->assertMatchesRegularExpression( '/^0\.1\.\d+$/', $rows['tiptap']['version'] );
+        $this->assertStringContainsString( 'Tiptap', $rows['tiptap']['description'] );
+        $this->assertSame( 'available', $rows['tiptap']['status'] );
+        $this->assertSame( 'expOETiptapEngine', $rows['tiptap']['class'] );
     }
 
-    public function testWithoutSwitchEveryoneGetsTheDefault()
+    public function testTheEngineRendersTheTiptapTemplate()
     {
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'ezoe', false, 'tiptap', 'tiptap', true ) );
-        $this->assertSame( 'tiptap', expOETiptapEditor::choose( 'tiptap', false, 'ezoe', 'ezoe', true ) );
+        $engine = new expOETiptapEngine();
+        $this->assertSame( 'tiptap', $engine->identifier() );
+        $this->assertSame( 'design:content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl', $engine->template() );
+        $this->assertTrue( is_file( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' ) );
+        $this->assertSame( array( 'scripts' => array(), 'styles' => array() ), $engine->assets(), 'the template puts the bundle on the page' );
     }
 
-    public function testTiptapWithoutBundleFallsBackToEzoe()
+    public function testTheSwitchIsEzoesEngineSwitch()
     {
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'tiptap', true, null, null, false ) );
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'ezoe', true, 'tiptap', null, false ) );
-        $this->assertSame( 'ezoe', expOETiptapEditor::choose( 'ezoe', true, null, 'tiptap', false ) );
+        $this->assertSame( 'enabled', eZINI::instance( 'ezoe.ini' )->variable( 'EditorSettings', 'EngineSwitch' ), 'shipped on, as the 0.1.0 switch was' );
+        $this->assertTrue( expOETiptapEditor::switchEnabled() );
+        $this->ezoe( 'EngineSwitch', 'disabled' );
+        $this->assertFalse( expOETiptapEditor::switchEnabled() );
+        $this->assertFalse( expOETiptapEditor::switchAllowed() );
+    }
+
+    public function testEzoeStaysTheDefault()
+    {
+        $this->assertSame( 'tinymce3', expOEEditor::configuredEngine() );
+        $this->assertSame( 'ezoe', expOETiptapEditor::defaultEditor() );
+        $this->ezoe( 'EditorEngine', 'tiptap' );
+        $this->assertSame( 'tiptap', expOEEditor::configuredEngine() );
+        $this->assertSame( 'tiptap', expOETiptapEditor::defaultEditor() );
+    }
+
+    public function testEditorOfEngine()
+    {
+        $this->assertSame( 'tiptap', expOETiptapEditor::editorOfEngine( 'tiptap' ) );
+        $this->assertSame( 'ezoe', expOETiptapEditor::editorOfEngine( 'tinymce3' ) );
+        $this->assertSame( 'ezoe', expOETiptapEditor::editorOfEngine( 'tinymce8' ) );
+        $this->assertSame( 'ezoe', expOETiptapEditor::editorOfEngine( null ) );
+    }
+
+    public function testEngineOfEditor()
+    {
+        $this->assertSame( 'tiptap', expOETiptapEditor::engineOfEditor( 'tiptap', 'tinymce3' ) );
+        $this->assertSame( '', expOETiptapEditor::engineOfEditor( 'ezoe', 'tinymce8' ), 'ezoe = the site TinyMCE' );
+        $this->assertSame( 'tinymce3', expOETiptapEditor::engineOfEditor( 'ezoe', 'tiptap' ), 'ezoe on a Tiptap site = TinyMCE 3' );
+        $this->assertSame( '', expOETiptapEditor::engineOfEditor( '', 'tiptap' ) );
+        $this->assertNull( expOETiptapEditor::engineOfEditor( 'ckeditor', 'tinymce3' ) );
+        $this->assertNull( expOETiptapEditor::engineOfEditor( 'TIPTAP', 'tinymce3' ) );
+    }
+
+    public function testTheOldTiptapPreferenceKeepsTiptap()
+    {
+        $this->assertSame( 'tiptap', expOETiptapEditor::migratedEngine( 'tiptap', false, 'tinymce3' ) );
+        $this->assertSame( 'tiptap', expOETiptapEditor::migratedEngine( 'tiptap', '', 'tinymce3' ) );
+        // in 0.1.0 exp_oe_editor=tiptap won over ezoe's own preference
+        $this->assertSame( 'tiptap', expOETiptapEditor::migratedEngine( 'tiptap', 'tinymce8', 'tinymce3' ) );
+        $this->assertNull( expOETiptapEditor::migratedEngine( 'tiptap', 'tiptap', 'tinymce3' ), 'nothing to write' );
+    }
+
+    public function testTheOldEzoePreferenceKeepsEzoesChoice()
+    {
+        $this->assertNull( expOETiptapEditor::migratedEngine( 'ezoe', false, 'tinymce3' ), 'the site default' );
+        $this->assertNull( expOETiptapEditor::migratedEngine( 'ezoe', 'tinymce8', 'tinymce3' ) );
+        $this->assertSame( 'tinymce3', expOETiptapEditor::migratedEngine( 'ezoe', false, 'tiptap' ), 'TinyMCE stays TinyMCE on a Tiptap site' );
+    }
+
+    public function testNoOrUnknownOldPreferenceMigratesNothing()
+    {
+        $this->assertNull( expOETiptapEditor::migratedEngine( false, false, 'tinymce3' ) );
+        $this->assertNull( expOETiptapEditor::migratedEngine( '', 'tinymce8', 'tinymce3' ) );
+        $this->assertNull( expOETiptapEditor::migratedEngine( 'ckeditor', false, 'tinymce3' ) );
+    }
+
+    public function testTheSwitchButtonOfTiptapGoesToTheSiteTinyMCE()
+    {
+        $this->assertSame( 'tinymce8', expOETiptapEditor::switchTargetOf( array( 'tinymce3', 'tinymce8' ), 'tinymce8' ) );
+        $this->assertSame( 'tinymce3', expOETiptapEditor::switchTargetOf( array( 'tinymce3', 'tinymce8' ), 'tinymce3' ) );
+        $this->assertSame( 'tinymce3', expOETiptapEditor::switchTargetOf( array( 'tinymce3', 'tinymce8' ), 'tiptap' ) );
+        $this->assertSame( 'tinymce8', expOETiptapEditor::switchTargetOf( array( 'tinymce8' ), 'tiptap' ) );
+        $this->assertSame( 'tinymce3', expOETiptapEditor::switchTargetOf( array( 'tinymce3' ), 'gone' ) );
+        $this->assertNull( expOETiptapEditor::switchTargetOf( array(), 'tinymce3' ) );
+    }
+
+    public function testTheSwitchTargetComesFromTheRegistry()
+    {
+        $this->assertSame( 'tinymce3', expOETiptapEditor::switchTarget() );
+        $this->ezoe( 'EditorEngine', 'tinymce8' );
+        $this->assertSame( 'tinymce8', expOETiptapEditor::switchTarget() );
     }
 
     public function testShippedSettings()
     {
-        $this->assertSame( 'ezoe', expOETiptapEditor::defaultEditor() );
-        $this->assertTrue( expOETiptapEditor::switchEnabled() );
         $this->assertSame( array( 'exp_oe_tiptap/exp_oe_tiptap.js' ), expOETiptapEditor::scripts() );
         $this->assertSame( array( 'exp_oe_tiptap/exp_oe_tiptap.css' ), expOETiptapEditor::styles() );
         $this->assertSame( 'false', expOETiptapEditor::setting( 'AISettings', 'Enabled' ) );
         $this->assertSame( '', expOETiptapEditor::setting( 'AISettings', 'ApiKey' ), 'no API key in a committed file' );
         $this->assertContains( 'improve', expOETiptapEditor::aiCommands() );
+        $this->assertNull( expOETiptapEditor::setting( 'EditorSettings', 'DefaultEditor' ), 'the 0.1.0 default is ezoe.ini EditorEngine now' );
+        $this->assertNull( expOETiptapEditor::setting( 'EditorSettings', 'AllowSwitch' ), 'the 0.1.0 switch is ezoe.ini EngineSwitch now' );
     }
 
-    public function testSettingsAreRead()
+    public function testTheShippedEzoeIniOnlyAddsToTheList()
     {
-        $this->setting( 'EditorSettings', 'DefaultEditor', 'tiptap' );
-        $this->setting( 'EditorSettings', 'AllowSwitch', 'disabled' );
-        $this->assertSame( 'tiptap', expOETiptapEditor::defaultEditor() );
-        $this->assertFalse( expOETiptapEditor::switchEnabled() );
-        $this->assertFalse( expOETiptapEditor::switchAllowed(), 'no switch without the setting, whatever the policy' );
-
-        $this->setting( 'EditorSettings', 'DefaultEditor', 'nonsense' );
-        $this->assertSame( 'ezoe', expOETiptapEditor::defaultEditor() );
+        $source = (string) file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/settings/ezoe.ini.append.php' );
+        $this->assertStringContainsString( 'Engines[tiptap]=expOETiptapEngine', $source );
+        $this->assertDoesNotMatchRegularExpression( '/^Engines\[\]\s*$/m', $source, 'an empty Engines[] would drop ezoe\'s own engines' );
+        $this->assertDoesNotMatchRegularExpression( '/^EditorEngine=/m', $source, 'ezoe stays the default' );
     }
 
     public function testAiIsOffWhileTheSettingIsOff()
@@ -117,13 +217,5 @@ final class EditorChoiceTest extends TestCase
         $this->assertTrue( expOETiptapEditor::isEditor( 'ezoe' ) );
         $this->assertFalse( expOETiptapEditor::isEditor( 'TIPTAP' ) );
         $this->assertFalse( expOETiptapEditor::isEditor( null ) );
-    }
-
-    public function testRequestEditorOnlyTakesKnownEditors()
-    {
-        expOETiptapEditor::setRequestEditor( 'tiptap' );
-        $this->assertSame( 'tiptap', expOETiptapEditor::requestEditor() );
-        expOETiptapEditor::setRequestEditor( '<script>' );
-        $this->assertNull( expOETiptapEditor::requestEditor() );
     }
 }

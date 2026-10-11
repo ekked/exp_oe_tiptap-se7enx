@@ -840,4 +840,15 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>design/standard/ezoe</name>
+    <message>
+        <source>Tiptap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tiptap (ProseMirror), from the extension exp_oe_tiptap: the same text as the Online Editor, with its dialogs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>

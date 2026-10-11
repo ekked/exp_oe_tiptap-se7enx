@@ -1,12 +1,16 @@
 <?php
 /**
- * The ezxmltext input handler of exp_oe_tiptap: ezoe's eZOEXMLInput with one difference, the edit template.
+ * The ezxmltext input handler of exp_oe_tiptap: ezoe's eZOEXMLInput, kept for what 0.1.0 put in place.
  *
- * Registered in ezxml.ini [InputSettings] AliasClasses[eZSimplifiedXMLInput]=expOETiptapXMLInput. The edit template
- * ezxmltext_exp_oe_tiptap.tpl renders either ezoe's own ezxmltext_ezoe.tpl (TinyMCE, unchanged) or the Tiptap editor,
- * followed by the switch button. Everything else (inputXML(), validateInput() with eZOEInputParser, isValid(), the
- * ezoe policies, "Disable editor", ezoe's engine switch) is inherited unchanged, so both editors read and write the
- * same ezoe HTML and the same ezxml.
+ * Since 0.1.1 Tiptap is an engine of ezoe's registry (expOETiptapEngine) and the edit template is ezoe's own
+ * ezxmltext_ezoe.tpl, which includes the Tiptap editor when the user's engine is tiptap. This class is still the
+ * alias of eZSimplifiedXMLInput (ezxml.ini) for three things only:
+ *  - it moves the preference exp_oe_editor of 0.1.0 to ezoe's ezoe_engine before ezoe reads it (migratePreference())
+ *  - the custom action of the 0.1.0 switch button, CustomActionButton[<attribute id>_exp_oe_switch_<editor>], still
+ *    works and stores ezoe's preference
+ *  - the template attribute exp_oe_editor, for overrides written against 0.1.0
+ * Parsing and validation (inputXML(), validateInput() with eZOEInputParser, isValid()) are ezoe's, unchanged, and
+ * the extension works the same without this alias.
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -15,7 +19,7 @@
 
 class expOETiptapXMLInput extends eZOEXMLInput
 {
-    /** The prefix of the custom action of the switch button: CustomActionButton[<attribute id>_exp_oe_switch_<editor>] */
+    /** The prefix of the custom action of the 0.1.0 switch button: CustomActionButton[<attribute id>_exp_oe_switch_<editor>] */
     const SWITCH_ACTION = 'exp_oe_switch_';
 
     function attributes()
@@ -27,57 +31,20 @@ class expOETiptapXMLInput extends eZOEXMLInput
     {
         if ( $name === 'exp_oe_editor' )
             return self::editorInfo();
+        if ( $name === 'engine' || $name === 'engine_switch_choices' )
+            expOETiptapEditor::migratePreference();
         return parent::attribute( $name );
     }
 
-    /**
-     * What the edit template needs to know about the editor choice.
-     *
-     * @return array editor, label, other, other_label, can_switch, switch_action, tiptap_available, ai_enabled,
-     *               ai_commands, scripts, styles, asset_loading, cache_key, min_height, upload_extensions,
-     *               upload_from_url, i18n
-     */
+    /** @return array the settings of the Tiptap editor (see expOETiptapEditor::editorInfo()) */
     public static function editorInfo()
     {
-        $editor = expOETiptapEditor::resolve();
-        $other  = expOETiptapEditor::other( $editor );
-        return array(
-            'editor'           => $editor,
-            'label'            => ezpI18n::tr( 'extension/exp_oe_tiptap', expOETiptapEditor::label( $editor ) ),
-            'other'            => $other,
-            'other_label'      => ezpI18n::tr( 'extension/exp_oe_tiptap', expOETiptapEditor::label( $other ) ),
-            'can_switch'       => expOETiptapEditor::switchAllowed()
-                                  && ( $other !== expOETiptapEditor::TIPTAP || expOETiptapEditor::tiptapAvailable() ),
-            'switch_action'    => self::SWITCH_ACTION . $other,
-            'tiptap_available' => expOETiptapEditor::tiptapAvailable(),
-            'ai_enabled'       => expOETiptapEditor::aiAllowed(),
-            'ai_commands'      => expOETiptapEditor::aiCommands(),
-            'scripts'          => expOETiptapEditor::scripts(),
-            'styles'           => expOETiptapEditor::styles(),
-            'asset_loading'    => expOETiptapEditor::setting( 'EditorSettings', 'AssetLoading', 'ezdesign' ) === 'ezjscore' ? 'ezjscore' : 'ezdesign',
-            'cache_key'        => expOETiptapEditor::cacheKey(),
-            'min_height'       => (int) expOETiptapEditor::setting( 'EditorSettings', 'MinHeight', 300 ),
-            // the upload rules of ezoe's embed dialog (ezoe.ini [EditorSettings] UploadFileExtensions[], UploadFromUrl)
-            'upload_extensions' => class_exists( 'expOEEditor' ) ? expOEEditor::uploadExtensions() : array(),
-            'upload_from_url'   => class_exists( 'expOEUrlFetcher' ) ? (bool) expOEUrlFetcher::enabled() : false,
-            'i18n'              => expOETiptapEditor::translations(),
-        );
+        return expOETiptapEditor::editorInfo();
     }
 
     /**
-     * Always the exp_oe_tiptap template, which includes ezoe's ezxmltext_ezoe.tpl or the Tiptap editor.
-     *
-     * @param eZContentObjectAttribute $contentObjectAttribute
-     * @return string
-     */
-    function editTemplateSuffix( &$contentObjectAttribute )
-    {
-        return 'exp_oe_tiptap';
-    }
-
-    /**
-     * The switch button, then ezoe's own actions. content/edit has validated and stored the draft before it calls
-     * this (every CustomActionButton is a store action), so the text typed so far is kept, as with "Disable editor".
+     * The switch button of 0.1.0, then ezoe's own actions (its "Switch to the editor ..." buttons included).
+     * content/edit has validated and stored the draft before it calls this, so the text typed so far is kept.
      *
      * @param eZHTTPTool $http
      * @param string $action
@@ -91,14 +58,16 @@ class expOETiptapXMLInput extends eZOEXMLInput
             parent::customObjectAttributeHTTPAction( $http, $action, $contentObjectAttribute );
             return;
         }
-        if ( !expOETiptapEditor::setUserEditor( $editor ) )
-            eZDebug::writeError( 'Switching the online editor is not allowed or unknown: ' . $action, __METHOD__ );
+        if ( !expOETiptapEditor::switchAllowed() )
+            eZDebug::writeError( 'Switching the editor is disabled in ezoe.ini [EditorSettings] EngineSwitch', __METHOD__ );
+        else if ( !expOETiptapEditor::setUserEditor( $editor ) )
+            eZDebug::writeError( 'Unknown or unavailable editor in custom HTTP action: ' . $action, __METHOD__ );
     }
 
     /**
      * @param string $action a custom action name without the attribute id
      * @return string|null the editor a switch action asks for, '' for "back to the default", null when the action is
-     *                     not a switch action
+     *                     not a switch action of 0.1.0
      */
     public static function switchActionEditor( $action )
     {

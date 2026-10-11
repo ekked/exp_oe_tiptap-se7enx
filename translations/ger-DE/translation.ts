@@ -840,4 +840,15 @@
         <translation>ganzes Dokument</translation>
     </message>
 </context>
+<context>
+    <name>design/standard/ezoe</name>
+    <message>
+        <source>Tiptap</source>
+        <translation>Tiptap</translation>
+    </message>
+    <message>
+        <source>Tiptap (ProseMirror), from the extension exp_oe_tiptap: the same text as the Online Editor, with its dialogs.</source>
+        <translation>Tiptap (ProseMirror), aus der Erweiterung exp_oe_tiptap: derselbe Text wie im Online Editor, mit dessen Dialogen.</translation>
+    </message>
+</context>
 </TS>

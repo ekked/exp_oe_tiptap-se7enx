@@ -1,12 +1,16 @@
-{* The Tiptap editor of one ezxmltext attribute, included by ezxmltext_exp_oe_tiptap.tpl.
+{* The Tiptap editor of one ezxmltext attribute: the template of the ezoe engine "tiptap" (expOETiptapEngine),
+   included by ezoe's ezxmltext_ezoe.tpl when the user's engine is tiptap. Its settings are the engine's config
+   ($input_handler.engine.config, expOETiptapEditor::editorInfo()).
    The textarea holds the ezoe editor HTML ($input_handler.input_xml) and is posted back under the same name, so
    eZOEInputParser turns it into ezxml exactly as for TinyMCE. window.ExpOETiptap.init( textarea, options ) (the
    built bundle) replaces the textarea with the editor and writes the editor's HTML back into it before every submit.
+   Below it come ezoe's "Disable editor" and ezoe's engine switch buttons, the same as under TinyMCE.
    The options are described in doc/plan.md section 5. *}
 {default attribute_base='ContentObjectAttribute'
          editorRow=10}
 
-{def $layout_settings = $input_handler.editor_layout_settings}
+{def $exp_oe          = $input_handler.engine.config
+     $layout_settings = $input_handler.editor_layout_settings}
 
 {run-once}
 {* assets: once per page, whatever number of xml fields the form has *}
@@ -83,6 +87,9 @@ function expOETiptapStart( id, options )
     {if $input_handler.can_disable}
         <input class="button{if $layout_settings['buttons']|contains('disable')} hide{/if}" type="submit" name="{$disable_name}" value="{'Disable editor'|i18n( 'design/standard/content/datatype' )}" />
     {/if}
+    {* ezoe's engine switch: one button per other available engine, the one choice of editor (ezoe_engine) *}
+    {include uri='design:content/datatype/edit/ezxmltext_ezoe_engine_switch.tpl' attribute=$attribute input_handler=$input_handler}
+    <span class="exp-oe-switch-current">{'Editing with %editor'|i18n( 'extension/exp_oe_tiptap',, hash( '%editor', $exp_oe.label ) )|wash}</span>
 </div>
 
 <script type="text/javascript">
@@ -117,7 +124,7 @@ expOETiptapStart( '{$editor_id}', {ldelim}
         ezoe: {'/ezoe/'|ezurl},
         ezjscore: {'/ezjscore/'|ezurl},
         contentEdit: {'/content/edit'|ezurl},
-        'switch': {'/exp_oe_tiptap/switch'|ezurl}
+        'switch': {'/ezoe/engine'|ezurl}
     {rdelim},
     formToken: "@$ezxFormToken@",
     switchButtonName: {json_encode( $switch_name )},
@@ -134,5 +141,5 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     locale: {json_encode( $cur_locale.http_locale_code )}
 {rdelim} );
 </script>
-{undef $layout_settings $content_css_list $skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $editor_id $switch_name $disable_name}
+{undef $exp_oe $layout_settings $content_css_list $skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $editor_id $switch_name $disable_name}
 {/default}

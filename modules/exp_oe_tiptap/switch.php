@@ -1,13 +1,13 @@
 <?php
 /**
- * exp_oe_tiptap/switch: stores the online editor of the current user (user preference exp_oe_editor) and redirects
- * back. POST only, with the form token of the session (field ezxform_token or header X-CSRF-Token), checked here in
- * addition to ezformtoken's own check of every POST. RedirectURI must be a path on this site.
+ * exp_oe_tiptap/switch: the switch of 0.1.0, kept for links and forms that post to it. It stores the choice where
+ * every editor choice is stored now, ezoe's user preference ezoe_engine (Editor=tiptap, ezoe, or empty for the site
+ * default), and redirects to RedirectURI. POST only, with the form token of the session (field ezxform_token or
+ * header X-CSRF-Token), checked here in addition to ezformtoken's own check of every POST. RedirectURI must be a
+ * path on this site.
  *
- * This view cannot store an open draft (it is a request of its own); the edit form switches with the custom action
- * button CustomActionButton[<attribute id>_exp_oe_switch_<editor>] instead, which content/edit stores first.
- *
- * Without a valid POST it shows a small form with the current choice.
+ * Without a POST, or without a RedirectURI, it goes to ezoe's page ezoe/engine, the one page that lists and chooses
+ * the editors.
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -15,8 +15,6 @@
  */
 
 $Module = $Params['Module'];
-$http   = eZHTTPTool::instance();
-$error  = false;
 
 if ( $Module->isCurrentAction( 'Switch' ) )
 {
@@ -31,23 +29,9 @@ if ( $Module->isCurrentAction( 'Switch' ) )
         return $Module->handleError( eZError::KERNEL_ACCESS_DENIED, 'kernel' );
     }
     if ( !expOETiptapEditor::setUserEditor( $editor ) )
-        $error = true;
+        eZDebug::writeWarning( 'Online editor switch: unknown or unavailable editor ' . $editor, 'exp_oe_tiptap/switch' );
     else if ( $redirect !== '' )
         return $Module->redirectTo( $redirect );
 }
 
-$preference = eZPreferences::value( expOETiptapEditor::PREFERENCE );
-$tpl = eZTemplate::factory();
-$tpl->setVariable( 'editors', array( expOETiptapEditor::EZOE   => ezpI18n::tr( 'extension/exp_oe_tiptap', expOETiptapEditor::label( expOETiptapEditor::EZOE ) ),
-                                     expOETiptapEditor::TIPTAP => ezpI18n::tr( 'extension/exp_oe_tiptap', expOETiptapEditor::label( expOETiptapEditor::TIPTAP ) ) ) );
-$tpl->setVariable( 'preference', is_string( $preference ) ? $preference : '' );
-$tpl->setVariable( 'resolved', expOETiptapEditor::resolve() );
-$tpl->setVariable( 'default_editor', expOETiptapEditor::defaultEditor() );
-$tpl->setVariable( 'tiptap_available', expOETiptapEditor::tiptapAvailable() );
-$tpl->setVariable( 'switch_enabled', expOETiptapEditor::switchEnabled() );
-$tpl->setVariable( 'saved', $Module->isCurrentAction( 'Switch' ) && !$error );
-$tpl->setVariable( 'error', $error );
-
-$Result = array();
-$Result['content'] = $tpl->fetch( 'design:exp_oe_tiptap/switch.tpl' );
-$Result['path'] = array( array( 'url' => false, 'text' => ezpI18n::tr( 'extension/exp_oe_tiptap', 'Online editor' ) ) );
+return $Module->redirectTo( '/ezoe/engine' );

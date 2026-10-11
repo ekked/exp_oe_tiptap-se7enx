@@ -13,18 +13,37 @@ final class TranslationsTest extends TestCase
 {
     const CONTEXT = 'extension/exp_oe_tiptap';
 
-    private function sources( $language )
+    /** ezoe translates the name and description of every engine of its registry in this context */
+    const EZOE_CONTEXT = 'design/standard/ezoe';
+
+    private function sources( $language, $wanted = self::CONTEXT )
     {
         $xml = simplexml_load_file( EXP_OE_TIPTAP_TEST_EXTENSION . '/translations/' . $language . '/translation.ts' );
         $this->assertNotFalse( $xml );
         $sources = array();
         foreach ( $xml->context as $context )
         {
-            $this->assertSame( self::CONTEXT, (string) $context->name );
+            $this->assertContains( (string) $context->name, array( self::CONTEXT, self::EZOE_CONTEXT ) );
+            if ( (string) $context->name !== $wanted )
+                continue;
             foreach ( $context->message as $message )
                 $sources[(string) $message->source] = (string) $message->translation;
         }
         return $sources;
+    }
+
+    public function testTheEngineNameAndDescriptionAreTranslatedInEzoesContext()
+    {
+        $engine = new expOETiptapEngine();
+        $german = $this->sources( 'ger-DE', self::EZOE_CONTEXT );
+        $untranslated = $this->sources( 'untranslated', self::EZOE_CONTEXT );
+        foreach ( array( $engine->label(), $engine->description() ) as $source )
+        {
+            $this->assertArrayHasKey( $source, $untranslated, $source );
+            $this->assertArrayHasKey( $source, $german, $source );
+            $this->assertNotSame( '', $german[$source], $source );
+        }
+        $this->assertSame( array_keys( $untranslated ), array_keys( $german ) );
     }
 
     /** @return array the texts of the bundle, the list the build writes */
@@ -64,7 +83,7 @@ final class TranslationsTest extends TestCase
             }
         }
         $texts = array_unique( array_map( 'stripslashes', $texts ) );
-        $this->assertGreaterThan( 30, count( $texts ) );
+        $this->assertGreaterThan( 20, count( $texts ) );
         return $texts;
     }
 

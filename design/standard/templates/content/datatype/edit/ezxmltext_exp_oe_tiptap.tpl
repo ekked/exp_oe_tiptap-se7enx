@@ -1,32 +1,12 @@
-{* exp_oe_tiptap: the edit template of ezxmltext (expOETiptapXMLInput::editTemplateSuffix()). Renders the editor the
-   user edits with (expOETiptapEditor::resolve(): switch of this request > preference exp_oe_editor > DefaultEditor):
-   ezoe's own template, unchanged, or the Tiptap editor. The switch button follows; ezoe's "Disable editor" and its
-   own engine switch stay where ezoe puts them. *}
+{* exp_oe_tiptap 0.1.0 rendered ezxmltext through this template. Since 0.1.1 Tiptap is an engine of ezoe's registry
+   and ezoe's ezxmltext_ezoe.tpl renders every editor, Tiptap included (ezxmltext_exp_oe_tiptap_editor.tpl). This file
+   stays for templates and overrides that include it by name, and only passes on to ezoe's template. *}
 {default input_handler=$attribute.content.input
          attribute_base='ContentObjectAttribute'
          editorRow=10}
-{if gt( $attribute.contentclass_attribute.data_int1, 1 )}
-    {set editorRow=$attribute.contentclass_attribute.data_int1}
-{/if}
-{def $exp_oe = $input_handler.exp_oe_editor}
-
-{if and( $input_handler.is_editor_enabled, eq( $exp_oe.editor, 'tiptap' ) )}
-    {include uri='design:content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl'
-             attribute=$attribute
-             input_handler=$input_handler
-             attribute_base=$attribute_base
-             editorRow=$editorRow
-             exp_oe=$exp_oe}
-{else}
-    {include uri='design:content/datatype/edit/ezxmltext_ezoe.tpl'
-             attribute=$attribute
-             input_handler=$input_handler
-             attribute_base=$attribute_base
-             editorRow=$editorRow}
-{/if}
-
-{if and( $input_handler.is_editor_enabled, $exp_oe.can_switch )}
-    {include uri='design:content/datatype/edit/ezxmltext_exp_oe_tiptap_switch.tpl' attribute=$attribute exp_oe=$exp_oe}
-{/if}
-{undef $exp_oe}
+{include uri='design:content/datatype/edit/ezxmltext_ezoe.tpl'
+         attribute=$attribute
+         input_handler=$input_handler
+         attribute_base=$attribute_base
+         editorRow=$editorRow}
 {/default}

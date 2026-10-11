@@ -31,16 +31,17 @@ final class InputHandlerTest extends TestCase
                 $own[] = $method->getName();
         }
         sort( $own );
-        $this->assertSame( array( 'attribute', 'attributes', 'customObjectAttributeHTTPAction', 'editTemplateSuffix', 'editorInfo', 'switchActionEditor' ), $own );
+        $this->assertSame( array( 'attribute', 'attributes', 'customObjectAttributeHTTPAction', 'editorInfo', 'switchActionEditor' ), $own );
         foreach ( array( 'validateInput', 'inputXML', 'isValid', 'convertInput' ) as $inherited )
             $this->assertNotContains( $inherited, $own );
     }
 
-    public function testEditTemplate()
+    public function testEditTemplateIsEzoes()
     {
+        // since 0.1.1 ezoe's ezxmltext_ezoe.tpl renders every engine, Tiptap included
         $handler = ( new ReflectionClass( 'expOETiptapXMLInput' ) )->newInstanceWithoutConstructor();
         $attribute = null;
-        $this->assertSame( 'exp_oe_tiptap', $handler->editTemplateSuffix( $attribute ) );
+        $this->assertSame( 'ezoe', $handler->editTemplateSuffix( $attribute ) );
         $this->assertTrue( is_file( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap.tpl' ) );
         $this->assertTrue( is_file( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' ) );
     }
@@ -61,11 +62,28 @@ final class InputHandlerTest extends TestCase
         $this->assertSame( 'expOETiptapXMLInput', $aliases['eZSimplifiedXMLInput'] );
     }
 
-    public function testTheEzoeTemplateIsIncludedForEzoe()
+    public function testTheOldTemplateNamePassesOnToEzoe()
     {
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap.tpl' );
         $this->assertStringContainsString( "design:content/datatype/edit/ezxmltext_ezoe.tpl", $tpl );
-        $this->assertStringContainsString( "design:content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl", $tpl );
+        $this->assertStringNotContainsString( "{include uri='design:content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl'", $tpl, 'ezoe picks the engine' );
+    }
+
+    public function testTheTiptapEditorHasEzoesSwitchButtonsAndItsLabel()
+    {
+        $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
+        $this->assertStringContainsString( '$input_handler.engine.config', $tpl, 'the settings are the engine config' );
+        $this->assertStringContainsString( "design:content/datatype/edit/ezxmltext_ezoe_engine_switch.tpl", $tpl );
+        $this->assertStringContainsString( "'Editing with %editor'|i18n( 'extension/exp_oe_tiptap'", $tpl );
+        $this->assertFalse( is_file( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_switch.tpl' ),
+                            'one set of switch buttons: ezoe\'s' );
+    }
+
+    public function testTheOldSwitchButtonMapsOntoEzoesChoice()
+    {
+        $this->assertSame( 'switch_engine_tinymce3', 'switch_engine_' . expOETiptapEditor::switchTarget() );
+        $source = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/expoetiptapeditor.php' );
+        $this->assertStringContainsString( 'expOEEditor::setUserEngine( $engine )', $source );
     }
 
     public function testTheTiptapTemplatePostsTheSameField()

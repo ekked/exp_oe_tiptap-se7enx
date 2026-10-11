@@ -90,6 +90,21 @@ final class SwitchViewTest extends TestCase
         $this->assertStringContainsString( 'expOETiptapEditor::localRedirect(', $source );
     }
 
+    public function testTheViewStoresEzoesChoiceAndOtherwiseGoesToEzoesPage()
+    {
+        $source = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/modules/exp_oe_tiptap/switch.php' );
+        $this->assertStringContainsString( "return \$Module->redirectTo( '/ezoe/engine' );", $source );
+        $this->assertStringNotContainsString( 'eZPreferences::setValue', $source, 'stored by expOETiptapEditor, as ezoe_engine' );
+        $this->assertFalse( is_file( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/exp_oe_tiptap/switch.tpl' ), 'one page: ezoe/engine' );
+    }
+
+    public function testEditorsMapOntoOneStoredChoice()
+    {
+        $source = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/expoetiptapeditor.php' );
+        $this->assertSame( 1, substr_count( $source, 'expOEEditor::setUserEngine(' ), 'every switch ends in ezoe\'s setUserEngine()' );
+        $this->assertStringNotContainsString( 'eZPreferences::setValue( self::PREFERENCE, $editor', $source, 'exp_oe_editor is never written with a choice' );
+    }
+
     public function testTheViewNeedsTheSwitchPolicy()
     {
         $Module = null;

@@ -6,14 +6,11 @@
 # settings/override/exp_oe_tiptap.ini.append.php (never committed).
 
 [EditorSettings]
-# The editor of ezxmltext fields for users without a preference of their own: ezoe or tiptap.
-# tiptap falls back to ezoe while the built bundle (Scripts[], first entry) is missing.
-DefaultEditor=ezoe
-
-# enabled: editors with the policy exp_oe_tiptap/switch get a button below the editor to switch to the
-# other editor; their choice is stored as the user preference exp_oe_editor and the draft is stored first.
-# disabled: everybody gets DefaultEditor, stored preferences are ignored.
-AllowSwitch=enabled
+# Which editor a user gets is ezoe's choice since 0.1.1: Tiptap is the engine "tiptap" of ezoe's registry
+# (settings/ezoe.ini.append.php). The site default is ezoe.ini [EditorSettings] EditorEngine (EditorEngine=tiptap
+# makes Tiptap the default), the switch buttons are ezoe.ini EngineSwitch, a user's own choice is the preference
+# ezoe_engine (page ezoe/engine). DefaultEditor and AllowSwitch of 0.1.0 are no longer read.
+# Tiptap is only offered while the built bundle (Scripts[], first entry) is present.
 
 # How the bundle is put on the page.
 # ezdesign: script and link tags pointing at the built files, cache-busted by their file time

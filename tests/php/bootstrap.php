@@ -7,7 +7,7 @@
  * extension is installed in, two levels up) and this extension's own classes ahead of any installed copy, so the
  * tests run whether or not the extension is active. ezoe's classes come from the root's autoload (ezoe is active
  * wherever this extension can run). Nothing is booted: no database, no siteaccess, no session. Settings come from
- * the root's settings/ and this extension's settings/ only, never from settings/override or a siteaccess; the INI
+ * the root's settings/, ezoe's settings/ and this extension's settings/ only, never from settings/override or a siteaccess; the INI
  * cache and the log files are off.
  *
  * Usable from the root's phpunit (php vendor/bin/phpunit extension/exp_oe_tiptap/tests/php/<File>Test.php) and with
@@ -58,7 +58,10 @@ eZINI::setIsCacheEnabled( false );
 eZINI::instance()->setOverrideDirs( array(
     'sa-extension' => array(),
     'siteaccess' => array(),
-    'extension' => array( 'exp_oe_tiptap' => array( $extension . '/settings', true ) ),
+    // ezoe's settings first (its engine registry), then this extension's, in the order extension.xml <extends> gives
+    'extension' => array_merge(
+        is_dir( $root . '/extension/ezoe/settings' ) ? array( 'ezoe' => array( $root . '/extension/ezoe/settings', true ) ) : array(),
+        array( 'exp_oe_tiptap' => array( $extension . '/settings', true ) ) ),
     'override' => array(),
 ) );
 eZINI::resetAllInstances( false );

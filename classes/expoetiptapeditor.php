@@ -1,13 +1,19 @@
 <?php
 /**
- * Which online editor an ezxmltext field is edited with: ezoe (TinyMCE) or tiptap, and the switch between them.
+ * Tiptap as an engine of ezoe's editor registry, and what the edit template needs to know about it.
  *
- *  - resolve():       the editor of the current user and request
- *                     (per-request choice > user preference exp_oe_editor > [EditorSettings] DefaultEditor)
- *  - choose():        the same decision as a pure function, for tests and callers that know every input
- *  - setUserEditor(): stores the preference (the switch) and the per-request choice
- *  - tokenValid():    the form token check of the switch view
- *  - localRedirect(): the RedirectURI of the switch view, limited to a path on this site
+ * There is ONE choice of editor: ezoe's (ezoe.ini [EditorSettings] Engines[], EditorEngine, EngineSwitch, the user
+ * preference ezoe_engine and the page ezoe/engine). This extension registers Tiptap there as the engine "tiptap"
+ * (settings/ezoe.ini.append.php, class expOETiptapEngine); this class only translates between that choice and the
+ * two editors this extension knows, ezoe (TinyMCE, whatever version the site runs) and tiptap.
+ *
+ *  - resolve():          the editor of the current user (tiptap when ezoe's registry resolves to the engine tiptap)
+ *  - setUserEditor():    the switch of 0.1.0 (button exp_oe_switch_<editor>, view exp_oe_tiptap/switch), stored as
+ *                        ezoe's preference ezoe_engine
+ *  - migratePreference(): moves the preference exp_oe_editor of 0.1.0 to ezoe_engine, once per user
+ *  - editorInfo():       the settings of the Tiptap editor for the edit template (the engine's config)
+ *  - tokenValid():       the form token check of the switch view
+ *  - localRedirect():    the RedirectURI of the switch view, limited to a path on this site
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -18,11 +24,18 @@ class expOETiptapEditor
 {
     const EZOE = 'ezoe';
     const TIPTAP = 'tiptap';
+    /** The identifier of Tiptap in ezoe's engine registry */
+    const ENGINE = 'tiptap';
+    /** ezoe's built-in engine, chosen when "ezoe" is asked for on a site whose default engine is Tiptap */
+    const EZOE_DEFAULT_ENGINE = 'tinymce3';
+    /** The user preference of 0.1.0, read once and moved to ezoe's preference ezoe_engine (migratePreference()) */
     const PREFERENCE = 'exp_oe_editor';
+    /** ezoe's user preference, the one choice of editor */
+    const ENGINE_PREFERENCE = 'ezoe_engine';
     const INI_FILE = 'exp_oe_tiptap.ini';
 
-    /** @var string|null the editor chosen in this request (by the switch action), null when none */
-    protected static $requestEditor = null;
+    /** @var bool whether migratePreference() ran in this request */
+    protected static $migrated = false;
 
     /** @var array|null cache of policy checks: function => bool */
     protected static $access = null;
@@ -39,41 +52,99 @@ class expOETiptapEditor
         return is_string( $id ) && in_array( $id, self::editors(), true );
     }
 
-    /** Forgets the per-request choice and the access cache (tests, long-running processes such as Velocity). */
+    /** Forgets the migration flag and the access cache (tests, long-running processes such as Velocity). */
     public static function reset()
     {
-        self::$requestEditor = null;
+        self::$migrated = false;
         self::$access = null;
     }
 
-    /**
-     * The decision itself, without reading anything.
-     *
-     * @param string      $default         [EditorSettings] DefaultEditor
-     * @param bool        $allowSwitch     [EditorSettings] AllowSwitch=enabled and the user has exp_oe_tiptap/switch
-     * @param string|null $preference      the user preference exp_oe_editor
-     * @param string|null $requestEditor   the per-request choice of the switch action
-     * @param bool        $tiptapAvailable whether the built bundle is present
-     * @return string ezoe or tiptap
-     */
-    public static function choose( $default, $allowSwitch, $preference, $requestEditor, $tiptapAvailable )
+    /** @return bool whether ezoe's engine registry is installed (ezoe 6.0.15 or later) */
+    public static function hasRegistry()
     {
-        $editor = self::isEditor( $default ) ? $default : self::EZOE;
-        if ( $allowSwitch && self::isEditor( $preference ) )
-            $editor = $preference;
-        if ( $allowSwitch && self::isEditor( $requestEditor ) )
-            $editor = $requestEditor;
-        if ( $editor === self::TIPTAP && !$tiptapAvailable )
-            $editor = self::EZOE;
-        return $editor;
+        return class_exists( 'expOEEditor' );
     }
 
-    /** @return string the editor of the current user in this request */
+    /**
+     * The editor of an engine of ezoe's registry.
+     *
+     * @param mixed $engine an engine identifier
+     * @return string tiptap for the engine tiptap, ezoe for every other engine
+     */
+    public static function editorOfEngine( $engine )
+    {
+        return $engine === self::ENGINE ? self::TIPTAP : self::EZOE;
+    }
+
+    /**
+     * The value of ezoe's preference ezoe_engine that stands for an editor of this extension.
+     *
+     * @param string $editor     ezoe, tiptap, or '' for the site default
+     * @param string $configured the engine the site configures (ezoe.ini [EditorSettings] EditorEngine)
+     * @return string|null the preference value ('' = the site default), null when the editor is unknown
+     */
+    public static function engineOfEditor( $editor, $configured )
+    {
+        if ( $editor === '' )
+            return '';
+        if ( $editor === self::TIPTAP )
+            return self::ENGINE;
+        if ( $editor === self::EZOE )
+            // the site's own TinyMCE, unless the site default is Tiptap itself
+            return $configured === self::ENGINE ? self::EZOE_DEFAULT_ENGINE : '';
+        return null;
+    }
+
+    /**
+     * What the preference exp_oe_editor of 0.1.0 becomes.
+     *
+     * @param mixed  $legacy     the value of exp_oe_editor (false when the user has none)
+     * @param mixed  $current    the value of ezoe_engine (false when the user has none)
+     * @param string $configured the engine the site configures
+     * The user keeps the editor 0.1.0 showed: there exp_oe_editor=tiptap won over any ezoe_engine, and
+     * exp_oe_editor=ezoe showed whatever ezoe_engine chose.
+     *
+     * @return string|null the value to store as ezoe_engine, null when nothing is stored (no legacy value, ezoe with
+     *                     an engine chosen in ezoe already, or ezoe meaning the site default)
+     */
+    public static function migratedEngine( $legacy, $current, $configured )
+    {
+        if ( !self::isEditor( $legacy ) )
+            return null;
+        if ( $legacy === self::TIPTAP )
+            return $current === self::ENGINE ? null : self::ENGINE;
+        if ( is_string( $current ) && $current !== '' )
+            return null;
+        $engine = self::engineOfEditor( $legacy, $configured );
+        return $engine === '' ? null : $engine;
+    }
+
+    /**
+     * The engine the switch button of the Tiptap editor goes to: the site's configured engine when that is not
+     * Tiptap, else ezoe's built-in engine, else the first other engine.
+     *
+     * @param array  $choices    identifiers of the other available engines, in registry order
+     * @param string $configured the engine the site configures
+     * @return string|null null when there is no other engine
+     */
+    public static function switchTargetOf( array $choices, $configured )
+    {
+        if ( !$choices )
+            return null;
+        if ( $configured !== self::ENGINE && in_array( $configured, $choices, true ) )
+            return $configured;
+        if ( in_array( self::EZOE_DEFAULT_ENGINE, $choices, true ) )
+            return self::EZOE_DEFAULT_ENGINE;
+        return reset( $choices );
+    }
+
+    /** @return string the editor of the current user: tiptap when ezoe's registry resolves to the engine tiptap */
     public static function resolve()
     {
-        $preference = eZPreferences::value( self::PREFERENCE );
-        return self::choose( self::defaultEditor(), self::switchAllowed(), is_string( $preference ) ? $preference : null,
-                             self::$requestEditor, self::tiptapAvailable() );
+        if ( !self::hasRegistry() )
+            return self::EZOE;
+        self::migratePreference();
+        return self::editorOfEngine( expOEEditor::resolve() );
     }
 
     /** @return string the other editor than $editor */
@@ -88,23 +159,83 @@ class expOETiptapEditor
         return $editor === self::TIPTAP ? 'Tiptap' : 'Online Editor (TinyMCE)';
     }
 
-    /** @return string [EditorSettings] DefaultEditor, ezoe when it names no editor */
+    /** @return string the editor of users without a choice: tiptap when ezoe.ini [EditorSettings] EditorEngine=tiptap */
     public static function defaultEditor()
     {
-        $value = self::setting( 'EditorSettings', 'DefaultEditor', self::EZOE );
-        return self::isEditor( $value ) ? $value : self::EZOE;
+        return self::hasRegistry() ? self::editorOfEngine( expOEEditor::configuredEngine() ) : self::EZOE;
     }
 
-    /** @return bool [EditorSettings] AllowSwitch=enabled */
+    /** @return bool whether editors may switch in the edit form: ezoe.ini [EditorSettings] EngineSwitch=enabled */
     public static function switchEnabled()
     {
-        return self::setting( 'EditorSettings', 'AllowSwitch', 'enabled' ) === 'enabled';
+        return self::hasRegistry() && expOEEditor::switchEnabled();
     }
 
-    /** @return bool whether the current user may switch: the setting and the policy exp_oe_tiptap/switch */
+    /**
+     * @return bool whether the current user may switch: ezoe's EngineSwitch. The policy exp_oe_tiptap/switch of 0.1.0
+     *              guards only the view exp_oe_tiptap/switch now; the edit form follows ezoe.
+     */
     public static function switchAllowed()
     {
-        return self::switchEnabled() && self::currentUserHasAccess( 'switch' );
+        return self::switchEnabled();
+    }
+
+    /** @return string|null the engine the Tiptap editor's switch button goes to, null when there is none */
+    public static function switchTarget()
+    {
+        if ( !self::hasRegistry() )
+            return null;
+        $choices = array();
+        foreach ( expOEEditor::switchChoices( self::ENGINE ) as $choice )
+            $choices[] = $choice['identifier'];
+        return self::switchTargetOf( $choices, expOEEditor::configuredEngine() );
+    }
+
+    /**
+     * What the Tiptap editor template needs (the config of the engine tiptap, $input_handler.engine.config).
+     *
+     * @return array editor, label, other, other_label, can_switch, switch_action, tiptap_available, ai_enabled,
+     *               ai_commands, scripts, styles, asset_loading, cache_key, min_height, upload_extensions,
+     *               upload_from_url, i18n
+     */
+    public static function editorInfo()
+    {
+        $editor = self::resolve();
+        $target = self::switchEnabled() ? self::switchTarget() : null;
+        $labels = self::hasRegistry() ? expOEEditor::labels() : array();
+        if ( $editor === self::TIPTAP )
+        {
+            $other = $target === null ? self::EZOE : self::editorOfEngine( $target );
+            $otherLabel = $target !== null && isset( $labels[$target] ) ? $labels[$target] : ezpI18n::tr( 'extension/exp_oe_tiptap', self::label( $other ) );
+            $action = $target === null ? '' : 'switch_engine_' . $target;
+        }
+        else
+        {
+            $other = self::TIPTAP;
+            $otherLabel = ezpI18n::tr( 'extension/exp_oe_tiptap', self::label( self::TIPTAP ) );
+            $action = 'switch_engine_' . self::ENGINE;
+        }
+        return array(
+            'editor'           => $editor,
+            'label'            => ezpI18n::tr( 'extension/exp_oe_tiptap', self::label( $editor ) ),
+            'other'            => $other,
+            'other_label'      => $otherLabel,
+            'can_switch'       => self::switchAllowed() && $action !== ''
+                                  && ( $other !== self::TIPTAP || self::tiptapAvailable() ),
+            'switch_action'    => $action,
+            'tiptap_available' => self::tiptapAvailable(),
+            'ai_enabled'       => self::aiAllowed(),
+            'ai_commands'      => self::aiCommands(),
+            'scripts'          => self::scripts(),
+            'styles'           => self::styles(),
+            'asset_loading'    => self::setting( 'EditorSettings', 'AssetLoading', 'ezdesign' ) === 'ezjscore' ? 'ezjscore' : 'ezdesign',
+            'cache_key'        => self::cacheKey(),
+            'min_height'       => (int) self::setting( 'EditorSettings', 'MinHeight', 300 ),
+            // the upload rules of ezoe's embed dialog (ezoe.ini [EditorSettings] UploadFileExtensions[], UploadFromUrl)
+            'upload_extensions' => self::hasRegistry() ? expOEEditor::uploadExtensions() : array(),
+            'upload_from_url'   => class_exists( 'expOEUrlFetcher' ) ? (bool) expOEUrlFetcher::enabled() : false,
+            'i18n'              => self::translations(),
+        );
     }
 
     /** @return bool whether the current user may use the AI commands: [AISettings] Enabled and exp_oe_tiptap/ai */
@@ -199,41 +330,55 @@ class expOETiptapEditor
     }
 
     /**
-     * Stores the editor of the current user (the preference exp_oe_editor) and makes it the editor of this request.
+     * Stores the editor of the current user as ezoe's preference ezoe_engine (the switch of 0.1.0: the button
+     * exp_oe_switch_<editor> and the view exp_oe_tiptap/switch end here, so there is one choice).
      *
-     * @param string $editor ezoe, tiptap, or '' to go back to DefaultEditor
-     * @return bool false when the editor is unknown or the user may not switch
+     * @param string $editor ezoe, tiptap, or '' to go back to the site default
+     * @return bool false when the editor is unknown or Tiptap is not available
      */
     public static function setUserEditor( $editor )
     {
-        if ( $editor !== '' && !self::isEditor( $editor ) )
+        if ( !self::hasRegistry() || !is_string( $editor ) )
             return false;
-        if ( !self::switchAllowed() )
+        $engine = self::engineOfEditor( $editor, expOEEditor::configuredEngine() );
+        if ( $engine === null )
             return false;
-        $before = self::resolve();
-        eZPreferences::setValue( self::PREFERENCE, $editor );
-        self::$requestEditor = $editor === '' ? null : $editor;
-        if ( class_exists( 'expAudit' ) )
-        {
-            expAudit::event( 'content.exp_oe_tiptap.editor.change', array(
-                'object' => array( 'type' => 'user', 'id' => (int) eZUser::currentUserID() ),
-                'before' => array( 'editor' => $before ),
-                'after'  => array( 'editor' => self::resolve() ),
-                'result' => 'success' ) );
-        }
+        if ( $engine !== '' && !expOEEditor::hasEngine( $engine ) )
+            return false;
+        if ( !expOEEditor::setUserEngine( $engine ) )
+            return false;
+        self::forgetLegacyPreference();
         return true;
     }
 
-    /** Sets the editor of this request only (nothing stored). Null clears it. */
-    public static function setRequestEditor( $editor )
+    /**
+     * Moves the preference exp_oe_editor of 0.1.0 to ezoe's ezoe_engine for the current user, once: tiptap becomes
+     * ezoe_engine=tiptap (unless the user chose in ezoe already), ezoe means the site default, and the old
+     * preference is emptied. Runs at most once per request; bin/php/migrate_editor_preference.php moves every user.
+     *
+     * @return bool whether something was moved
+     */
+    public static function migratePreference()
     {
-        self::$requestEditor = self::isEditor( $editor ) ? $editor : null;
+        if ( self::$migrated || !self::hasRegistry() )
+            return false;
+        self::$migrated = true;
+        $legacy = eZPreferences::value( self::PREFERENCE );
+        if ( !is_string( $legacy ) || $legacy === '' )
+            return false;
+        $engine = self::migratedEngine( $legacy, eZPreferences::value( self::ENGINE_PREFERENCE ), expOEEditor::configuredEngine() );
+        if ( $engine !== null )
+            eZPreferences::setValue( self::ENGINE_PREFERENCE, $engine );
+        self::forgetLegacyPreference();
+        return $engine !== null;
     }
 
-    /** @return string|null */
-    public static function requestEditor()
+    /** Empties the preference exp_oe_editor of the current user, when there is one. */
+    protected static function forgetLegacyPreference()
     {
-        return self::$requestEditor;
+        $legacy = eZPreferences::value( self::PREFERENCE );
+        if ( is_string( $legacy ) && $legacy !== '' )
+            eZPreferences::setValue( self::PREFERENCE, '' );
     }
 
     /**
