@@ -15,10 +15,11 @@ Velocity.
 
 ### [EditorSettings]
 
+Which editor a user gets is not set here since 0.1.1: Tiptap is an engine of ezoe's registry and follows ezoe's
+settings (see [ezoe.ini](#ezoeini) below). `DefaultEditor` and `AllowSwitch` of 0.1.0 are no longer read.
+
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `DefaultEditor` | `ezoe` | The editor of users without a preference of their own: `ezoe` or `tiptap`. Any other value means `ezoe`. `tiptap` falls back to `ezoe` while the bundle is missing. Per siteaccess. |
-| `AllowSwitch` | `enabled` | `enabled`: users with the policy `exp_oe_tiptap/switch` get the switch button, and their stored preference is used. `disabled`: no button, every stored preference is ignored, everybody gets `DefaultEditor`. |
 | `AssetLoading` | `ezdesign` | `ezdesign`: `<script>`/`<link>` tags pointing at the built files, with `?v=<file time key>`; the files are never repacked. `ezjscore`: `ezscript_require()`/`ezcss_require()`, packed with the page by ezjscore (only if ezjscore's packer leaves the modern bundle intact). |
 | `Scripts[]` | `exp_oe_tiptap/exp_oe_tiptap.js` | The built scripts, design paths below `javascript/`. The first is the bundle defining `window.ExpOETiptap`; Tiptap counts as available only while that file exists. |
 | `Styles[]` | `exp_oe_tiptap/exp_oe_tiptap.css` | The built styles, design paths below `stylesheets/`. |
@@ -40,13 +41,29 @@ Read by the server function `expoetiptap::ai`; see [ai-hooks.md](ai-hooks.md) fo
 | `MaxOutputTokens` | `2000` | Longest answer a command may ask for. |
 | `Commands[]` | improve, shorten, extend, fix_spelling, translate, summarise, continue | The commands offered, in this order. |
 
+## ezoe.ini
+
+The choice of editor is ezoe's. The extension's `settings/ezoe.ini.append.php` sets:
+
+| Setting | Value | Meaning |
+| --- | --- | --- |
+| `[EditorSettings] Engines[tiptap]` | `expOETiptapEngine` | Registers Tiptap as an engine. ezoe lists it on `/ezoe/engine` with name, version (the extension's), description and status, offers it in the select and in the switch buttons, and falls back to TinyMCE 3 whenever it is not available (the bundle `Scripts[]` is missing). An override must never start `Engines[]` empty without listing `tiptap` again. |
+| `[EditorSettings] EngineSwitch` | `enabled` | The "Switch to the editor ..." buttons below every text field, one per other available engine. `disabled` hides them; `/ezoe/engine` still works. |
+
+ezoe's own settings decide the rest:
+
+| Setting | Default | Meaning |
+| --- | --- | --- |
+| `[EditorSettings] EditorEngine` | `tinymce3` | The engine of users without a choice of their own. `tiptap` makes Tiptap the default, per siteaccess. An engine that is not available means `tinymce3`. |
+| `[Engine_tiptap]` | none | Read by ezoe's engine base class for `ToolbarMap[]`, `ExternalPlugins[]`, `Scripts[]`, `Styles[]`; Tiptap uses none of them (its own assets are `exp_oe_tiptap.ini [EditorSettings] Scripts[]`, `Styles[]`, and its toolbar follows `[EditorLayout] Buttons[]`). |
+
 ## Other files exp_oe_tiptap ships
 
 | File | Setting | Why |
 | --- | --- | --- |
-| `ezxml.ini` | `[InputSettings] AliasClasses[eZSimplifiedXMLInput]=expOETiptapXMLInput` | Makes the extension's input handler the one ezxmltext uses. Wins over ezoe's alias because extension.xml declares `<extends>ezoe`, which makes the settings load after ezoe's in any `ActiveExtensions` order. |
+| `ezxml.ini` | `[InputSettings] AliasClasses[eZSimplifiedXMLInput]=expOETiptapXMLInput` | Makes the extension's input handler (ezoe's, plus the migration of the 0.1.0 preference and the 0.1.0 switch action) the one ezxmltext uses; Tiptap works as an ezoe engine without it too. Wins over ezoe's alias because extension.xml declares `<extends>ezoe`, which makes the settings load after ezoe's in any `ActiveExtensions` order. |
 | `design.ini` | `[ExtensionSettings] DesignExtensions[]=exp_oe_tiptap` | The templates, scripts and styles. |
-| `module.ini` | `ModuleList[]=exp_oe_tiptap` | The view `exp_oe_tiptap/switch` and the policy functions `switch`, `ai`. |
+| `module.ini` | `ModuleList[]=exp_oe_tiptap` | The view `exp_oe_tiptap/switch` of 0.1.0 (stores ezoe's choice) and the policy functions `switch`, `ai`. |
 | `site.ini` | `TranslationExtensions[]=exp_oe_tiptap`, `ModuleViewAccessMode[exp_oe_tiptap/*]=keep` | Translations (context `extension/exp_oe_tiptap`); no SSL zone change. |
 | `ezjscore.ini` | `[ezjscServer_expoetiptap] Class=expOETiptapServerFunctions` | The AI server function `ezjscore/call/expoetiptap::ai`. |
 
@@ -68,6 +85,5 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 
 | Preference | Values | Set by |
 | --- | --- | --- |
-| `exp_oe_editor` | `ezoe`, `tiptap`, empty (= site default) | the switch button and `exp_oe_tiptap/switch` |
-
-ezoe's own preference `ezoe_engine` (TinyMCE 3 or 8) is independent: it applies whenever the user is on ezoe.
+| `ezoe_engine` (ezoe's) | `tinymce3`, `tinymce8`, `tiptap`, empty (= site default) | `/ezoe/engine`, the "Switch to the editor ..." buttons, the 0.1.0 switch button and `exp_oe_tiptap/switch` |
+| `exp_oe_editor` (0.1.0) | `ezoe`, `tiptap` | no longer set. Read once per user and moved to `ezoe_engine` (`tiptap` stays Tiptap), then emptied: by the edit form, or for all users by `bin/php/migrate_editor_preference.php`. |

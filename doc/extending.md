@@ -51,9 +51,15 @@ Providers are classes under `classes/ai/` selected by `[AISettings] Provider`; s
 
 The templates are ordinary design templates and can be overridden in a design of higher priority:
 
-- `content/datatype/edit/ezxmltext_exp_oe_tiptap.tpl`: the choice between the editors and the switch;
-- `content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl`: the Tiptap field and its options;
-- `content/datatype/edit/ezxmltext_exp_oe_tiptap_switch.tpl`: the switch button;
-- `exp_oe_tiptap/switch.tpl`: the page of the view `exp_oe_tiptap/switch`.
+- `content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl`: the Tiptap field, its options, and ezoe's switch
+  buttons below it (the template of the ezoe engine `tiptap`);
+- `content/datatype/edit/ezxmltext_ezoe_engine_switch.tpl` (ezoe's): the "Switch to the editor ..." buttons of every
+  engine;
+- `ezoe/engine.tpl` (ezoe's): the page `/ezoe/engine`;
+- `content/datatype/edit/ezxmltext_exp_oe_tiptap.tpl`: the edit template of 0.1.0, now only passing on to ezoe's
+  `ezxmltext_ezoe.tpl`.
+
+The 0.1.0 templates `ezxmltext_exp_oe_tiptap_switch.tpl` and `exp_oe_tiptap/switch.tpl` are gone; overrides of them
+are no longer used.
 
 Keep the textarea's name and the `CustomActionButton[...]` names: the kernel and the bundle rely on them.

@@ -35,7 +35,7 @@ Only MIT (or compatible) packages may be added. Tiptap's Pro extensions are not 
 
 | Suite | Run | What |
 | --- | --- | --- |
-| PHP unit | `nice -n 15 php vendor/bin/phpunit -c extension/exp_oe_tiptap/phpunit.xml.dist` (from the Exponential root) | editor choice, switch view, metadata, input handler; round trip (`tests/php/roundtrip/`); AI hooks with a fake provider (`tests/php/ai/`) |
+| PHP unit | `nice -n 15 php vendor/bin/phpunit -c extension/exp_oe_tiptap/phpunit.xml.dist` (from the Exponential root) | editor choice (the ezoe engine, the migration of the 0.1.0 preference), switch view, metadata, input handler; round trip (`tests/php/roundtrip/`); AI hooks with a fake provider (`tests/php/ai/`) |
 | One file | `nice -n 15 php vendor/bin/phpunit extension/exp_oe_tiptap/tests/php/EditorChoiceTest.php` | |
 | JS | `npm test` in the extension | schema and conversion (`tests/js/schema/`), UI (`tests/js/ui/`) |
 | Round trip | see [content-mapping.md](content-mapping.md) | ezxml -> ezoe HTML -> Tiptap -> ezoe HTML -> ezxml over the fixtures in `tests/fixtures/` |
@@ -54,13 +54,15 @@ moved: a mistake in a release is fixed by the next one.
 
 | Symptom | Cause | Fix |
 | --- | --- | --- |
-| No switch button | `AllowSwitch=disabled`; user lacks `exp_oe_tiptap/switch`; bundle missing (the button to Tiptap is hidden then) | check the setting, the role, the file `design/standard/javascript/exp_oe_tiptap/exp_oe_tiptap.js` |
+| Tiptap not offered on `/ezoe/engine` or in the switch buttons | the status column says why: bundle missing ("not available"), class not autoloaded or INI cache stale ("cannot be used"), or `Engines[tiptap]` dropped by an override that starts `Engines[]` empty | the file `design/standard/javascript/exp_oe_tiptap/exp_oe_tiptap.js`, `ezpgenerateautoloads.php -e`, `--clear-tag=ini`, the override |
+| No switch buttons below the editor | `ezoe.ini [EditorSettings] EngineSwitch=disabled` | expected; `/ezoe/engine` still works |
 | ezoe as before, no trace of exp_oe_tiptap | `extension.xml` changed to `<requires>ezoe` instead of `<extends>ezoe`, so ezoe's settings are read last and its alias wins; autoloads not regenerated; INI cache | order, `ezpgenerateautoloads.php -e`, `--clear-tag=ini`, reload PHP / restart Velocity |
 | Empty text field area after activation | template override cache does not know the new templates | `--clear-id=template-override` |
 | Plain textarea with HTML in it instead of Tiptap | bundle not loaded (404, JS error) | browser console: "exp_oe_tiptap: the editor bundle is not loaded"; rebuild, check `Scripts[]`, check the design path |
-| Content changes after saving from Tiptap | a round-trip gap in the schema | switch the user back to ezoe; add the content as a fixture (see content-mapping.md) and fix the schema |
-| "Access denied" on `exp_oe_tiptap/switch` | not a POST, missing or wrong form token, or no `switch` policy | use the form; ezformtoken must be active |
-| Switch works but the old editor comes back | AllowSwitch was turned off, or the policy was removed: stored preferences are then ignored | expected |
+| Content changes after saving from Tiptap | a round-trip gap in the schema | switch the user back to TinyMCE; add the content as a fixture (see content-mapping.md) and fix the schema |
+| "Access denied" on `exp_oe_tiptap/switch` (0.1.0 view) | not a POST, missing or wrong form token, or no `switch` policy | use `/ezoe/engine`; ezformtoken must be active |
+| A user of 0.1.0 who had Tiptap gets TinyMCE | `exp_oe_editor` not migrated yet (`/ezoe/engine` reads only `ezoe_engine`) | opening an edit form migrates it; or run `bin/php/migrate_editor_preference.php` |
+| `exp_oe_tiptap.ini` `DefaultEditor=tiptap` has no effect | not read since 0.1.1 | `ezoe.ini [EditorSettings] EditorEngine=tiptap` |
 | Velocity shows the old editor after deploy | workers keep classes loaded at warm-up | `exp:velocity restart` (or `exp:velocity deploy`) |
 | AI menu missing | `Enabled=false`, no `exp_oe_tiptap/ai`, bundle built without AI | settings, role |
 | AI error message | provider unreachable, wrong key, timeout, text too long | see [ai-hooks.md](ai-hooks.md); the debug log names the provider error |

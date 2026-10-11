@@ -1,36 +1,39 @@
 # Using the Tiptap editor
 
-For editors. What is different from the Online Editor (ezoe), and how to switch between them.
+For editors. What is different from the Online Editor's TinyMCE, and how to choose and switch.
 
 ## Which editor you get
 
-Every text field (ezxmltext) is edited with one of two editors:
+Every text field (ezxmltext) is edited with the Online Editor (ezoe), which offers several editors, its "engines":
 
-- **Online Editor (TinyMCE)**, the editor Exponential has always had (ezoe);
+- **TinyMCE 3**, the editor Exponential has always had;
+- **TinyMCE 8**, where the site offers it;
 - **Tiptap**, the new one.
 
-The site decides which one you start with. If you have the right to switch, a button below the text field lets
-you change it, and your choice is remembered for your user on every text field and every visit, until you switch
-again.
+The site decides which one you start with. You can choose your own, and your choice is remembered for your user
+on every text field and every visit, until you choose again. There is one choice for all of them: it does not
+matter whether you make it on the page or with a button below a text field.
 
-## Switching
+## Choosing on the page
 
-Below the text field:
+`/ezoe/engine` (in the admin: add it to the URL, e.g. `/admin/ezoe/engine`) lists every editor with its version,
+a short description and its status ("Available", "Available, in use now", or why it cannot be used). Below the
+table, choose "Default of this site (...)" or one of the editors and press **Save**.
 
-- with the Online Editor: **Switch to Tiptap**;
-- with Tiptap: **Switch to Online Editor (TinyMCE)** (Tiptap also has the same action in its toolbar).
+## Switching in the edit form
 
-When you press it, the whole form is stored as a draft first, exactly as when you press "Disable editor", and the
+Below the text field there is a button for each other editor, e.g.:
+
+- with TinyMCE: **Switch to the editor Tiptap**;
+- with Tiptap: **Switch to the editor TinyMCE 3** (and TinyMCE 8 where the site has it); Tiptap's toolbar has the
+  same action, and the text next to the buttons says "Editing with Tiptap".
+
+When you press one, the whole form is stored as a draft first, exactly as when you press "Disable editor", and the
 form comes back with the other editor. Nothing you typed is lost, in any field. Nothing is published.
 
-You can also choose without opening a form: `/exp_oe_tiptap/switch` (in the admin: add it to the URL) shows a
-small page with a choice "Default of this site", "Online Editor (TinyMCE)" and "Tiptap".
-
-The button is not there when:
-
-- the site does not allow switching (`AllowSwitch=disabled`), or
-- your role does not have the policy `exp_oe_tiptap/switch` (ask an administrator), or
-- Tiptap is not installed completely on this site; then everybody gets the Online Editor.
+The buttons are not there when the site has switched them off (`ezoe.ini [EditorSettings] EngineSwitch=disabled`);
+the page `/ezoe/engine` still works then. Tiptap is not offered at all while it is not installed completely on the
+site; the page says so in its status column.
 
 ## What is the same
 
@@ -64,5 +67,5 @@ it. More: [ai-hooks.md](ai-hooks.md).
 
 ## When something looks wrong
 
-Switch back to the Online Editor: the text is the same, so you lose nothing. Tell the site administrator which
+Switch back to TinyMCE: the text is the same, so you lose nothing. Tell the site administrator which
 content and what you saw; [maintenance.md](maintenance.md#troubleshooting) is their checklist.
