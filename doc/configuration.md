@@ -76,7 +76,9 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 | `ezoe.ini` | `[EditorLayout] Buttons[]` (and its siteaccess/class variants, through `editor_layout_settings`) | which toolbar buttons exist, in which order |
 | `ezoe.ini` | `[EditorLayout] PathLocation`, `ToolbarLocation` | status bar and toolbar position |
 | `ezoe.ini` | `[EditorSettings] Skin`, `CustomAttributeStyleMap`, `UploadFileExtensions[]`, `UploadFromUrl` | skin class, custom attribute styles, upload rules |
+| `ezoe.ini` | `[EditorSettings] CustomTagControls` (Exponential 6.0.15 and later) | `enabled`: the bar on the focused custom tag (move up, move down, edit, remove; Alt+Shift+Up / Down / E / Delete), Backspace removing an empty block custom tag, and a label with the name of every block custom tag |
 | `content.ini` | `[CustomTagSettings]`, `[paragraph]`, `[link]`, `[table]`, `[embed]`, `[embed-inline]`, ... `AvailableClasses`, `CustomAttributes`, `AvailableViewModes` | classes, custom attributes, custom tags, view modes |
+| `content.ini` | `[CustomTagSettings] IsHidden[]` (Exponential 6.0.15 and later) | custom tags the custom tag dialog does not offer for a new tag; a hidden tag already in the text can still be edited |
 | `ezoe_attributes.ini` | everything | types and titles of custom attributes in the dialogs |
 | `design.ini` | `[StylesheetSettings] EditorCSSFileList[]` | the content CSS of the editing area |
 | `image.ini` | `[AliasSettings] AliasList[]` | image sizes of embeds |

@@ -189,6 +189,26 @@
 .exp-oe-content .ezoeAlignmiddle { display: block; margin: 0 auto; }
 .exp-oe-content div.ezoeItemCustomTag { position: relative; margin: .4em 0; padding: 4px 6px 2px; border: 1px dashed #c6a24a; background: #fffaf0; }
 .exp-oe-content span.ezoeItemCustomTag { border-bottom: 1px dashed #c6a24a; background: #fffaf0; }
+
+/* ---------- custom tag controls (options.customTagControls): labels and the bar on the focused tag.
+   Portions derived from LoveStack (mugoweb/ezpublish-legacy, commit 63334f1681), Copyright (C) Mugo Web, GPL v2 */
+.exp-oe-custom-tag-labels .exp-oe-content div.ezoeItemCustomTag { padding-top: 1.9em; min-height: 2em; }
+.exp-oe-custom-tag-labels .exp-oe-content div.ezoeItemCustomTag::before {
+    position: absolute; top: 0; left: 0; padding: 2px 8px; background: #3a5a80; color: #fff;
+    font: bold 11px/1.4 sans-serif; white-space: nowrap; pointer-events: none;
+}
+.exp-oe-custom-tag-controls {
+    position: absolute; z-index: 5; display: flex; gap: 2px; padding: 2px; background: #fff;
+    border: 1px solid #3a5a80; border-radius: 3px; box-shadow: 0 1px 3px rgba(0, 0, 0, .25);
+}
+.exp-oe-custom-tag-controls[hidden], .exp-oe-custom-tag-controls button[hidden] { display: none; }
+.exp-oe-custom-tag-controls button {
+    min-width: 26px; height: 24px; margin: 0; padding: 0 5px; border: 1px solid transparent; border-radius: 2px;
+    background: transparent; color: #1f3550; font: 14px/1 sans-serif; cursor: pointer;
+}
+.exp-oe-custom-tag-controls button:hover, .exp-oe-custom-tag-controls button:focus-visible { border-color: #3a5a80; background: #e8eef6; outline: none; }
+.exp-oe-custom-tag-controls button:disabled { opacity: .4; cursor: default; }
+.exp-oe-custom-tag-preview img { max-width: 100%; border: 1px solid #ccc; }
 .exp-oe-content .ProseMirror-selectednode { outline: 2px solid var(--exp-oe-accent); }
 .exp-oe-content .ProseMirror-gapcursor::after { border-top-color: #000; }
 .exp-oe-content p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: #999; float: left; height: 0; pointer-events: none; }

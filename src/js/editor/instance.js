@@ -15,6 +15,7 @@ import { Toolbar } from '../ui/toolbar.js';
 import { StatusBar } from '../ui/statusbar.js';
 import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
+import { customTagControls } from '../ui/customtag-controls.js';
 import { h, translator } from '../ui/dom.js';
 
 /** ezoe.ini [EditorLayout] Buttons[] defaults, used when the template gives no list */
@@ -32,7 +33,7 @@ export function normalizeOptions( options ) {
     const o = Object.assign( {
         attributeId: 0, contentObjectId: 0, version: 0, language: '', rows: 10,
         buttons: null, pathLocation: 'bottom', toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', contentCss: [],
-        xmlTagAlias: {}, customTags: [], literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
+        xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
         urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] },
         i18n: {}, locale: '', height: 0
@@ -112,7 +113,8 @@ export class ExpOETiptapInstance {
         this.contentArea.style.height = height + 'px';
 
         // the editor
-        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ) ] );
+        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ) ],
+                                      o.customTagControls ? [ customTagControls( this ) ] : [] );
         const content = this.schema.load( textarea.value, getSchema( extensions ) );
         const mount = h( 'div', { class: 'exp-oe-mount' } );
         this.contentArea.appendChild( mount );

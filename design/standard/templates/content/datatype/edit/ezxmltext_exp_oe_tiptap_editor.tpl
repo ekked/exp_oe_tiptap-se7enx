@@ -107,6 +107,8 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     contentCss: {json_encode( ezcssfiles( $content_css_list, 3, true() ) )},
     xmlTagAlias: {$input_handler.json_xml_tag_alias},
     customTags: {json_encode( $input_handler.custom_tag_definitions )},
+    // ezoe.ini [EditorSettings] CustomTagControls: the bar on the focused custom tag, its shortcuts and the labels
+    customTagControls: {cond( $input_handler.custom_tag_controls_enabled, 'true', 'false' )},
     literal: {json_encode( $input_handler.literal_definition )},
     tableDefinitions: {json_encode( $input_handler.table_definitions )},
     generalDefinitions: {json_encode( $input_handler.general_definitions )},

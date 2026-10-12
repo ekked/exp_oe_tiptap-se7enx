@@ -463,13 +463,24 @@ function customTagName( el ) {
     return cleanClass( el.getAttribute( 'class' ) ).split( ' ' )[0] || '';
 }
 
+/**
+ * The custom tag definitions a list of tags offers: without those content.ini [CustomTagSettings] IsHidden[]
+ * names (hidden: true), except `current`, the tag being edited.
+ */
+export function offeredCustomTags( tags, current ) {
+    return ( tags || [] ).filter( ( d ) => !d.hidden || ( current && d.name === current ) );
+}
+
 function customTagDialog( ctx ) {
     const { editor, t, options } = ctx;
     const tags = options.customTags || [];
     const existing = selectedCustomTag( ctx );
     const currentName = existing ? customTagName( existing.el ) : '';
     const stored = existing && existing.el ? parseCustomAttributes( existing.el.getAttribute( 'customattributes' ) ) : {};
-    const nameSelect = select( tags.map( ( d ) => [ d.name, d.title || d.name ] ), currentName || ( tags[0] && tags[0].name ) );
+    // content.ini [CustomTagSettings] IsHidden[]: not offered, except the hidden tag being edited
+    // (LoveStack commit e21ef46691, Copyright (C) Mugo Web, GPL v2)
+    const offered = offeredCustomTags( tags, currentName );
+    const nameSelect = select( offered.map( ( d ) => [ d.name, d.title || d.name ] ), currentName || ( offered[0] && offered[0].name ) );
     nameSelect.disabled = !!existing;
     const attrBox = h( 'div', { class: 'exp-oe-custom-attributes' } );
     let custom = null;
@@ -478,6 +489,10 @@ function customTagDialog( ctx ) {
         const def = tags.find( ( d ) => d.name === nameSelect.value ) || { attributes: [] };
         custom = attributeFields( t, def.attributes, nameSelect.value === currentName ? stored : {} );
         custom.rows.forEach( ( r ) => attrBox.appendChild( r ) );
+        // the example image, images/editor/custom_tags_thumbs/<name>.png (LoveStack commit 63334f1681)
+        if ( def.preview )
+            attrBox.appendChild( h( 'div', { class: 'exp-oe-custom-tag-preview' }, [
+                h( 'p', {}, [ h( 'strong', { text: t( 'Example' ) } ) ] ), h( 'img', { src: def.preview, alt: '' } ) ] ) );
     };
     nameSelect.addEventListener( 'change', renderAttributes );
     renderAttributes();
