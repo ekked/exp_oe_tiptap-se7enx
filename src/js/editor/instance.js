@@ -181,8 +181,10 @@ export class ExpOETiptapInstance {
         if ( this.statusbar && o.pathLocation !== 'top' )
             parts.push( this.statusbar.element );
         parts.forEach( ( p ) => this.wrapper.appendChild( p ) );
-        if ( this.floating )
+        if ( this.floating ) {
             this.contentArea.appendChild( this.floating.element );
+            this.floating.attach( ( target, type, fn, capture ) => this.listen( target, type, fn, capture ) );
+        }
         if ( this.schema.isFallback )
             this.wrapper.appendChild( h( 'div', { class: 'exp-oe-warning', role: 'note', text: t( 'Fallback schema: ezoe attributes, embeds and custom tags are not kept. Do not save.' ) } ) );
 

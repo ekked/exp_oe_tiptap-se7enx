@@ -98,3 +98,137 @@ test( 'the floating menus offer only toolbar buttons, with their names, and run 
     bubble.querySelector( '.exp-oe-button-bold' ).click();
     assert.match( inst.getHTML(), /<strong>Hello<\/strong> world/ );
 } );
+
+/** Specificity of one simple selector as a comparable number (ids, classes/attributes/pseudo-classes, types) */
+function specificity( selector ) {
+    const sel = selector.replace( /:not\(([^)]*)\)/g, ' $1' ).replace( /::[\w-]+/g, '' );
+    const ids = ( sel.match( /#[\w-]+/g ) || [] ).length;
+    const classes = ( sel.match( /\.[\w-]+|\[[^\]]+\]|:[\w-]+/g ) || [] ).length;
+    const types = ( sel.replace( /\[[^\]]+\]/g, '' ).match( /(^|[\s>+~])[a-z][\w-]*/gi ) || [] ).length;
+    return ids * 10000 + classes * 100 + types;
+}
+
+test( 'a hidden floating element stays hidden: no later display rule outweighs its [hidden] rule', () => {
+    for ( const f of [ 'src/css/skin-a4.css', 'design/standard/stylesheets/exp_oe_tiptap/exp_oe_tiptap.css' ] ) {
+        const rules = [ ...css( f ).replace( /\/\*[\s\S]*?\*\//g, '' ).matchAll( /([^{}]+)\{([^{}]*)\}/g ) ]
+            .flatMap( ( m, index ) => m[1].split( ',' ).map( ( s ) => ( { selector: s.trim(), body: m[2], index } ) ) );
+        for ( const el of [ 'exp-oe-plus', 'exp-oe-bubble', 'exp-oe-plus-menu' ] ) {
+            const target = new RegExp( '\\.' + el + '(?![\\w-])([^\\s>+~]*)$' );
+            const hidden = rules.find( ( r ) => target.test( r.selector ) && /\[hidden\]$/.test( r.selector ) && /display:\s*none/.test( r.body ) );
+            assert.ok( hidden, f + ': .' + el + '[hidden] { display: none }' );
+            for ( const r of rules ) {
+                if ( !target.test( r.selector ) || /\[hidden\]/.test( r.selector ) || !/display:\s*(?!none)/.test( r.body ) )
+                    continue;
+                const a = specificity( hidden.selector ), b = specificity( r.selector );
+                assert.ok( a > b || ( a === b && hidden.index > r.index ),
+                           f + ': "' + r.selector + '" sets display and outweighs "' + hidden.selector + '"; add :not([hidden])' );
+            }
+        }
+    }
+} );
+
+function keydown( target, key ) {
+    const e = new KeyboardEvent( 'keydown', { key, bubbles: true, cancelable: true } );
+    target.dispatchEvent( e );
+    return e;
+}
+
+test( 'the "+" is a menu button that controls the insert menu; the menu is operated with the arrow keys', () => {
+    const inst = X.init( textarea( '<p>Hello</p><p></p>' ), Object.assign( {}, OPTIONS, { skin: 'a4' } ) );
+    const plus = inst.wrapper.querySelector( '.exp-oe-plus' );
+    const menu = inst.wrapper.querySelector( '.exp-oe-plus-menu' );
+    assert.equal( plus.getAttribute( 'aria-haspopup' ), 'menu' );
+    assert.equal( plus.getAttribute( 'aria-controls' ), menu.id );
+    assert.ok( menu.id && document.getElementById( menu.id ) === menu );
+    const items = [ ...menu.querySelectorAll( '[role="menuitem"]' ) ];
+    assert.equal( items.length, 4 );
+    assert.ok( items.every( ( b ) => b.tabIndex === -1 ), 'closed: no item in the tab order' );
+
+    plus.focus();
+    keydown( plus, 'ArrowDown' );
+    assert.equal( menu.hidden, false );
+    assert.equal( plus.getAttribute( 'aria-expanded' ), 'true' );
+    assert.equal( document.activeElement, items[0] );
+    assert.deepEqual( items.map( ( b ) => b.tabIndex ), [ 0, -1, -1, -1 ] );
+    keydown( items[0], 'ArrowDown' );
+    assert.equal( document.activeElement, items[1] );
+    assert.deepEqual( items.map( ( b ) => b.tabIndex ), [ -1, 0, -1, -1 ] );
+    keydown( items[1], 'End' );
+    assert.equal( document.activeElement, items[3] );
+    keydown( items[3], 'ArrowDown' );
+    assert.equal( document.activeElement, items[0], 'wraps to the first' );
+    keydown( items[0], 'ArrowUp' );
+    assert.equal( document.activeElement, items[3], 'wraps to the last' );
+    keydown( items[3], 'Home' );
+    assert.equal( document.activeElement, items[0] );
+
+    // Escape in the menu closes it and returns to the "+"
+    keydown( items[0], 'Escape' );
+    assert.equal( menu.hidden, true );
+    assert.equal( plus.getAttribute( 'aria-expanded' ), 'false' );
+    assert.equal( document.activeElement, plus );
+
+    // up arrow opens on the last item
+    keydown( plus, 'ArrowUp' );
+    assert.equal( document.activeElement, items[3] );
+} );
+
+test( 'the bubble toolbar has one button in the tab order and moves with left/right, Home and End', () => {
+    const inst = X.init( textarea( '<p>Hello world</p>' ), Object.assign( {}, OPTIONS, { skin: 'a4' } ) );
+    const items = [ ...inst.wrapper.querySelectorAll( '.exp-oe-bubble button' ) ];
+    assert.deepEqual( items.map( ( b ) => b.tabIndex ), [ 0, -1, -1, -1, -1 ] );
+    items[0].focus();
+    keydown( items[0], 'ArrowRight' );
+    assert.equal( document.activeElement, items[1] );
+    assert.deepEqual( items.map( ( b ) => b.tabIndex ), [ -1, 0, -1, -1, -1 ] );
+    keydown( items[1], 'ArrowLeft' );
+    assert.equal( document.activeElement, items[0] );
+    keydown( items[0], 'ArrowLeft' );
+    assert.equal( document.activeElement, items[items.length - 1], 'wraps' );
+    keydown( items[4], 'Home' );
+    assert.equal( document.activeElement, items[0] );
+    items[2].disabled = true;
+    keydown( items[0], 'End' );
+    keydown( items[4], 'ArrowLeft' );
+    keydown( document.activeElement, 'ArrowLeft' );
+    assert.equal( document.activeElement, items[1], 'skips a disabled button' );
+} );
+
+test( 'Escape in the editor and a click outside close the insert menu', () => {
+    const inst = X.init( textarea( '<p>Hello</p>' ), Object.assign( {}, OPTIONS, { skin: 'a4' } ) );
+    const plus = inst.wrapper.querySelector( '.exp-oe-plus' );
+    const menu = inst.wrapper.querySelector( '.exp-oe-plus-menu' );
+    inst.floating.openPlusMenu( false );
+    assert.equal( menu.hidden, false );
+    const e = keydown( inst.editor.view.dom, 'Escape' );
+    assert.equal( menu.hidden, true );
+    assert.equal( plus.getAttribute( 'aria-expanded' ), 'false' );
+    assert.ok( e.defaultPrevented, 'the editor consumed the Escape' );
+    assert.ok( !keydown( inst.editor.view.dom, 'Escape' ).defaultPrevented, 'with no menu open Escape passes through' );
+
+    inst.floating.openPlusMenu( false );
+    document.body.dispatchEvent( new MouseEvent( 'mousedown', { bubbles: true } ) );
+    assert.equal( menu.hidden, true, 'a click outside closes it' );
+    inst.floating.openPlusMenu( false );
+    menu.dispatchEvent( new MouseEvent( 'mousedown', { bubbles: true } ) );
+    assert.equal( menu.hidden, false, 'a click inside does not' );
+} );
+
+test( 'a blur that moves the focus into the insert menu keeps the menu open; a blur elsewhere hides it', async () => {
+    const inst = X.init( textarea( '<p>Hello</p>' ), Object.assign( {}, OPTIONS, { skin: 'a4' } ) );
+    const f = inst.floating;
+    const menu = inst.wrapper.querySelector( '.exp-oe-plus-menu' );
+    f.openPlusMenu( false );
+    // the editor's blur arrives while document.activeElement is still the body, before the focus lands in the menu
+    document.activeElement.blur();
+    f.update( false );
+    assert.equal( menu.hidden, false, 'not hidden while the focus is on its way' );
+    f.menuItems[0].focus();
+    await new Promise( ( r ) => setTimeout( r, 5 ) );
+    assert.equal( menu.hidden, false, 'the focus landed in the menu: it stays open' );
+
+    document.activeElement.blur();
+    f.update( false );
+    await new Promise( ( r ) => setTimeout( r, 5 ) );
+    assert.equal( menu.hidden, true, 'the focus went elsewhere: hidden' );
+} );

@@ -173,8 +173,10 @@
     box-shadow: var(--a4-shadow-m, 0 8px 24px rgba(0, 0, 0, .14));
 }
 .exp-oe-tiptap .exp-oe-bubble[hidden], .exp-oe-tiptap .exp-oe-plus-menu[hidden], .exp-oe-tiptap .exp-oe-plus[hidden] { display: none; }
+/* every display rule of a floating element below applies to it only while it is shown (:not([hidden])): a later
+   rule of higher specificity would otherwise beat [hidden] and show it all the time */
 .exp-oe-tiptap .exp-oe-plus-menu { flex-direction: column; }
-.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus {
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus:not([hidden]) {
     position: absolute;
     z-index: 4;
     display: inline-flex;
