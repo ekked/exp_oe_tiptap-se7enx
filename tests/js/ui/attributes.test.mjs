@@ -285,3 +285,13 @@ test( 'cell_props keeps the span of every cell it changes', () => {
     ok();
     assert.equal( inst.getHTML(), '<table><tbody><tr><td align="right" colspan="2"><p>wide</p></td></tr><tr><td><p>x</p></td><td align="right"><p>y</p></td></tr></tbody></table>' );
 } );
+
+test( 'bold only switched on for the next typing (no text yet) is not offered as an element', () => {
+    const inst = X.init( textarea( '<p>plain</p>' ), OPTIONS );
+    inst.editor.commands.setTextSelection( textPos( inst, 'lain' ) );
+    inst.editor.commands.toggleBold();
+    inst.runButton( 'tag_props' );
+    assert.equal( fieldOf( 'Element' ), null );
+    assert.deepEqual( Array.prototype.map.call( fieldOf( 'Class' ).options, ( o ) => o.value ), [ '', 'intro', 'lead' ] );
+    dialog().querySelector( '.exp-oe-dialog-close' ).click();
+} );

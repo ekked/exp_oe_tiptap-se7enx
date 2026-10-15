@@ -150,3 +150,13 @@ test( 'ContextMenu=disabled: no menu, the browser\'s one', () => {
     const e = contextmenu( inst.editor.view.dom, { clientX: 10, clientY: 10 } );
     assert.equal( e.defaultPrevented, false );
 } );
+
+test( 'Tab closes the menu and returns to the text', () => {
+    const inst = editor( '<p>text</p>' );
+    inst.editor.commands.setTextSelection( 2 );
+    keydown( inst.editor.view.dom, 'F10', { shiftKey: true } );
+    const e = new KeyboardEvent( 'keydown', { key: 'Tab', bubbles: true, cancelable: true } );
+    document.activeElement.dispatchEvent( e );
+    assert.equal( menu( inst ).hidden, true );
+    assert.equal( document.activeElement, inst.editor.view.dom );
+} );

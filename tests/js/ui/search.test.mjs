@@ -91,8 +91,11 @@ test( 'Ctrl+F opens the bar with the selected text, marks the matches and counts
     assert.equal( find.getAttribute( 'aria-invalid' ), 'true' );
     assert.equal( bar.querySelector( '[title="Replace all"]' ).disabled, true );
     // Escape: closed, no marks, the focus in the text
+    type( find, 'two' );
     keydown( find, 'Escape' );
     assert.equal( bar.hidden, true );
+    // the current match stays selected
+    assert.equal( inst.editor.state.doc.textBetween( inst.editor.state.selection.from, inst.editor.state.selection.to ), 'two' );
     assert.deepEqual( marks( inst ), [] );
     assert.equal( document.activeElement, inst.editor.view.dom );
 } );

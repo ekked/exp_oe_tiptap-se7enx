@@ -293,7 +293,7 @@
  "Target language",
  "Text pasted from Word or a web page is cleaned to what a text field can store; Ctrl+Shift+V pastes the text only.",
  "The AI assistant is not available (HTTP %status).",
- "The AI assistant: improve, shorten, extend, correct, translate, summarise or continue the selected text, shown as a suggestion you accept or reject.",
+ "The AI assistant: improve, shorten, extend, correct, translate, summarize or continue the selected text, shown as a suggestion you accept or reject.",
  "The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.",
  "The Online Editor of Exponential with Tiptap: it edits the same text as ezoe's TinyMCE and stores it the same way, so either editor can be used on the same content.",
  "The answer contained formatting the editor does not use; it is left out.",

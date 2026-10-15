@@ -91,8 +91,11 @@ export class ContextMenu {
                 e.stopPropagation();
                 this.close( true );
             }
-            else if ( e.key === 'Tab' )
-                this.close( false );
+            else if ( e.key === 'Tab' ) {
+                // back to the text, from where Tab goes on: the focus never stays on a hidden item
+                e.preventDefault();
+                this.close( true );
+            }
         } );
         this.nativeNext = false;
     }

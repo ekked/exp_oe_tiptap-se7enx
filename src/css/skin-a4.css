@@ -80,7 +80,7 @@
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-icon::before { content: none; }
 /* the text glyphs the o2k7 look draws for icons ezoe's sprite lacks (AI, switch, tag properties, close, search arrows)
-   never show in a4, in the editor and in its dialogs: there the mask in the text colour is the icon */
+   never show in a4, in the editor and in its dialogs: there the mask in the text color is the icon */
 .exp-oe-skin-a4 .exp-oe-icon[class*="mce_"] { background: currentColor; color: inherit; font: inherit; }
 .exp-oe-skin-a4 .exp-oe-icon[class*="mce_"]::before { content: none; }
 

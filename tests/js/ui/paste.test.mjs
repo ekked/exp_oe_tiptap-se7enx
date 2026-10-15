@@ -66,7 +66,7 @@ test( 'Word: comments, styles, classes, <o:p>, bookmarks, footnote anchors, comm
     assert.match( out, /see <a href="https:\/\/example.org\/report">the report<\/a>\[1\]\. Second sentence\.<\/p>/ );
     assert.match( out, /<ul><li>First point<ul><li>Nested point<\/li><\/ul><\/li><li>Second point<\/li><\/ul>/ );
     assert.match( out, /<ol><li>Step one<\/li><li>Step <u>two<\/u><\/li><\/ol>/ );
-    assert.match( out, /<table border="1"><tr><td><p><b>Year<\/b><\/p><\/td><td><p align="right">Value<\/p><\/td><\/tr><tr><td colspan="2"><p>2026 wurde gut<\/p><\/td><\/tr><\/table>/ );
+    assert.match( out, /<table border="1">(<tbody>)?<tr><td><p><b>Year<\/b><\/p><\/td><td><p align="right">Value<\/p><\/td><\/tr><tr><td colspan="2"><p>2026 wurde gut<\/p><\/td><\/tr>(<\/tbody>)?<\/table>/ );
     assert.match( out, /<p>Commented text<\/p>/ );
     assert.match( out, /<p>\[1\] Source of the figures\.<\/p>/ );
     // an empty Word paragraph (<o:p>&nbsp;</o:p>) is an empty paragraph
@@ -135,4 +135,54 @@ test( 'Ctrl+Shift+V: the next paste is text only', () => {
     assert.equal( inst.getHTML(), '<p>xit</p>' );
     paste( inst, { 'text/html': '<p><em>it</em></p>', 'text/plain': 'it' } );
     assert.match( inst.getHTML(), /<em>it<\/em>/ );
+} );
+
+test( 'links: only http(s), mailto, tel, ftp and relative addresses stay; spaces and control characters do not hide a script', () => {
+    for ( const href of [ 'javascript:alert(1)', ' javascript:alert(1)', 'java\tscript:alert(1)', 'JaVaScRiPt:x', '\u0001javascript:x', 'vbscript:x', 'data:text/html,x', 'file:///c:/x', '#_Toc1' ] )
+        assert.equal( P.cleanPastedHTML( '<p><a href="' + href.replace( /"/g, '&quot;' ) + '">t</a></p>' ), '<p>t</p>', JSON.stringify( href ) );
+    for ( const href of [ 'https://example.org/a?b=1', 'http://x', 'mailto:a@example.org', 'tel:+49', '/content/view/1', 'page.html' ] )
+        assert.match( P.cleanPastedHTML( '<p><a href="' + href + '">t</a></p>' ), /<a href=/, href );
+} );
+
+test( 'HTML marked as this editor\'s or ezoe\'s keeps its markup, but not unsafe links, event handlers or scripts', () => {
+    const out = P.cleanPastedHTML( '<p data-pm-slice="1 1 []"><a href=" javascript:alert(1)">x</a><a href="eznode://2">n</a>' +
+        '<a href="#top">t</a><img id="eZObject_1" src="/i.png" onerror="window.__pasted=1"><span class="ezoeItemCustomTag f" type="custom" onclick="x()">c</span></p><script>window.__pasted=2</script>' );
+    assert.equal( out, '<p data-pm-slice="1 1 []">x<a href="eznode://2">n</a><a href="#top">t</a><img id="eZObject_1" src="/i.png"><span class="ezoeItemCustomTag f" type="custom">c</span></p>' );
+    // the markers count as attributes only, not as text of foreign HTML
+    assert.equal( P.isEditorHTML( '<p>write customattributes="x" and data-pm-slice</p>' ), false );
+    assert.equal( P.isEditorHTML( '<p data-pm-slice="0 0 []">x</p>' ), true );
+} );
+
+test( 'pasted HTML is parsed in an inert document, never in the page: no image loads, no handler runs', () => {
+    const before = document.body.innerHTML;
+    window.__pasted = 0;
+    P.cleanPastedHTML( '<p>x<img src="https://example.invalid/x.png" onerror="window.__pasted=1"><svg onload="window.__pasted=1"></svg></p>' );
+    assert.equal( window.__pasted, 0 );
+    assert.equal( document.body.innerHTML, before );
+    assert.equal( document.querySelectorAll( 'img[onerror]' ).length, 0 );
+} );
+
+test( 'plain text pasted into literal text keeps its line breaks in the literal', () => {
+    const inst = editor( '<pre>a</pre>' );
+    inst.editor.commands.setTextSelection( 2 );
+    paste( inst, { 'text/plain': 'one\n\ntwo' } );
+    assert.equal( inst.getHTML(), '<pre>aone<br><br>two</pre>' );
+} );
+
+test( 'after Ctrl+Shift+V another key ends the plain text paste: a following Ctrl+V keeps the formatting', () => {
+    const inst = editor( '<p>x</p>' );
+    inst.editor.commands.setTextSelection( 2 );
+    const press = ( init ) => {
+        const e = new KeyboardEvent( 'keydown', Object.assign( { bubbles: true, cancelable: true }, init ) );
+        inst.editor.view.someProp( 'handleKeyDown', ( f ) => f( inst.editor.view, e ) );
+    };
+    press( { key: 'V', ctrlKey: true, shiftKey: true } );
+    press( { key: 'v', ctrlKey: true } );
+    paste( inst, { 'text/html': '<p><em>it</em></p>', 'text/plain': 'it' } );
+    assert.match( inst.getHTML(), /<em>it<\/em>/ );
+} );
+
+test( 'a Word list that starts at level 2 nests in an item, not in empty lists', () => {
+    const word = '<p class=MsoListParagraph style="mso-list:l0 level2 lfo1"><span style="mso-list:Ignore">o&nbsp;</span>Deep</p>';
+    assert.equal( P.cleanPastedHTML( '<html xmlns:o="urn:schemas-microsoft-com:office:office"><body>' + word + '</body></html>' ).trim(), '<ul><li><ul><li>Deep</li></ul></li></ul>' );
 } );

@@ -9,6 +9,7 @@
  *
  * @license GPL-2.0-or-later
  */
+import { TextSelection } from '@tiptap/pm/state';
 import { h } from './dom.js';
 import { setSearch, goTo, replaceCurrent, replaceAll, clearSearch, searchState } from '../editor/search.js';
 
@@ -79,6 +80,10 @@ export class SearchBar {
             return;
         this.element.hidden = true;
         if ( !this.ctx.editor.isDestroyed ) {
+            // the current match stays selected in the text
+            const s = searchState( this.view.state ), m = s.matches[s.current];
+            if ( focusText && m )
+                this.view.dispatch( this.view.state.tr.setSelection( TextSelection.create( this.view.state.doc, m.from, m.to ) ) );
             clearSearch( this.view );
             if ( focusText )
                 this.view.focus();

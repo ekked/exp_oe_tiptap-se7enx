@@ -61,7 +61,7 @@ export const BUTTON_HELP = {
     publish: 'Send the object for publishing.',
     discard: 'Discard the draft.',
     switch: 'Store the draft and continue in the other editor.',
-    ai: 'The AI assistant: improve, shorten, extend, correct, translate, summarise or continue the selected text, shown as a suggestion you accept or reject.'
+    ai: 'The AI assistant: improve, shorten, extend, correct, translate, summarize or continue the selected text, shown as a suggestion you accept or reject.'
 };
 
 /** The tags of ezxmltext and what they look like in the editor */

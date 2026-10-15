@@ -36,8 +36,10 @@ export function generalTargets( editor ) {
     const marks = selection.empty ? ( editor.state.storedMarks || $from.marks() ) : ( $from.marksAcross( selection.$to ) || [] );
     for ( const mark of marks ) {
         const xml = xmlName( mark );
-        if ( GENERAL_TAGS.indexOf( xml ) !== -1 )
-            result.push( { xml, mark, range: markRange( doc, selection, mark ) } );
+        const range = GENERAL_TAGS.indexOf( xml ) !== -1 ? markRange( doc, selection, mark ) : null;
+        // a mark only switched on for the next typing (stored mark) has no text yet: nothing to edit
+        if ( range && range.to > range.from )
+            result.push( { xml, mark, range } );
     }
     if ( selection.node && GENERAL_TAGS.indexOf( xmlName( selection.node ) ) !== -1 )
         result.push( { xml: xmlName( selection.node ), node: selection.node, pos: selection.from } );

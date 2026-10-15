@@ -7,7 +7,8 @@
  * What stays: paragraphs, headings, lists, tables (with border, colspan and rowspan), links (href, title, target),
  * bold, italic, underline, sub- and superscript, line breaks and literal text; text alignment becomes ezoe's align
  * attribute. Everything else is unwrapped (its text stays) or, where it is no content (styles, scripts, images of the
- * clipboard, form controls), removed. HTML copied from this editor (ProseMirror's data-pm-slice) or from ezoe's own
+ * clipboard, form controls), removed. A link stays only with a relative address or http(s), mailto, tel or ftp
+ * (safeHref). The HTML is parsed in an inert document of its own, never in the page. HTML copied from this editor (ProseMirror's data-pm-slice) or from ezoe's own
  * dialect (ezoeItem classes, customattributes) is the schema's and stays as it is.
  *
  * Plain text: "Paste as text" (toolbar button pastetext, a switch like TinyMCE 3's) and Ctrl+Shift+V paste the text
@@ -41,9 +42,48 @@ export function isOfficeHTML( html ) {
     return /class="?'?Mso|style="[^"]*\bmso-|<o:p\b|xmlns:[ow]=|urn:schemas-microsoft-com:office|<meta[^>]+(Microsoft Word|Excel|LibreOffice|OpenOffice)/i.test( html || '' );
 }
 
-/** HTML this editor or ezoe wrote: the schema reads it as it is */
+/**
+ * HTML this editor or ezoe wrote: the schema reads it as it is (after the link check of safeHref and without event
+ * handlers). Only attributes count, never the text: data-pm-slice, ezoe's classes, customattributes.
+ */
 export function isEditorHTML( html ) {
-    return /data-pm-slice|\bezoeItem\w+|\bcustomattributes=|\bmceItem\w+/.test( html || '' );
+    return /<[a-z][^>]*\sdata-pm-slice=|<[a-z][^>]*\sclass=["']?[^"'>]*\b(ezoeItem|mceItem)\w*|<[a-z][^>]*\scustomattributes=/i.test( html || '' );
+}
+
+/**
+ * Whether a pasted link address may stay: no scheme (a relative address), or one of the allowed schemes. Spaces and
+ * control characters are removed first, as browsers do (" javascript:", "java\tscript:" are javascript:).
+ * @param {string}  href
+ * @param {boolean} editor HTML of this editor or of ezoe: also #anchor, eznode:// and ezobject://
+ */
+export function safeHref( href, editor ) {
+    const norm = String( href || '' ).replace( /[\u0000-\u0020\u007f-\u009f\u00a0\u1680\u2000-\u200d\u2028\u2029\u202f\u205f\u3000\ufeff]+/g, '' );
+    if ( !norm )
+        return false;
+    if ( norm[0] === '#' )
+        return !!editor;
+    const scheme = /^([a-z][a-z0-9+.-]*):/i.exec( norm );
+    if ( !scheme )
+        return true;                                         // a relative address
+    return ( editor ? /^(https?|mailto|tel|ftp|eznode|ezobject)$/i : /^(https?|mailto|tel|ftp)$/i ).test( scheme[1] );
+}
+
+/** HTML of this editor or of ezoe: unsafe links become their text, event handlers and scripts go */
+function sanitizeEditorHTML( root ) {
+    for ( const el of elements( root ) ) {
+        if ( !el.parentNode )
+            continue;
+        if ( /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|FRAME|META|LINK|BASE|FORM)$/.test( el.nodeName ) ) {
+            el.parentNode.removeChild( el );
+            continue;
+        }
+        for ( const a of Array.prototype.slice.call( el.attributes ) ) {
+            if ( /^on/i.test( a.name ) || ( /^(src|action|formaction|xlink:href)$/i.test( a.name ) && /^\s*(javascript|vbscript|data):/i.test( a.value.replace( /[\u0000-\u0020]+/g, '' ) ) ) )
+                el.removeAttribute( a.name );
+        }
+        if ( el.nodeName === 'A' && el.hasAttribute( 'href' ) && !safeHref( el.getAttribute( 'href' ), true ) )
+            unwrap( el );
+    }
 }
 
 function styleOf( el ) {
@@ -116,7 +156,12 @@ function convertOfficeLists( root ) {
             stack.pop();
         while ( stack.length < level ) {
             const list = doc.createElement( type );
-            const parentItem = stack.length ? stack[stack.length - 1].list.lastElementChild : null;
+            let parentItem = stack.length ? stack[stack.length - 1].list.lastElementChild : null;
+            // a list that starts deeper than level 1: an item holds the nested list
+            if ( !parentItem && stack.length ) {
+                parentItem = doc.createElement( 'li' );
+                stack[stack.length - 1].list.appendChild( parentItem );
+            }
             if ( parentItem )
                 parentItem.appendChild( list );
             else
@@ -190,14 +235,19 @@ function stylesToElements( el ) {
 /**
  * Cleans pasted HTML to what ezxmltext can store.
  *
- * @param {string}   html
- * @param {Document} [doc] the document to build in (default: the page's)
+ * @param {string} html
  * @return {string}
  */
-export function cleanPastedHTML( html, doc ) {
-    doc = doc || document;
-    if ( !html || isEditorHTML( html ) )
+export function cleanPastedHTML( html ) {
+    if ( !html )
         return html;
+    // an inert document: nothing pasted is ever part of the page (an image would load, an onerror run)
+    const doc = document.implementation.createHTMLDocument( '' );
+    if ( isEditorHTML( html ) ) {
+        doc.body.innerHTML = String( html );
+        sanitizeEditorHTML( doc.body );
+        return doc.body.innerHTML;
+    }
     const office = isOfficeHTML( html );
     // the fragment Office and browsers put on the clipboard (<!--StartFragment-->), without the document around it
     let source = String( html );
@@ -208,10 +258,8 @@ export function cleanPastedHTML( html, doc ) {
         .replace( /<\?xml[^>]*>/gi, '' )
         .replace( /<!\[if [^\]]*\]>|<!\[endif\]>/gi, '' )      // Word's downlevel-revealed conditionals
         .replace( /<!--[\s\S]*?-->/g, '' );                    // comments and Word's conditional comments
-    const template = doc.createElement( 'template' );
-    template.innerHTML = source;
-    const root = doc.createElement( 'div' );
-    root.appendChild( template.content ? template.content : template );
+    doc.body.innerHTML = source;
+    const root = doc.body;
 
     // Word's parts that are not the text: header, footer, comments; separators of foot- and endnotes
     for ( const el of elements( root ) ) {
@@ -246,8 +294,7 @@ export function cleanPastedHTML( html, doc ) {
             continue;
         // links: only real addresses; anchors, Word's bookmarks (_Toc, _GoBack, footnotes) and local files are text
         if ( name === 'A' ) {
-            const href = el.getAttribute( 'href' ) || '';
-            if ( !href || /^(#|file:|javascript:|data:)/i.test( href ) ) {
+            if ( !safeHref( el.getAttribute( 'href' ), false ) ) {
                 unwrap( el );
                 continue;
             }
@@ -336,8 +383,15 @@ export function pasteExtension( instance ) {
             return [ new Plugin( {
                 key: new PluginKey( 'expOEPaste' ),
                 props: {
+                    // the next paste after Ctrl+Shift+V, not one after another key (a plain Ctrl+V)
+                    handleKeyDown: ( view, event ) => {
+                        if ( plainOnce && !/^(Shift|Control|Meta|Alt)$/.test( event.key ) && !( ( event.ctrlKey || event.metaKey ) && event.shiftKey && /^v$/i.test( event.key ) ) )
+                            plainOnce = 0;
+                        return false;
+                    },
                     transformPastedHTML: ( html ) => cleanPastedHTML( html ),
-                    clipboardTextParser: ( text, $context, plain, view ) => textToSlice( text, view.state.schema ),
+                    // in literal text the default keeps the line breaks as they are
+                    clipboardTextParser: ( text, $context, plain, view ) => ( $context.parent.type.spec.code ? null : textToSlice( text, view.state.schema ) ),
                     handlePaste: ( view, event ) => {
                         const once = plainOnce && Date.now() - plainOnce < 1500;
                         plainOnce = 0;

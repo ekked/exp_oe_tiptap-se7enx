@@ -1508,7 +1508,7 @@
         <translation>Aus Word oder einer Webseite eingefügter Text wird auf das bereinigt, was ein Textfeld speichern kann; Strg+Umschalt+V fügt nur den Text ein.</translation>
     </message>
     <message>
-        <source>The AI assistant: improve, shorten, extend, correct, translate, summarise or continue the selected text, shown as a suggestion you accept or reject.</source>
+        <source>The AI assistant: improve, shorten, extend, correct, translate, summarize or continue the selected text, shown as a suggestion you accept or reject.</source>
         <translation>Der KI-Assistent: den markierten Text verbessern, kürzen, erweitern, korrigieren, übersetzen, zusammenfassen oder fortsetzen, als Vorschlag, den Sie annehmen oder ablehnen.</translation>
     </message>
     <message>

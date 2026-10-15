@@ -1508,7 +1508,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The AI assistant: improve, shorten, extend, correct, translate, summarise or continue the selected text, shown as a suggestion you accept or reject.</source>
+        <source>The AI assistant: improve, shorten, extend, correct, translate, summarize or continue the selected text, shown as a suggestion you accept or reject.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
