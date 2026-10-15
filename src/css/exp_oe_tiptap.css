@@ -6,6 +6,9 @@
  *  extension/ezoe/design/standard/stylesheets/skins/o2k7/img/button_bg.png).
  */
 
+/* the admin4 look, selected with Skin=a4 (skin-a4.css) */
+@import "./skin-a4.css";
+
 .exp-oe-tiptap {
     --exp-oe-border: #abc6dd;
     --exp-oe-bar: #e5effd;

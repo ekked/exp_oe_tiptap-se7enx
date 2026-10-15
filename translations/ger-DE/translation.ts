@@ -863,6 +863,10 @@
         <source>whole document</source>
         <translation>ganzes Dokument</translation>
     </message>
+    <message>
+        <source>Formatting</source>
+        <translation>Formatierung</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

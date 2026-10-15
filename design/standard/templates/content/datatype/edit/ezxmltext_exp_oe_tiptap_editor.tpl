@@ -63,6 +63,12 @@ function expOETiptapStart( id, options )
      $editor_id        = concat( $attribute_base, '_data_text_', $attribute.id )
      $switch_name      = ''
      $disable_name     = ''}
+{* The look of Tiptap: exp_oe_tiptap.ini [EditorSettings] Skin (a4 = admin4's look with Bootstrap Icons), else ezoe's
+   Skin (o2k7, TinyMCE 3's look). The editor content CSS keeps ezoe's skin. *}
+{def $tiptap_skin = $skin}
+{if and( ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' ), ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )|ne( '' ) )}
+    {set $tiptap_skin = ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}
+{/if}
 {foreach ezini( 'StylesheetSettings', 'EditorCSSFileList', 'design.ini',,true() ) as $css}
     {set $content_css_list = $content_css_list|append( $css|explode( '<skin>' )|implode( $skin ) )}
 {/foreach}
@@ -103,7 +109,7 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     buttons: {json_encode( $layout_settings['buttons'] )},
     pathLocation: {json_encode( $layout_settings['path_location'] )},
     toolbarLocation: {json_encode( $layout_settings['toolbar_location'] )},
-    skin: {json_encode( $skin )},
+    skin: {json_encode( $tiptap_skin )},
     contentCss: {json_encode( ezcssfiles( $content_css_list, 3, true() ) )},
     xmlTagAlias: {$input_handler.json_xml_tag_alias},
     customTags: {json_encode( $input_handler.custom_tag_definitions )},
@@ -143,5 +149,5 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     locale: {json_encode( $cur_locale.http_locale_code )}
 {rdelim} );
 </script>
-{undef $exp_oe $layout_settings $content_css_list $skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $editor_id $switch_name $disable_name}
+{undef $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $editor_id $switch_name $disable_name}
 {/default}

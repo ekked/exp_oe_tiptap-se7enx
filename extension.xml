@@ -16,6 +16,13 @@
                 <version>3.31.4</version>
             </uses>
             <uses>
+                <name>Bootstrap Icons</name>
+                <license>MIT License</license>
+                <copyright>Copyright (c) 2019-2024 The Bootstrap Authors</copyright>
+                <info_url>https://icons.getbootstrap.com/</info_url>
+                <version>1.13.1</version>
+            </uses>
+            <uses>
                 <name>ProseMirror</name>
                 <license>MIT License</license>
                 <copyright>Copyright (C) 2015-2025 by Marijn Haverbeke and others</copyright>
