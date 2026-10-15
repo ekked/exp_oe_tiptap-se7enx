@@ -79,6 +79,10 @@
     mask: var(--exp-oe-a4-icon) center / 16px 16px no-repeat;
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-icon::before { content: none; }
+/* the text glyphs the o2k7 look draws for icons ezoe's sprite lacks (AI, switch, tag properties, close, search arrows)
+   never show in a4, in the editor and in its dialogs: there the mask in the text colour is the icon */
+.exp-oe-skin-a4 .exp-oe-icon[class*="mce_"] { background: currentColor; color: inherit; font: inherit; }
+.exp-oe-skin-a4 .exp-oe-icon[class*="mce_"]::before { content: none; }
 
 /* paragraph / heading dropdown */
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-listbox {
@@ -520,7 +524,9 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
 .exp-oe-skin-a4 .exp-oe-shortcuts th, .exp-oe-skin-a4 .exp-oe-shortcuts td { padding: 6px 0; border-bottom: 1px solid var(--a4-line, #e3e6eb); vertical-align: top; }
 .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-help { width: 44rem; }
 .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source { width: 48rem; }
-.exp-oe-skin-a4 .exp-oe-dialog textarea.exp-oe-source-view { min-height: 22rem; font: var(--a4-text-xs, 12px)/1.6 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); background: var(--a4-code-bg, #f6f7f9); color: var(--a4-code-ink, var(--a4-ink, #1f2430)); white-space: pre; }
+/* the source: monospaced; :is() as the field rule above, which would win otherwise */
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])) { min-height: 22rem; font: var(--a4-text-xs, 12px)/1.6 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); background: var(--a4-code-bg, #f6f7f9); color: var(--a4-code-ink, var(--a4-ink, #1f2430)); white-space: pre; }
+.exp-oe-skin-a4 .exp-oe-help-table:not(.exp-oe-help-keys) tbody th { width: 32%; font: 600 var(--a4-text-s, 13px)/1.5 var(--a4-font, system-ui, sans-serif); }
 .exp-oe-skin-a4 .exp-oe-help-table th > .exp-oe-icon { display: inline-block; margin-right: 8px; vertical-align: -3px; }
 .exp-oe-skin-a4 .exp-oe-help-table thead th { font: 600 var(--a4-text-xs, 12px)/1.6 var(--a4-font, system-ui, sans-serif); color: var(--a4-muted, #5d6573); }
 .exp-oe-skin-a4 .exp-oe-help-panel p { margin: 0 0 8px; }

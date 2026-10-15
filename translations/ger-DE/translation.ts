@@ -1113,7 +1113,7 @@
     </message>
     <message>
         <source>Table row properties</source>
-        <translation>Eigenschaften der Tabellenzeile</translation>
+        <translation>Zeileneigenschaften</translation>
     </message>
     <message>
         <source>The attributes of the table row.</source>

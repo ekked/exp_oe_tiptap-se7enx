@@ -1002,12 +1002,17 @@ function sourceDialog( ctx ) {
         status.textContent = t( 'Select the text and copy it with Ctrl+C.' );
         return false;
     };
-    open( ctx, {
+    const dialog = open( ctx, {
         title: t( 'Source' ), width: 720, className: 'exp-oe-source',
         description: t( 'The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.' ),
         body: [ field( t( 'HTML' ), area, t( '%n characters' ).replace( '%n', html.length ) ), status ],
         buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Close' ), primary: true } ]
     } );
+    // the focus is in the field: from its start, not scrolled to its end
+    if ( dialog && area.setSelectionRange ) {
+        area.setSelectionRange( 0, 0 );
+        area.scrollTop = 0;
+    }
 }
 
 function helpDialog( ctx ) {

@@ -104,8 +104,8 @@ export const CUSTOM_TAG_SHORTCUTS = [
     [ 'Alt+Shift+Up / Down', 'Move the custom tag up or down' ], [ 'Alt+Shift+E', 'Edit the custom tag' ], [ 'Alt+Shift+Delete', 'Remove the custom tag' ]
 ];
 
-function table( rows, head ) {
-    return h( 'table', { class: 'exp-oe-shortcuts exp-oe-help-table' }, [
+function table( rows, head, keys ) {
+    return h( 'table', { class: 'exp-oe-shortcuts exp-oe-help-table' + ( keys ? ' exp-oe-help-keys' : '' ) }, [
         head ? h( 'thead', {}, h( 'tr', {}, head.map( ( c ) => h( 'th', { scope: 'col', text: c } ) ) ) ) : null,
         h( 'tbody', {}, rows )
     ] );
@@ -130,7 +130,7 @@ export function helpContent( ctx, buttons, commands ) {
     const keys = SHORTCUTS.concat( options.customTagControls ? CUSTOM_TAG_SHORTCUTS : [] );
     const panels = [
         [ t( 'Toolbar' ), [ h( 'p', { text: t( 'The buttons of this editor:' ) } ), table( toolbarRows ) ] ],
-        [ t( 'Keyboard' ), [ table( keys.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { scope: 'row', text: k } ), h( 'td', { text: t( d ) } ) ] ) ), [ t( 'Keys' ), t( 'Function' ) ] ),
+        [ t( 'Keyboard' ), [ table( keys.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { scope: 'row', text: k } ), h( 'td', { text: t( d ) } ) ] ) ), [ t( 'Keys' ), t( 'Function' ) ], true ),
                         h( 'p', { class: 'exp-oe-hint', text: t( 'On a Mac, Cmd instead of Ctrl.' ) } ) ] ],
         [ t( 'Tags' ), [ h( 'p', { text: t( 'A text field stores these tags (ezxmltext); the editor shows them as they look on the site:' ) } ),
                     table( TAG_HELP.map( ( [ tag, d ] ) => h( 'tr', {}, [ h( 'th', { scope: 'row', text: tag } ), h( 'td', { text: t( d ) } ) ] ) ) ) ] ],
