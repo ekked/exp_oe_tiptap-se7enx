@@ -60,7 +60,7 @@ Full instructions: [INSTALL.md](INSTALL.md).
 | [doc/extending.md](doc/extending.md) | custom tags, toolbar buttons, AI commands |
 | [doc/maintenance.md](doc/maintenance.md) | upgrading Tiptap, rebuilding, tests, troubleshooting |
 | [doc/plan.md](doc/plan.md) | plan, phases, risks, open decisions |
-| [doc/changelogs/](doc/changelogs/0.1.1.md) | what changed in each release |
+| [doc/changelogs/](doc/changelogs/0.1.4.md) | what changed in each release |
 
 ## Licence
 
