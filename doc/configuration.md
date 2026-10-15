@@ -98,6 +98,7 @@ noted.
 | `row_props` | Table row properties: class and custom attributes of the row at the cursor (content.ini `[tr]`), like ezoe's row dialog. TinyMCE 3's name and icon. | a click on `tr` in the status bar path |
 | `pastetext` | Paste as text, a switch as in TinyMCE 3: while it is on, every paste is plain text. Pasted HTML is always cleaned (Word, Google Docs, web pages); ezoe's `pasteword` dialog is not needed and not offered. | Ctrl+Shift+V (the next paste only) |
 | `search`, `replace` | Find and replace (TinyMCE 3's names and icons): a bar under the toolbar; `replace` puts the focus into the replace field. | Ctrl+F in the text |
+| `code` | Source, read only (TinyMCE 3's name and icon): the HTML of ezoe's dialect the editor posts, one block per line, with a copy button. Not editable: TinyMCE 3's source editor could post HTML outside the dialect; changes are made in the editor. The ezxmltext XML is made by the server when the form is stored and is not shown (making it in the browser would need the parser, which registers link URLs in the database). | |
 
 ## Preferences
 

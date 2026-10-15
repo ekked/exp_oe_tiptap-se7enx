@@ -933,6 +933,83 @@ function charmapDialog( ctx ) {
     } );
 }
 
+// ---------------------------------------------------------------- source (read only)
+
+const BLOCK_TAGS = /^(p|h[1-6]|ul|ol|li|table|tbody|thead|tfoot|tr|td|th|pre|div)$/;
+
+/**
+ * The posted HTML with one block per line, indented by nesting, for reading. Only white space between tags changes
+ * (none of it is content in ezoe's dialect); the content of a block (and of a literal) stays on its line as posted.
+ */
+export function formatSource( html ) {
+    const out = [];
+    let depth = 0, line = '', openOnLine = -1;
+    const flush = () => {
+        if ( line.trim() )
+            out.push( line );
+        line = '';
+        openOnLine = -1;
+    };
+    const indent = () => '  '.repeat( Math.max( 0, depth ) );
+    const re = /<(\/?)([a-zA-Z][\w:-]*)\b[^>]*>|[^<]+|</g;
+    let m, pre = 0;
+    while ( ( m = re.exec( String( html || '' ) ) ) ) {
+        const token = m[0], tag = ( m[2] || '' ).toLowerCase();
+        const block = !!tag && BLOCK_TAGS.test( tag ) && !( pre && tag !== 'pre' );
+        if ( !block ) {
+            line = ( line || indent() ) + token;
+            continue;
+        }
+        if ( m[1] !== '/' ) {
+            flush();
+            line = indent() + token;
+            openOnLine = depth;
+            depth++;
+            if ( tag === 'pre' )
+                pre++;
+            continue;
+        }
+        depth--;
+        if ( tag === 'pre' )
+            pre--;
+        if ( openOnLine === depth )
+            line += token;          // <p>text</p> on one line
+        else {
+            flush();
+            line = indent() + token;
+        }
+        flush();
+    }
+    flush();
+    return out.join( '\n' );
+}
+
+/**
+ * The source of the text, read only: the HTML of ezoe's dialect that the form posts (eZOEInputParser turns it into
+ * the stored ezxmltext), one block per line. A copy button puts it on the clipboard.
+ */
+function sourceDialog( ctx ) {
+    const { t } = ctx;
+    const html = ctx.instance.getHTML();
+    const area = h( 'textarea', { class: 'exp-oe-source-view', readonly: true, rows: 18, spellcheck: 'false', wrap: 'off' } );
+    area.value = formatSource( html );
+    const status = h( 'div', { class: 'exp-oe-hint', role: 'status', 'aria-live': 'polite' } );
+    const copy = () => {
+        const done = () => { status.textContent = t( 'Copied to the clipboard.' ); };
+        if ( navigator.clipboard && navigator.clipboard.writeText )
+            return navigator.clipboard.writeText( area.value ).then( done, () => { area.select(); status.textContent = t( 'Select the text and copy it with Ctrl+C.' ); } ).then( () => false );
+        area.select();
+        status.textContent = t( 'Select the text and copy it with Ctrl+C.' );
+        return false;
+    };
+    open( ctx, {
+        title: t( 'Source' ), width: 720, className: 'exp-oe-source',
+        description: t( 'The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.' ),
+        body: [ field( t( 'HTML' ), area, t( '%n characters' ).replace( '%n', html.length ) ), status ],
+        buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Close' ), primary: true } ]
+    } );
+}
+
 function helpDialog( ctx ) {
     const { t } = ctx;
     const dialog = open( ctx, {
@@ -961,6 +1038,7 @@ export function createDialogs() {
         rowProperties: rowPropertiesDialog,
         literal: literalDialog,
         general: generalDialog,
+        source: sourceDialog,
         charmap: charmapDialog,
         help: helpDialog
     };

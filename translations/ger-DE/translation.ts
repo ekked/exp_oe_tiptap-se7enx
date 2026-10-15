@@ -1559,6 +1559,34 @@
         <source>While typing: **text** makes bold, *text* italic, "# " at the start of a line a heading, "- " or "1. " a list.</source>
         <translation>Beim Tippen: **Text** macht fett, *Text* kursiv, "# " am Zeilenanfang eine Überschrift, "- " oder "1. " eine Liste.</translation>
     </message>
+    <message>
+        <source>%n characters</source>
+        <translation>%n Zeichen</translation>
+    </message>
+    <message>
+        <source>Copied to the clipboard.</source>
+        <translation>In die Zwischenablage kopiert.</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopieren</translation>
+    </message>
+    <message>
+        <source>HTML</source>
+        <translation>HTML</translation>
+    </message>
+    <message>
+        <source>Select the text and copy it with Ctrl+C.</source>
+        <translation>Den Text markieren und mit Strg+C kopieren.</translation>
+    </message>
+    <message>
+        <source>Show the source of the text, read only: the HTML the editor posts, which the server stores as ezxmltext.</source>
+        <translation>Den Quelltext anzeigen, nur lesend: das HTML, das der Editor sendet und das der Server als ezxmltext speichert.</translation>
+    </message>
+    <message>
+        <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
+        <translation>Das HTML, das der Editor sendet; der Server speichert es als ezxmltext. Nur lesend: Änderungen im Editor vornehmen.</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

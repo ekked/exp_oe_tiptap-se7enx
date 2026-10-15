@@ -288,6 +288,11 @@ export function createCommands() {
             available: () => true,
             run: ( ctx ) => ctx.instance.searchBar.open( true )
         },
+        code: {
+            title: 'Source', icon: 'code',
+            available: () => true,
+            run: ( ctx ) => ctx.dialogs.source( ctx )
+        },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',
             available: () => true,

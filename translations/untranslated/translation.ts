@@ -1559,6 +1559,34 @@
         <source>While typing: **text** makes bold, *text* italic, "# " at the start of a line a heading, "- " or "1. " a list.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>%n characters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copied to the clipboard.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTML</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select the text and copy it with Ctrl+C.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the source of the text, read only: the HTML the editor posts, which the server stores as ezxmltext.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

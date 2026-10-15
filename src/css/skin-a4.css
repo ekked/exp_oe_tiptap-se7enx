@@ -519,6 +519,8 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
 .exp-oe-skin-a4 .exp-oe-shortcuts { width: 100%; border-collapse: collapse; font-size: var(--a4-text-s, 13px); }
 .exp-oe-skin-a4 .exp-oe-shortcuts th, .exp-oe-skin-a4 .exp-oe-shortcuts td { padding: 6px 0; border-bottom: 1px solid var(--a4-line, #e3e6eb); vertical-align: top; }
 .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-help { width: 44rem; }
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source { width: 48rem; }
+.exp-oe-skin-a4 .exp-oe-dialog textarea.exp-oe-source-view { min-height: 22rem; font: var(--a4-text-xs, 12px)/1.6 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); background: var(--a4-code-bg, #f6f7f9); color: var(--a4-code-ink, var(--a4-ink, #1f2430)); white-space: pre; }
 .exp-oe-skin-a4 .exp-oe-help-table th > .exp-oe-icon { display: inline-block; margin-right: 8px; vertical-align: -3px; }
 .exp-oe-skin-a4 .exp-oe-help-table thead th { font: 600 var(--a4-text-xs, 12px)/1.6 var(--a4-font, system-ui, sans-serif); color: var(--a4-muted, #5d6573); }
 .exp-oe-skin-a4 .exp-oe-help-panel p { margin: 0 0 8px; }

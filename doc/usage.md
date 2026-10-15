@@ -77,6 +77,11 @@ site; the page says so in its status column.
   switches it on until you switch it off. A blank line starts a new paragraph, a single line break stays a line
   break.
 
+## Source
+
+Where the site has the toolbar's **Source** button, it shows the text as the HTML the editor sends with the form
+(the server turns it into the stored XML), read only, with a **Copy** button. Changes are made in the editor.
+
 ## Help
 
 The toolbar's **Help** (Alt+0) describes every button of this toolbar, the keyboard shortcuts, the tags a text field
