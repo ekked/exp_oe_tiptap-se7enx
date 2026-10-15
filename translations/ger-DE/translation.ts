@@ -32,6 +32,22 @@
         <translation>Übernehmen</translation>
     </message>
     <message>
+        <source>Align center</source>
+        <translation>Zentriert ausrichten</translation>
+    </message>
+    <message>
+        <source>Align full</source>
+        <translation>Blocksatz</translation>
+    </message>
+    <message>
+        <source>Align left</source>
+        <translation>Linksbündig ausrichten</translation>
+    </message>
+    <message>
+        <source>Align right</source>
+        <translation>Rechtsbündig ausrichten</translation>
+    </message>
+    <message>
         <source>Alignment</source>
         <translation>Ausrichtung</translation>
     </message>
@@ -54,6 +70,10 @@
     <message>
         <source>Bold</source>
         <translation>Fett</translation>
+    </message>
+    <message>
+        <source>Bold (Ctrl+B)</source>
+        <translation>Fett (Strg+B)</translation>
     </message>
     <message>
         <source>Bookmarks</source>
@@ -112,6 +132,18 @@
         <translation>Steuerung des benutzerdefinierten Tags</translation>
     </message>
     <message>
+        <source>Delete column</source>
+        <translation>Spalte löschen</translation>
+    </message>
+    <message>
+        <source>Delete row</source>
+        <translation>Zeile löschen</translation>
+    </message>
+    <message>
+        <source>Delete table</source>
+        <translation>Tabelle löschen</translation>
+    </message>
+    <message>
         <source>Edit the custom tag</source>
         <translation>Benutzerdefiniertes Tag bearbeiten</translation>
     </message>
@@ -120,12 +152,40 @@
         <translation>Beispiel</translation>
     </message>
     <message>
+        <source>Insert column after</source>
+        <translation>Spalte danach einfügen</translation>
+    </message>
+    <message>
+        <source>Insert column before</source>
+        <translation>Spalte davor einfügen</translation>
+    </message>
+    <message>
+        <source>Insert row after</source>
+        <translation>Zeile danach einfügen</translation>
+    </message>
+    <message>
+        <source>Insert row before</source>
+        <translation>Zeile davor einfügen</translation>
+    </message>
+    <message>
+        <source>Italic (Ctrl+I)</source>
+        <translation>Kursiv (Strg+I)</translation>
+    </message>
+    <message>
+        <source>Merge table cells</source>
+        <translation>Tabellenzellen verbinden</translation>
+    </message>
+    <message>
         <source>Move the custom tag down</source>
         <translation>Benutzerdefiniertes Tag nach unten verschieben</translation>
     </message>
     <message>
         <source>Move the custom tag up</source>
         <translation>Benutzerdefiniertes Tag nach oben verschieben</translation>
+    </message>
+    <message>
+        <source>Ordered list</source>
+        <translation>Nummerierte Liste</translation>
     </message>
     <message>
         <source>Remove the custom tag</source>
@@ -596,6 +656,10 @@
         <translation>Spanisch</translation>
     </message>
     <message>
+        <source>Split merged table cells</source>
+        <translation>Verbundene Tabellenzellen teilen</translation>
+    </message>
+    <message>
         <source>Store draft</source>
         <translation>Entwurf speichern</translation>
     </message>
@@ -796,6 +860,10 @@
         <translation>Unterstrichen</translation>
     </message>
     <message>
+        <source>Underline (Ctrl+U)</source>
+        <translation>Unterstrichen (Strg+U)</translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation>Rückgängig</translation>
     </message>
@@ -814,6 +882,10 @@
     <message>
         <source>Unlink</source>
         <translation>Link entfernen</translation>
+    </message>
+    <message>
+        <source>Unordered list</source>
+        <translation>Aufzählung</translation>
     </message>
     <message>
         <source>Upload</source>
