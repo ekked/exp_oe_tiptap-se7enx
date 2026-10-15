@@ -17,6 +17,7 @@ import { StatusBar } from '../ui/statusbar.js';
 import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
 import { customTagControls } from '../ui/customtag-controls.js';
+import { pasteExtension } from './paste.js';
 import { h, translator } from '../ui/dom.js';
 
 /** ezoe.ini [EditorLayout] Buttons[] defaults, used when the template gives no list */
@@ -117,7 +118,8 @@ export class ExpOETiptapInstance {
         this.contentArea.style.height = height + 'px';
 
         // the editor
-        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ) ],
+        this.pasteAsText = false;
+        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ), pasteExtension( this ) ],
                                       o.customTagControls ? [ customTagControls( this ) ] : [] );
         const content = this.schema.load( textarea.value, getSchema( extensions ) );
         const mount = h( 'div', { class: 'exp-oe-mount' } );

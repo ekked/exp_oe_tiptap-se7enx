@@ -935,7 +935,7 @@ function charmapDialog( ctx ) {
 export const SHORTCUTS = [
     [ 'Ctrl+B', 'Bold' ], [ 'Ctrl+I', 'Italic' ], [ 'Ctrl+U', 'Underline' ], [ 'Ctrl+Z', 'Undo' ], [ 'Ctrl+Y / Ctrl+Shift+Z', 'Redo' ],
     [ 'Ctrl+1 ... Ctrl+6', 'Heading 1 to 6' ], [ 'Ctrl+7', 'Paragraph' ], [ 'Ctrl+8, Ctrl+9', 'Literal text' ], [ 'Ctrl+K', 'Insert/edit link' ],
-    [ 'Ctrl+S', 'Store draft' ], [ 'Shift+Enter', 'Line break' ], [ 'Tab / Shift+Tab', 'Indent / outdent list item, next / previous table cell' ],
+    [ 'Ctrl+S', 'Store draft' ], [ 'Ctrl+Shift+V', 'Paste as text' ], [ 'Shift+Enter', 'Line break' ], [ 'Tab / Shift+Tab', 'Indent / outdent list item, next / previous table cell' ],
     [ 'Alt+0', 'Help' ], [ 'Alt+F10', 'Move to the toolbar' ]
 ];
 

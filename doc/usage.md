@@ -59,7 +59,13 @@ site; the page says so in its status column.
 
 - Tiptap edits in the page itself, not in a frame; it follows the page's font size and zoom.
 - Typing shortcuts: `**bold**`, `*italic*`, `# ` for a heading, `- ` or `1. ` for a list at the start of a line.
-- Paste from Word and web pages is cleaned to what a text field can store.
+- Paste from Word, Google Docs and web pages is cleaned to what a text field can store: paragraphs, headings, lists
+  (Word's bulleted and numbered paragraphs become real lists), tables, links, bold, italic, underline, sub- and
+  superscript. Fonts, colours, Word's comments, header and footer, bookmarks and images of the clipboard are left out;
+  the text of everything else stays. Text copied inside the editor keeps everything (embeds, custom tags, classes).
+- **Paste as text**: Ctrl+Shift+V pastes only the text, once; the toolbar's **Paste as text** (where the site has it)
+  switches it on until you switch it off. A blank line starts a new paragraph, a single line break stays a line
+  break.
 
 ## AI commands
 

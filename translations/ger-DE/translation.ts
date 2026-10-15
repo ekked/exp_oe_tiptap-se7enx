@@ -1139,6 +1139,10 @@
         <source>The same type, width, alignment, class and custom attributes for every cell of the choice.</source>
         <translation>Derselbe Typ, dieselbe Breite, Ausrichtung, Klasse und dieselben benutzerdefinierten Attribute für jede Zelle der Auswahl.</translation>
     </message>
+    <message>
+        <source>Paste as text (Ctrl+Shift+V)</source>
+        <translation>Als Text einfügen (Strg+Umschalt+V)</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

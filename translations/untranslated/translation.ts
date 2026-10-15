@@ -1139,6 +1139,10 @@
         <source>The same type, width, alignment, class and custom attributes for every cell of the choice.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Paste as text (Ctrl+Shift+V)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

@@ -269,6 +269,15 @@ export function createCommands() {
             run: ( ctx, anchor, target ) => ctx.dialogs.rowProperties( ctx, target ),
             enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'row' )
         },
+        pastetext: {
+            title: 'Paste as text (Ctrl+Shift+V)', icon: 'pastetext',
+            available: () => true,
+            run: ( ctx ) => {
+                ctx.instance.pasteAsText = !ctx.instance.pasteAsText;
+                ctx.editor.commands.focus();
+            },
+            active: ( ctx ) => !!ctx.instance.pasteAsText
+        },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',
             available: () => true,
