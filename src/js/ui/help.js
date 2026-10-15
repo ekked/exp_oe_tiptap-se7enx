@@ -6,6 +6,7 @@
  * @license GPL-2.0-or-later
  */
 import { h } from './dom.js';
+import { shortcutLabel } from './keys.js';
 
 /** What every button does (the text of ezoe's help, where ezoe has the button) */
 export const BUTTON_HELP = {
@@ -90,6 +91,9 @@ export const TIPS = {
     switch: 'Below the editor you can switch to the other editor; the text is stored first and nothing is lost.'
 };
 
+/** Tips whose "Ctrl" is the Control key itself, not the Cmd key of a Mac (the context menu checks ctrlKey) */
+const CONTROL_KEY_TIPS = [ 'menu' ];
+
 /** Keyboard shortcuts: [ keys, what ] */
 export const SHORTCUTS = [
     [ 'Ctrl+B', 'Bold' ], [ 'Ctrl+I', 'Italic' ], [ 'Ctrl+U', 'Underline' ], [ 'Ctrl+Z', 'Undo' ], [ 'Ctrl+Y / Ctrl+Shift+Z', 'Redo' ],
@@ -130,11 +134,11 @@ export function helpContent( ctx, buttons, commands ) {
     const keys = SHORTCUTS.concat( options.customTagControls ? CUSTOM_TAG_SHORTCUTS : [] );
     const panels = [
         [ t( 'Toolbar' ), [ h( 'p', { text: t( 'The buttons of this editor:' ) } ), table( toolbarRows ) ] ],
-        [ t( 'Keyboard' ), [ table( keys.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { scope: 'row', text: k } ), h( 'td', { text: t( d ) } ) ] ) ), [ t( 'Keys' ), t( 'Function' ) ], true ),
-                        h( 'p', { class: 'exp-oe-hint', text: t( 'On a Mac, Cmd instead of Ctrl.' ) } ) ] ],
+        // the keys as the platform names them (ui/keys.js): ⇧⌘V on a Mac, Ctrl+Shift+V (Strg+Umschalt+V) elsewhere
+        [ t( 'Keyboard' ), [ table( keys.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { scope: 'row', text: shortcutLabel( k, t ) } ), h( 'td', { text: t( d ) } ) ] ) ), [ t( 'Keys' ), t( 'Function' ) ], true ) ] ],
         [ t( 'Tags' ), [ h( 'p', { text: t( 'A text field stores these tags (ezxmltext); the editor shows them as they look on the site:' ) } ),
                     table( TAG_HELP.map( ( [ tag, d ] ) => h( 'tr', {}, [ h( 'th', { scope: 'row', text: tag } ), h( 'td', { text: t( d ) } ) ] ) ) ) ] ],
-        [ t( 'Tips' ), [ h( 'ul', { class: 'exp-oe-help-tips' }, Object.keys( TIPS ).map( ( k ) => h( 'li', { text: t( TIPS[k] ) } ) ) ) ] ],
+        [ t( 'Tips' ), [ h( 'ul', { class: 'exp-oe-help-tips' }, Object.keys( TIPS ).map( ( k ) => h( 'li', { text: t( TIPS[k], null, { control: CONTROL_KEY_TIPS.includes( k ) } ) } ) ) ) ] ],
         [ t( 'About' ), [ h( 'p', { text: t( 'The Online Editor of Exponential with Tiptap: it edits the same text as ezoe\'s TinyMCE and stores it the same way, so either editor can be used on the same content.' ) } ),
                      h( 'p', { text: 'Tiptap (https://tiptap.dev) and ProseMirror (https://prosemirror.net): MIT. exp_oe_tiptap: GPL-2.0-or-later.' } ) ] ]
     ];

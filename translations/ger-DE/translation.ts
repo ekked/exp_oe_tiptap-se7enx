@@ -56,6 +56,10 @@
         <translation>Alle %n Elemente (Bilder, Objekte, benutzerdefinierte Tags, Anker, Tabellen, Links) bleiben an ihrer Stelle.</translation>
     </message>
     <message>
+        <source>Alt</source>
+        <translation>Alt</translation>
+    </message>
+    <message>
         <source>Anchor</source>
         <translation>Anker</translation>
     </message>
@@ -124,12 +128,20 @@
         <translation>Weiterschreiben</translation>
     </message>
     <message>
+        <source>Ctrl</source>
+        <translation>Strg</translation>
+    </message>
+    <message>
         <source>Custom tag</source>
         <translation>Benutzerdefiniertes Tag</translation>
     </message>
     <message>
         <source>Custom tag controls</source>
         <translation>Steuerung des benutzerdefinierten Tags</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Entf</translation>
     </message>
     <message>
         <source>Delete column</source>
@@ -144,8 +156,20 @@
         <translation>Tabelle löschen</translation>
     </message>
     <message>
+        <source>Down</source>
+        <translation>Nach unten</translation>
+    </message>
+    <message>
         <source>Edit the custom tag</source>
         <translation>Benutzerdefiniertes Tag bearbeiten</translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation>Eingabe</translation>
+    </message>
+    <message>
+        <source>Escape</source>
+        <translation>Esc</translation>
     </message>
     <message>
         <source>Example</source>
@@ -644,12 +668,20 @@
         <translation>Veröffentlichen</translation>
     </message>
     <message>
+        <source>Shift</source>
+        <translation>Umschalt</translation>
+    </message>
+    <message>
         <source>Size</source>
         <translation>Größe</translation>
     </message>
     <message>
         <source>Source</source>
         <translation>Quelltext</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Leertaste</translation>
     </message>
     <message>
         <source>Spanish</source>
@@ -846,6 +878,10 @@
     <message>
         <source>Turkish</source>
         <translation>Türkisch</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>URL</source>
@@ -1442,10 +1478,6 @@
     <message>
         <source>Move the list item one level up (out of a nested list).</source>
         <translation>Den Listenpunkt eine Ebene höher setzen (aus einer verschachtelten Liste heraus).</translation>
-    </message>
-    <message>
-        <source>On a Mac, Cmd instead of Ctrl.</source>
-        <translation>Auf dem Mac Cmd statt Strg.</translation>
     </message>
     <message>
         <source>Open this help (Alt+0).</source>

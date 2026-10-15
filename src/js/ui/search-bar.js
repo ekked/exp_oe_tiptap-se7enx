@@ -1,5 +1,5 @@
 /**
- * The find and replace bar between the toolbar and the text (editor/search.js does the finding). Ctrl+F in the text
+ * The find and replace bar between the toolbar and the text (editor/search.js does the finding). Ctrl+F (Cmd+F on a Mac) in the text
  * opens it with the selected text, the toolbar's search and replace buttons (ezoe's names) too.
  *
  * Keyboard: Enter in the find field goes to the next match, Shift+Enter to the previous one, F3 / Shift+F3 too (also
@@ -11,6 +11,7 @@
  */
 import { TextSelection } from '@tiptap/pm/state';
 import { h } from './dom.js';
+import { isMac } from './keys.js';
 import { setSearch, goTo, replaceCurrent, replaceAll, clearSearch, searchState } from '../editor/search.js';
 
 let bars = 0;
@@ -142,7 +143,8 @@ export class SearchBar {
     }
 
     onKey( e ) {
-        const mod = e.ctrlKey || e.metaKey;
+        // the key Tiptap's Mod- stands for: Cmd on a Mac (where Ctrl+F moves the caret in a field), Ctrl elsewhere
+        const mod = isMac() ? e.metaKey && !e.ctrlKey : e.ctrlKey && !e.metaKey;
         if ( e.key === 'Escape' ) {
             e.preventDefault();
             e.stopPropagation();

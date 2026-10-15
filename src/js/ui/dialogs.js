@@ -1048,8 +1048,9 @@ function sourceDialog( ctx ) {
         } );
     } else {
         const keysHint = () => ( area.getAttribute( 'data-exp-oe-tab' ) === 'insert'
-            ? t( 'Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.' )
-            : t( 'Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.' ) ) + ' ' + t( '%n characters' ).replace( '%n', area.value.length );
+            // Ctrl+M is the Control key on a Mac too (Cmd+M minimises the window): ⌃M there
+            ? t( 'Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.', null, { control: true } )
+            : t( 'Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.', null, { control: true } ) ) + ' ' + t( '%n characters' ).replace( '%n', area.value.length );
         const wrap = h( 'input', { type: 'checkbox', class: 'exp-oe-source-wrap', onchange: () => {
             area.setAttribute( 'wrap', wrap.checked ? 'soft' : 'off' );
             area.classList.toggle( 'exp-oe-source-wrapped', wrap.checked );

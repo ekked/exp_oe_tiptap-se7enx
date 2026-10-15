@@ -62,6 +62,10 @@ site; the page says so in its status column.
 ## What is different
 
 - Tiptap edits in the page itself, not in a frame; it follows the page's font size and zoom.
+- **Keyboard shortcuts** are written here the Windows way. On a Mac, Cmd takes the place of Ctrl (Cmd+F, Cmd+Z,
+  Cmd+Shift+V), and the editor's tooltips, help and hints show them with the Mac's symbols (⌘F, ⇧⌘V, ⌥0). Two keep
+  the Control key on a Mac too, and show ⌃: Ctrl+M in the source view's field (Cmd+M minimises the window) and
+  Ctrl with a right click for the browser's own menu.
 - Typing shortcuts: `**bold**`, `*italic*`, `# ` for a heading, `- ` or `1. ` for a list at the start of a line.
 - Paste from Word, Google Docs and web pages is cleaned to what a text field can store: paragraphs, headings, lists
   (Word's bulleted and numbered paragraphs become real lists), tables, links, bold, italic, underline, sub- and

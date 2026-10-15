@@ -56,6 +56,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Alt</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Anchor</source>
         <translation type="unfinished"></translation>
     </message>
@@ -124,11 +128,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Ctrl</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Custom tag</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Custom tag controls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -144,7 +156,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit the custom tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Escape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -644,11 +668,19 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Shift</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Space</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -845,6 +877,10 @@
     </message>
     <message>
         <source>Turkish</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1441,10 +1477,6 @@
     </message>
     <message>
         <source>Move the list item one level up (out of a nested list).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>On a Mac, Cmd instead of Ctrl.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

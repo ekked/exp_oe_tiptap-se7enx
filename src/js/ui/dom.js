@@ -1,6 +1,7 @@
 /**
  * Tiny DOM helpers for the toolbar, status bar and dialogs (no framework).
  */
+import { formatKeys, isMac } from './keys.js';
 
 /**
  * h( 'a', { class: 'x', onclick: fn, title: 't' }, [ 'text', otherNode ] )
@@ -38,14 +39,29 @@ export function clear( el ) {
     return el;
 }
 
-/** Translation lookup: options.i18n maps the English text to the translated text */
-export function translator( i18n ) {
-    return ( text, replacements ) => {
-        let s = ( i18n && typeof i18n[text] === 'string' && i18n[text] ) || text;
+/**
+ * Translation lookup: options.i18n maps the English text to the translated text. The keyboard shortcuts in a text
+ * are written for the platform (ui/keys.js formatKeys(): ⇧⌘V on a Mac, Strg+Umschalt+V in German elsewhere); a text
+ * whose "Ctrl" means the Control key itself passes { control: true }. t.keys( text, options ) only formats the
+ * shortcuts of a text that is translated already.
+ *
+ * @param {Object} i18n
+ * @param {Object} [platform] { mac: boolean } (default: the browser's, as ProseMirror's keymap decides it)
+ */
+export function translator( i18n, platform ) {
+    const lookup = ( text ) => ( i18n && typeof i18n[text] === 'string' && i18n[text] ) || text;
+    const mac = platform && platform.mac !== undefined ? !!platform.mac : isMac();
+    const names = { Ctrl: lookup( 'Ctrl' ), Shift: lookup( 'Shift' ), Alt: lookup( 'Alt' ) };
+    const keys = ( text, options ) => formatKeys( text, { mac, names, control: !!( options && options.control ) } );
+    const t = ( text, replacements, options ) => {
+        let s = lookup( text );
         if ( replacements ) {
             for ( const [ k, v ] of Object.entries( replacements ) )
                 s = s.split( k ).join( String( v ) );
         }
-        return s;
+        return keys( s, options );
     };
+    t.keys = keys;
+    t.mac = mac;
+    return t;
 }
