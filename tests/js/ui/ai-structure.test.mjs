@@ -192,7 +192,8 @@ test( 'an assistant that drops, duplicates or invents tokens fails the check; th
         const bad = [
             [ 'drop', ( m ) => m.replace( TOKEN, ( t, i ) => ( t === '⟦' + keys[0] + '⟧' ? '' : t ) ) ],
             [ 'duplicate', ( m ) => m + '\n<p>⟦' + keys[keys.length - 1] + '⟧ again</p>' ],
-            [ 'invent', ( m ) => m.replace( /<\/p>/, ' ⟦E99⟧</p>' ) ],
+            // a document of tables only has no paragraph to put the invented token in
+            [ 'invent', ( m ) => ( /<\/p>/.test( m ) ? m.replace( /<\/p>/, ' ⟦E99⟧</p>' ) : m + '\n<p>⟦E99⟧</p>' ) ],
             [ 'drop all', ( m ) => m.replace( TOKEN, '' ) ]
         ];
         for ( const [ what, fake ] of bad ) {
@@ -330,7 +331,8 @@ test( 'panel: an answer that loses items is asked for once more (strict), then w
     // happy-dom rewrites an invalid style value (width: 640) once the editable state of the view changes; browsers keep it
     const noStyle = ( s ) => s.replace( / style="[^"]*"/g, '' );
     assert.equal( noStyle( M.toEditorHTML( inst.editor, { document } ) ), noStyle( before ) );
-    assert.equal( noStyle( t.value ), noStyle( html ) );
+    // the field is the original, or the same document as the editor posts it (without inputXML()'s last empty paragraph)
+    assert.ok( [ noStyle( html ), noStyle( before ) ].includes( noStyle( t.value ) ), t.value );
     assert.equal( inst.editor.isEditable, true );
 } );
 

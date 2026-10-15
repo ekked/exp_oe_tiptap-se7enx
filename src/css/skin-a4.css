@@ -79,6 +79,10 @@
     mask: var(--exp-oe-a4-icon) center / 16px 16px no-repeat;
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-icon::before { content: none; }
+/* the text glyphs the o2k7 look draws for icons ezoe's sprite lacks (AI, switch, tag properties, close, search arrows)
+   never show in a4, in the editor and in its dialogs: there the mask in the text color is the icon */
+.exp-oe-skin-a4 .exp-oe-icon[class*="mce_"] { background: currentColor; color: inherit; font: inherit; }
+.exp-oe-skin-a4 .exp-oe-icon[class*="mce_"]::before { content: none; }
 
 /* paragraph / heading dropdown */
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-listbox {
@@ -148,16 +152,22 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .ProseMirror-selectednode { outline: 2px solid var(--exp-oe-accent); outline-offset: 2px; }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content p.is-editor-empty:first-child::before { color: var(--exp-oe-muted); }
 
-/* status bar */
+/* status bar: admin4's small type (the font of the editor, --a4-text-xs), "Path:" in its label weight, the path
+   items muted and underlined only on hover, like TinyMCE 8's status bar in admin4 */
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-statusbar {
+    min-height: 24px;
+    padding: 0 0 0 var(--a4-space-2, 8px);
     border-top: 1px solid var(--exp-oe-border);
     background: var(--exp-oe-bar);
     color: var(--exp-oe-muted);
+    font: inherit;
     font-size: var(--a4-text-xs, 12px);
+    line-height: 16px;
     border-radius: 0 0 var(--exp-oe-a4-radius) var(--exp-oe-a4-radius);
 }
-.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a { color: var(--exp-oe-muted); }
-.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a:hover { background: var(--exp-oe-hover); color: var(--exp-oe-text); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path-label { font-weight: 600; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a { padding: 0 2px; color: var(--exp-oe-muted); text-decoration: none; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a:hover { background: var(--exp-oe-hover); color: var(--exp-oe-text); text-decoration: underline; }
 
 /* floating menus: bubble over selected text, "+" beside an empty line */
 .exp-oe-tiptap .exp-oe-floating { position: static; }
@@ -195,6 +205,72 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus:focus-visible { outline: 2px solid var(--exp-oe-accent); outline-offset: 1px; }
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button { width: auto; justify-content: flex-start; gap: 8px; padding: 0 10px 0 8px; }
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button::after { content: attr(aria-label); font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif); white-space: nowrap; }
+
+/* find and replace bar: a row of admin4 fields under the toolbar; the matches in admin4's accent */
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-searchbar {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--exp-oe-border);
+    background: var(--exp-oe-bar);
+    color: var(--exp-oe-text);
+    font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif);
+}
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-row { gap: 6px; padding: 2px 0; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-label { min-width: 7.5em; font-weight: 600; }
+.exp-oe-tiptap.exp-oe-skin-a4 :is(.exp-oe-search-find, .exp-oe-search-replace) {
+    height: var(--a4-control-h, 32px);
+    padding: 0 10px;
+    border: 1px solid var(--a4-field-line, #8f96a3);
+    border-radius: var(--exp-oe-a4-radius);
+    background: var(--a4-field, #fff);
+    color: var(--exp-oe-text);
+}
+.exp-oe-tiptap.exp-oe-skin-a4 :is(.exp-oe-search-find, .exp-oe-search-replace):focus-visible { outline: 3px solid var(--a4-ring, rgba(242, 106, 33, .55)); outline-offset: 0; border-color: var(--a4-accent, #f26a21); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-find[aria-invalid="true"] { border-color: var(--a4-bad, #b91c1c); background: var(--a4-bad-bg, #fdecec); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-button {
+    height: var(--a4-control-h, 32px);
+    padding: 0 12px;
+    border: 1px solid var(--a4-line-strong, var(--exp-oe-border));
+    border-radius: var(--exp-oe-a4-radius);
+    background: var(--a4-card, #fff);
+    color: var(--exp-oe-text);
+    font: inherit;
+    font-weight: 600;
+}
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-button:hover:not([disabled]) { border-color: var(--a4-accent, #f26a21); color: var(--a4-accent-text, #c2410c); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-button:focus-visible { outline: 3px solid var(--a4-ring, rgba(242, 106, 33, .55)); outline-offset: 2px; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-icon-button { width: var(--a4-control-h, 32px); padding: 0; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-close { border-color: transparent; background: none; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-case input { width: 18px; height: 18px; margin: 0; accent-color: var(--a4-accent-strong, #c2410c); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-status { color: var(--exp-oe-muted); font-variant-numeric: tabular-nums; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-match { background: var(--a4-warn-bg, #fff3c4); color: inherit; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-current { background: var(--a4-accent-soft, rgba(242, 106, 33, .28)); outline: 2px solid var(--a4-accent, #f26a21); }
+@media (max-width: 40rem) {
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-label { min-width: 100%; }
+}
+@media (forced-colors: active) {
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-match { background: Mark; color: MarkText; forced-color-adjust: none; }
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-current { background: Highlight; color: HighlightText; }
+}
+
+/* context menu (ui/context-menu.js): a card like the floating menus, the label beside the icon */
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-context-menu {
+    min-width: 220px;
+    padding: 4px;
+    border: 1px solid var(--exp-oe-border);
+    border-radius: var(--exp-oe-a4-radius);
+    background: var(--a4-card, #fff);
+    box-shadow: var(--a4-shadow-m, 0 8px 24px rgba(0, 0, 0, .14));
+    color: var(--exp-oe-text);
+    font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif);
+}
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item { height: var(--a4-control-h, 32px); gap: 10px; padding: 0 12px 0 8px; border: 0; border-radius: var(--exp-oe-a4-radius); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:hover, .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:focus { background: var(--exp-oe-hover); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:focus-visible { outline: 2px solid var(--exp-oe-accent); outline-offset: -2px; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-separator { margin: 4px 6px; background: var(--exp-oe-border); }
+@media (forced-colors: active) {
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-context-menu { border: 1px solid CanvasText; }
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:focus { outline: 2px solid Highlight; }
+}
 
 /* dialogs (ui/dialog.js; the overlay carries exp-oe-skin-a4): a card in admin4's look instead of ezoe's inline popup.
    Title without a bar, close button with an icon, label above field and hint below, secondary button left of the
@@ -452,6 +528,34 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
 .exp-oe-skin-a4 .exp-oe-char:hover, .exp-oe-skin-a4 .exp-oe-char:focus { border-color: var(--a4-accent, #f26a21); background: var(--a4-accent-soft, rgba(242, 106, 33, .12)); }
 .exp-oe-skin-a4 .exp-oe-shortcuts { width: 100%; border-collapse: collapse; font-size: var(--a4-text-s, 13px); }
 .exp-oe-skin-a4 .exp-oe-shortcuts th, .exp-oe-skin-a4 .exp-oe-shortcuts td { padding: 6px 0; border-bottom: 1px solid var(--a4-line, #e3e6eb); vertical-align: top; }
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-help { width: 44rem; }
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source { width: 48rem; }
+/* the source: monospaced; :is() as the field rule above, which would win otherwise */
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])) { min-height: 22rem; font: var(--a4-text-xs, 12px)/1.6 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); background: var(--a4-code-bg, #f6f7f9); color: var(--a4-code-ink, var(--a4-ink, #1f2430)); white-space: pre; }
+/* same weight as the rule above (its :is() counts as its heaviest part), one class more */
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])).exp-oe-source-wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])):read-only { background: var(--a4-soft, #f6f7f9); }
+.exp-oe-skin-a4 .exp-oe-source-note { margin: 0 0 12px; color: var(--a4-muted, #5d6573); font-size: var(--a4-text-s, 13px); }
+.exp-oe-skin-a4 .exp-oe-source-warning {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--a4-warn-line, #f3d19c);
+    border-radius: var(--exp-oe-a4-radius);
+    background: var(--a4-warn-bg, #fff3df);
+    color: var(--a4-ink, #1f2430);
+    font-size: var(--a4-text-s, 13px);
+}
+.exp-oe-skin-a4 .exp-oe-source-warning > p:first-child { margin: 0 0 6px; font-weight: 600; color: var(--a4-warn, #8a4b00); }
+.exp-oe-skin-a4 .exp-oe-source-warning > p:last-child { margin: 6px 0 0; color: var(--a4-muted, #5d6573); }
+.exp-oe-skin-a4 .exp-oe-source-warning ul { margin: 0; padding-left: 1.2em; max-height: 10rem; overflow: auto; font-family: var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: var(--a4-text-xs, 12px); }
+.exp-oe-skin-a4 .exp-oe-source-warning[hidden] { display: none; }
+.exp-oe-skin-a4 .exp-oe-help-table:not(.exp-oe-help-keys) tbody th { width: 32%; font: 600 var(--a4-text-s, 13px)/1.5 var(--a4-font, system-ui, sans-serif); }
+.exp-oe-skin-a4 .exp-oe-help-table th > .exp-oe-icon { display: inline-block; margin-right: 8px; vertical-align: -3px; }
+.exp-oe-skin-a4 .exp-oe-help-table thead th { font: 600 var(--a4-text-xs, 12px)/1.6 var(--a4-font, system-ui, sans-serif); color: var(--a4-muted, #5d6573); }
+.exp-oe-skin-a4 .exp-oe-help-panel p { margin: 0 0 8px; }
+.exp-oe-skin-a4 .exp-oe-help-tips { margin: 0; padding-left: 1.2em; }
+.exp-oe-skin-a4 .exp-oe-help-tips li { margin: 0 0 6px; }
+.exp-oe-skin-a4 .exp-oe-help-panel:focus-visible { outline: 3px solid var(--a4-ring, rgba(242, 106, 33, .55)); outline-offset: 2px; }
 .exp-oe-skin-a4 .exp-oe-shortcuts th { padding-right: 16px; font: 500 var(--a4-text-xs, 12px)/1.6 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); }
 
 /* a phone: the whole width, a sheet at the bottom */
@@ -464,6 +568,8 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
         border-width: 1px 0 0;
         border-radius: var(--exp-oe-a4-radius) var(--exp-oe-a4-radius) 0 0;
     }
+    .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source, .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-help { width: 100%; }
+    .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])) { min-height: 14rem; }
     .exp-oe-skin-a4 .exp-oe-dialog-title { padding: 16px 12px 4px 16px; }
     .exp-oe-skin-a4 .exp-oe-dialog-description { padding: 0 16px 4px; }
     .exp-oe-skin-a4 .exp-oe-dialog-panel { padding: 12px 16px 8px; }

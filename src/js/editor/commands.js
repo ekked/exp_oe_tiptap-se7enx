@@ -1,13 +1,15 @@
 /**
  * The toolbar buttons of ezoe (ezoe.ini [EditorLayout] Buttons[]) and what they do in Tiptap.
  *
- * Every entry: { title, icon, run( ctx ), active?( ctx ), enabled?( ctx ), select? }
+ * Every entry: { title, icon, run( ctx, anchor, target ), active?( ctx ), enabled?( ctx ), select? }
+ *   run    anchor: the button pressed (menus open beside it); target: the element a status bar path click chose
  *   title  translation key (ctx.t), the TinyMCE 3 ez theme's tooltip text
  *   icon   the class of ezoe's o2k7 icon sprite (span.mce_<icon>)
  * Buttons whose node or mark type the schema does not have are left out of the toolbar
  * (available() false), like ezoe hides buttons for tags ezxml does not allow.
  */
 import { nodeForTag, markForTag, linkMark, hasCommand, knownAttrs, selectedAncestor, currentBlock, attrsFromElement } from './schema-utils.js';
+import { generalTargets } from './tags.js';
 
 const BLOCK_FORMATS = [
     [ 'p', 'Paragraph' ],
@@ -106,6 +108,16 @@ function tableButton( command, title, icon ) {
 export function literalHasProperties( options ) {
     const def = ( options && options.literal ) || {};
     return Object.keys( def.classes || {} ).length > 0 || ( def.attributes || [] ).length > 0;
+}
+
+/** Inserts a non-breaking space at the cursor (ezxmltext keeps it as the character U+00A0) */
+export function insertNonBreakingSpace( editor ) {
+    return editor.chain().focus().command( ( { tr, state } ) => {
+        if ( !state.selection.$from.parent.inlineContent )
+            return false;
+        tr.insertText( '\u00a0', state.selection.from, state.selection.to );
+        return true;
+    } ).run();
 }
 
 /** Converts the current textblock to the format of <tag> (formatselect) */
@@ -252,7 +264,49 @@ export function createCommands() {
             title: 'Table cell properties', icon: 'cell_props', tableOnly: true,
             available: ( { editor } ) => hasCommand( editor, 'insertTable' ),
             run: ( ctx ) => ctx.dialogs.cellProperties( ctx ),
-            enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' )
+            enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' ) ||
+                                       !!editor.state.selection.$anchorCell
+        },
+        tag_props: {
+            title: 'Tag properties', icon: 'tag_props',
+            available: ( ctx ) => !!( ctx.dialogs && ctx.dialogs.general ),
+            run: ( ctx, anchor, target ) => ctx.dialogs.general( ctx, target ),
+            enabled: ( { editor } ) => generalTargets( editor ).length > 0
+        },
+        row_props: {
+            title: 'Table row properties', icon: 'row_props', tableOnly: true,
+            available: ( { editor } ) => hasCommand( editor, 'insertTable' ),
+            run: ( ctx, anchor, target ) => ctx.dialogs.rowProperties( ctx, target ),
+            enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'row' )
+        },
+        pastetext: {
+            title: 'Paste as text (Ctrl+Shift+V)', icon: 'pastetext',
+            available: () => true,
+            run: ( ctx ) => {
+                ctx.instance.pasteAsText = !ctx.instance.pasteAsText;
+                ctx.editor.commands.focus();
+            },
+            active: ( ctx ) => !!ctx.instance.pasteAsText
+        },
+        search: {
+            title: 'Find (Ctrl+F)', icon: 'search',
+            available: () => true,
+            run: ( ctx ) => ctx.instance.searchBar.open( false )
+        },
+        replace: {
+            title: 'Find and replace', icon: 'replace',
+            available: () => true,
+            run: ( ctx ) => ctx.instance.searchBar.open( true )
+        },
+        code: {
+            title: 'Source', icon: 'code',
+            available: () => true,
+            run: ( ctx ) => ctx.dialogs.source( ctx )
+        },
+        nonbreaking: {
+            title: 'Insert non-breaking space (Ctrl+Shift+Space)', icon: 'nonbreaking',
+            available: () => true,
+            run: ( { editor } ) => insertNonBreakingSpace( editor )
         },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',

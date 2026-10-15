@@ -31,7 +31,7 @@ class expOETiptapXMLInput extends eZOEXMLInput
     {
         if ( $name === 'exp_oe_editor' )
             return self::editorInfo();
-        if ( $name === 'engine' || $name === 'engine_switch_choices' )
+        if ( $name === 'engine' || $name === 'engine_switch_choices' || $name === 'engine_switch_options' )
             expOETiptapEditor::migratePreference();
         return parent::attribute( $name );
     }

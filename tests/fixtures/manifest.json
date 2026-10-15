@@ -651,6 +651,25 @@
             "features": [
                 "line-after-block-embeds"
             ]
+        },
+        {
+            "name": "s065-general-attributes",
+            "source": "synthetic",
+            "features": [
+                "general-attributes",
+                "class",
+                "custom-attributes",
+                "style-map"
+            ]
+        },
+        {
+            "name": "s066-row-attributes",
+            "source": "synthetic",
+            "features": [
+                "table-row-attributes",
+                "class",
+                "custom-attributes"
+            ]
         }
     ]
 }

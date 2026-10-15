@@ -1,6 +1,7 @@
 /**
  * The ezoe dialogs for Tiptap: link, anchor, embed (image/object/file with search, browse, bookmarks
- * and upload), custom tag, table, table cell, special characters and help.
+ * and upload), custom tag, table, table row, table cell, literal, tag properties (class and custom attributes of paragraphs,
+ * headings, lists and strong / emphasize), special characters and help.
  *
  * They call ezoe's own server side (ezoe-api.js) and produce the ezoe HTML dialect, exactly the
  * markup eZOEXMLInput writes and eZOEInputParser reads. The markup goes into Tiptap through the
@@ -9,6 +10,7 @@
  */
 import { DOMSerializer as Serializer } from '@tiptap/pm/model';
 import { NodeSelection } from '@tiptap/pm/state';
+import { TableMap, CellSelection } from '@tiptap/pm/tables';
 import { h, clear } from './dom.js';
 import { openDialog, field, select } from './dialog.js';
 import { EzoeApi, PAGE_SIZE, parseCustomAttributes, serializeCustomAttributes, decodeHtml } from './ezoe-api.js';
@@ -16,6 +18,9 @@ import {
     linkMark, markForTag, nodeForTag, selectedAncestor, attrsFromElement, dialectElement, makeElement, escapeHtml
 } from '../editor/schema-utils.js';
 import { setBlockFormat } from '../editor/commands.js';
+import { generalTargets, preferredTarget, TAG_LABELS } from '../editor/tags.js';
+import { helpContent, SHORTCUTS } from './help.js';
+import { readSource, applySource } from '../editor/source.js';
 
 
 const EMBED_ID = /^eZ(Object|Node)_(\d+)$/;
@@ -607,9 +612,40 @@ function tableDialog( ctx ) {
     } );
 }
 
+/**
+ * The cells a change of the cell dialog applies to, like "Apply to" of ezoe's tag_table_cell.tpl (cell, row, column)
+ * plus the whole table and the selected cells (a cell selection): [ { pos, node } ], in document order.
+ * Rows and columns follow the table's grid (TableMap): a merged cell belongs to every row and column it covers.
+ */
+export function cellsToApply( state, cellPos, mode ) {
+    const doc = state.doc;
+    if ( mode === 'selection' && state.selection instanceof CellSelection ) {
+        const cells = [];
+        state.selection.forEachCell( ( node, pos ) => cells.push( { pos, node } ) );
+        return cells.sort( ( a, b ) => a.pos - b.pos );
+    }
+    const $cell = doc.resolve( cellPos );
+    const table = $cell.node( -1 ), tableStart = $cell.start( -1 );
+    if ( mode === 'cell' || !table || table.type.spec.tableRole !== 'table' )
+        return [ { pos: cellPos, node: doc.nodeAt( cellPos ) } ];
+    const map = TableMap.get( table );
+    const rect = map.findCell( cellPos - tableStart );
+    const area = mode === 'row' ? { left: 0, right: map.width, top: rect.top, bottom: rect.top + 1 }
+        : mode === 'column' ? { left: rect.left, right: rect.left + 1, top: 0, bottom: map.height }
+        : { left: 0, right: map.width, top: 0, bottom: map.height };
+    // every cell that covers a slot of the area, also a merged cell that starts outside it
+    const seen = new Set();
+    for ( let r = area.top; r < area.bottom; r++ ) {
+        for ( let c = area.left; c < area.right; c++ )
+            seen.add( map.map[r * map.width + c] );
+    }
+    return [ ...seen ].map( ( p ) => ( { pos: tableStart + p, node: doc.nodeAt( tableStart + p ) } ) ).sort( ( a, b ) => a.pos - b.pos );
+}
+
 function cellPropertiesDialog( ctx ) {
     const { editor, t, options } = ctx;
-    const existing = selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' );
+    const existing = selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' ) ||
+                     ( editor.state.selection instanceof CellSelection ? { node: editor.state.selection.$anchorCell.nodeAfter, pos: editor.state.selection.$anchorCell.pos } : null );
     if ( !existing )
         return;
     const el = dialect( ctx, existing.node );
@@ -623,24 +659,68 @@ function cellPropertiesDialog( ctx ) {
     const align = select( [ [ '', t( '-- Not set --' ) ], [ 'left', t( 'Left' ) ], [ 'center', t( 'Center' ) ], [ 'right', t( 'Right' ) ], [ 'justify', t( 'Justify' ) ] ], get( 'align' ) );
     const cls = select( classOptions( t, def.classes ), cleanClass( get( 'class' ) ) );
     const custom = attributeFields( t, def.attributes, parseCustomAttributes( get( 'customattributes' ) ) );
+    // "Apply to", as in ezoe's cell dialog, plus the whole table and a selection of several cells
+    const several = editor.state.selection instanceof CellSelection;
+    const scopes = ( several ? [ [ 'selection', t( 'Selected cells' ) ] ] : [] ).concat(
+        [ [ 'cell', t( 'Cell' ) ], [ 'row', t( 'Row' ) ], [ 'column', t( 'Column' ) ], [ 'table', t( 'All cells of the table' ) ] ] );
+    const scope = select( scopes, several ? 'selection' : 'cell' );
     open( ctx, {
         title: t( 'Table cell properties' ), width: 420,
         description: t( 'The attributes of the selected cell.' ),
         body: ( kind ? [ field( t( 'Cell type' ), kind ) ] : [] ).concat(
-            [ field( t( 'Width' ), width, t( 'Percentage with %, or a number for pixels' ) ), field( t( 'Alignment' ), align ), field( t( 'Class' ), cls ) ], custom.rows ),
+            [ field( t( 'Width' ), width, t( 'Percentage with %, or a number for pixels' ) ), field( t( 'Alignment' ), align ), field( t( 'Class' ), cls ) ], custom.rows,
+            [ field( t( 'Apply to' ), scope, t( 'The same type, width, alignment, class and custom attributes for every cell of the choice.' ) ) ] ),
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
                 const newTag = kind ? kind.value : tag;
-                const type = newTag === tag ? existing.node.type : ( newTag === 'th' ? headerType : cellType ).type;
-                const cell = makeElement( newTag, {
-                    width: width.value.trim(), align: align.value, 'class': cls.value, customattributes: serializeCustomAttributes( custom.read() ),
-                    colspan: get( 'colspan' ), rowspan: get( 'rowspan' )
-                } );
-                const newAttrs = attrsFromElement( type, cell ) || {};
+                const values = {
+                    width: width.value.trim(), align: align.value, 'class': cls.value, customattributes: serializeCustomAttributes( custom.read() )
+                };
+                const cells = cellsToApply( editor.state, existing.pos, scope.value );
                 return editor.chain().focus().command( ( { tr } ) => {
-                    tr.setNodeMarkup( existing.pos, type, Object.assign( {}, existing.node.attrs, newAttrs ) );
+                    for ( const cell of cells ) {
+                        const before = dialect( ctx, cell.node );
+                        const own = ( a ) => ( before ? before.getAttribute( a ) || '' : '' );
+                        // the cell type changes only where it was changed in the dialog; each cell keeps its own span
+                        const ownTag = before ? before.tagName.toLowerCase() : tag;
+                        const cellTag = newTag === tag ? ownTag : newTag;
+                        const type = cellTag === ownTag ? cell.node.type : ( cellTag === 'th' ? headerType : cellType ).type;
+                        const changed = makeElement( cellTag, Object.assign( {}, values, { colspan: own( 'colspan' ), rowspan: own( 'rowspan' ) } ) );
+                        const attrs = withRemoved( type, before ? attrsFromElement( cell.node.type, before ) : {}, attrsFromElement( type, changed ) || {} );
+                        tr.setNodeMarkup( tr.mapping.map( cell.pos ), type, Object.assign( {}, cell.node.attrs, attrs ) );
+                    }
                     return true;
                 } ).run();
+            } },
+            { text: t( 'Cancel' ), cancel: true }
+        ]
+    } );
+}
+
+/**
+ * The class and custom attributes of a table row (content.ini [tr]), like ezoe's row dialog. target: a status bar
+ * path item ({ node, pos } of the row).
+ */
+function rowPropertiesDialog( ctx, target ) {
+    const { t, options } = ctx;
+    const row = target && target.node && target.node.type.spec.tableRole === 'row' ? target
+        : selectedAncestor( ctx.editor, ( n ) => n.type.spec.tableRole === 'row' );
+    if ( !row )
+        return;
+    const def = ( options.tableDefinitions || {} ).tr || {};
+    const el = dialect( ctx, row.node );
+    const value = cleanClass( el && el.getAttribute( 'class' ) );
+    const cls = select( classOptionsWith( t, def.classes, value ), value );
+    cls.value = value;
+    const custom = attributeFields( t, def.attributes, parseCustomAttributes( el && el.getAttribute( 'customattributes' ) ) );
+    open( ctx, {
+        title: t( 'Table row properties' ), width: 420,
+        description: t( 'The attributes of the table row.' ),
+        body: [ field( t( 'Class' ), cls ) ].concat( custom.rows ),
+        buttons: [
+            { text: t( 'OK' ), primary: true, onClick: () => {
+                const values = custom.read();
+                return !el || applyAttrs( ctx, { node: row.node, pos: row.pos }, elementAttrs( ctx, row.node.type, el, cls.value, values ) );
             } },
             { text: t( 'Cancel' ), cancel: true }
         ]
@@ -695,6 +775,142 @@ function literalDialog( ctx ) {
     } );
 }
 
+// ---------------------------------------------------------------- general attributes (class and custom attributes)
+
+/**
+ * The style attribute after a change of the custom attributes: the styles of ezoe.ini [EditorSettings]
+ * CustomAttributeStyleMap are made from the values exactly as eZOEXMLInput::getCustomAttrPart() writes them (only
+ * margin, border, padding, width and height; the value as it is), every other style of the element stays.
+ */
+export function styleWithCustomAttributes( style, values, styleMap ) {
+    const map = {};
+    for ( const [ name, property ] of Object.entries( styleMap || {} ) ) {
+        if ( /(margin|border|padding|width|height)/.test( property ) )
+            map[name] = String( property ).toLowerCase();
+    }
+    const mapped = Object.values( map );
+    const kept = String( style || '' ).split( ';' ).map( ( s ) => s.trim() )
+        .filter( ( s ) => s && mapped.indexOf( s.split( ':' )[0].trim().toLowerCase() ) === -1 );
+    let out = kept.length ? kept.join( '; ' ) + '; ' : '';
+    for ( const [ name, value ] of Object.entries( values || {} ) ) {
+        if ( value !== '' && map[name] )
+            out += map[name] + ': ' + value + '; ';
+    }
+    return out.trim();
+}
+
+/** Class options of a definition, plus the current class where content.ini does not list it (it stays selectable) */
+function classOptionsWith( t, classes, current ) {
+    const list = classOptions( t, classes );
+    if ( current && !list.some( ( [ v ] ) => v === current ) )
+        list.push( [ current, current ] );
+    return list;
+}
+
+/**
+ * Class, custom attributes and their styles of a node or mark: the element of the ezoe dialect is changed and read
+ * back through the schema's parse rules, so the dialog does not depend on the schema's attribute names. ezoe's
+ * internal classes (ezoeItem..., mceItem...) of the element stay.
+ */
+function elementAttrs( ctx, type, el, cssClass, values ) {
+    const before = attrsFromElement( type, el ) || {};
+    const internal = String( el.getAttribute( 'class' ) || '' ).split( /\s+/ ).filter( ( c ) => c && cleanClass( c ) === '' );
+    const set = ( name, value ) => ( value ? el.setAttribute( name, value ) : el.removeAttribute( name ) );
+    set( 'class', internal.concat( cssClass ? [ cssClass ] : [] ).join( ' ' ) );
+    set( 'customattributes', serializeCustomAttributes( values ) );
+    set( 'style', styleWithCustomAttributes( el.getAttribute( 'style' ), values, ctx.options.customAttributeStyleMap ) );
+    return withRemoved( type, before, attrsFromElement( type, el ) );
+}
+
+/**
+ * The attributes read from a changed element, plus the default of every attribute the element had before and has no
+ * more: the parse rules leave out an attribute that is not in the HTML, so merged over the old attributes a removed
+ * class or custom attribute would come back.
+ */
+export function withRemoved( type, before, after ) {
+    if ( !after )
+        return after;
+    const result = Object.assign( {}, after );
+    for ( const key of Object.keys( before || {} ) ) {
+        if ( !( key in result ) )
+            result[key] = type.attrs && type.attrs[key] ? type.attrs[key].default : null;
+    }
+    return result;
+}
+
+/** Writes new attributes onto a node (setNodeMarkup) or over the range of a mark */
+function applyAttrs( ctx, item, attrs ) {
+    if ( !attrs )
+        return true;
+    return ctx.editor.chain().focus().command( ( { tr } ) => {
+        if ( item.mark ) {
+            tr.removeMark( item.range.from, item.range.to, item.mark );
+            tr.addMark( item.range.from, item.range.to, item.mark.type.create( Object.assign( {}, item.mark.attrs, attrs ) ) );
+        }
+        else
+            tr.setNodeMarkup( item.pos, undefined, Object.assign( {}, item.node.attrs, attrs ) );
+        return true;
+    } ).run();
+}
+
+/**
+ * The class and custom attributes of a paragraph, heading, list, list item, strong or emphasize, like ezoe's
+ * tag_general.tpl and tag_header.tpl: content.ini [<tag>] AvailableClasses[] (ClassDescription[]) and
+ * CustomAttributes[] with the types and names of ezoe_attributes.ini (options.generalDefinitions). Where the cursor
+ * is inside several of them (bold text in a list item ...), the dialog lists them, innermost first; target, a status
+ * bar path item, chooses one.
+ */
+function generalDialog( ctx, target ) {
+    const { t, options } = ctx;
+    const targets = generalTargets( ctx.editor );
+    if ( !targets.length )
+        return;
+    const defs = options.generalDefinitions || {};
+    let current = preferredTarget( targets, target );
+    const box = h( 'div', { class: 'exp-oe-general-attributes' } );
+    let state = null;
+    const render = () => {
+        clear( box );
+        const item = targets[current];
+        const def = defs[item.xml] || {};
+        const el = dialect( ctx, item.mark || item.node );
+        const value = cleanClass( el && el.getAttribute( 'class' ) );
+        const cls = select( classOptionsWith( t, def.classes, value ), value );
+        cls.value = value;
+        const custom = attributeFields( t, def.attributes, parseCustomAttributes( el && el.getAttribute( 'customattributes' ) ) );
+        box.appendChild( field( t( 'Class' ), cls ) );
+        custom.rows.forEach( ( r ) => box.appendChild( r ) );
+        if ( !Object.keys( def.classes || {} ).length && !( def.attributes || [] ).length )
+            box.appendChild( h( 'p', { class: 'exp-oe-hint', text: t( 'This tag has no classes or custom attributes in content.ini.' ) } ) );
+        state = { item, el, cls, custom };
+    };
+    const body = [];
+    if ( targets.length > 1 ) {
+        const which = select( targets.map( ( c, i ) => [ String( i ), t( TAG_LABELS[c.xml] || c.xml ) + ' <' + c.xml + '>' ] ), String( current ) );
+        which.value = String( current );
+        which.addEventListener( 'change', () => {
+            current = parseInt( which.value, 10 );
+            render();
+        } );
+        body.push( field( t( 'Element' ), which, t( 'The element at the cursor whose attributes are edited.' ) ) );
+    }
+    render();
+    body.push( box );
+    open( ctx, {
+        title: t( 'Tag properties' ), width: 420,
+        description: t( 'The class and the custom attributes of the element.' ),
+        body,
+        buttons: [
+            { text: t( 'OK' ), primary: true, onClick: () => {
+                const { item, el, cls, custom } = state;
+                const values = custom.read();
+                return !el || applyAttrs( ctx, item, elementAttrs( ctx, ( item.mark || item.node ).type, el, cls.value, values ) );
+            } },
+            { text: t( 'Cancel' ), cancel: true }
+        ]
+    } );
+}
+
 // ---------------------------------------------------------------- special characters and help
 
 const CHARS = '  & © ® ™ ° ± × ÷ µ ¶ § … – — ‘ ’ ‚ “ ” „ ‹ › « » • · † ‡ ‰ ′ ″ € £ ¥ ¢ ¤ ¼ ½ ¾ ¹ ² ³ ª º ¿ ¡ ← ↑ → ↓ ↔ ⇒ ⇔ ∀ ∂ ∃ ∅ ∇ ∈ ∉ ∏ ∑ − √ ∝ ∞ ∧ ∨ ∩ ∪ ∫ ≈ ≠ ≡ ≤ ≥ α β γ δ ε λ μ π σ ω Δ Σ Ω Ä Ö Ü ä ö ü ß À Á Â Ç È É Ê à á â ç è é ê ñ Ñ ø Ø å Å æ Æ œ Œ'.split( ' ' );
@@ -718,22 +934,218 @@ function charmapDialog( ctx ) {
     } );
 }
 
-export const SHORTCUTS = [
-    [ 'Ctrl+B', 'Bold' ], [ 'Ctrl+I', 'Italic' ], [ 'Ctrl+U', 'Underline' ], [ 'Ctrl+Z', 'Undo' ], [ 'Ctrl+Y / Ctrl+Shift+Z', 'Redo' ],
-    [ 'Ctrl+1 ... Ctrl+6', 'Heading 1 to 6' ], [ 'Ctrl+7', 'Paragraph' ], [ 'Ctrl+8, Ctrl+9', 'Literal text' ], [ 'Ctrl+K', 'Insert/edit link' ],
-    [ 'Ctrl+S', 'Store draft' ], [ 'Shift+Enter', 'Line break' ], [ 'Tab / Shift+Tab', 'Indent / outdent list item, next / previous table cell' ],
-    [ 'Alt+0', 'Help' ], [ 'Alt+F10', 'Move to the toolbar' ]
-];
+// ---------------------------------------------------------------- source
+
+const BLOCK_TAGS = /^(p|h[1-6]|ul|ol|li|table|tbody|thead|tfoot|tr|td|th|pre|div)$/;
+
+/**
+ * The posted HTML with one block per line, indented by nesting, for reading. Only white space between tags changes
+ * (none of it is content in ezoe's dialect); the content of a block (and of a literal) stays on its line as posted.
+ */
+export function formatSource( html ) {
+    const out = [];
+    let depth = 0, line = '', openOnLine = -1;
+    const flush = () => {
+        if ( line.trim() )
+            out.push( line );
+        line = '';
+        openOnLine = -1;
+    };
+    const indent = () => '  '.repeat( Math.max( 0, depth ) );
+    const re = /<(\/?)([a-zA-Z][\w:-]*)\b[^>]*>|[^<]+|</g;
+    let m, pre = 0;
+    while ( ( m = re.exec( String( html || '' ) ) ) ) {
+        const token = m[0], tag = ( m[2] || '' ).toLowerCase();
+        const block = !!tag && BLOCK_TAGS.test( tag ) && !( pre && tag !== 'pre' );
+        if ( !block ) {
+            line = ( line || indent() ) + token;
+            continue;
+        }
+        if ( m[1] !== '/' ) {
+            flush();
+            line = indent() + token;
+            openOnLine = depth;
+            depth++;
+            if ( tag === 'pre' )
+                pre++;
+            continue;
+        }
+        depth--;
+        if ( tag === 'pre' )
+            pre--;
+        if ( openOnLine === depth )
+            line += token;          // <p>text</p> on one line
+        else {
+            flush();
+            line = indent() + token;
+        }
+        flush();
+    }
+    flush();
+    return out.join( '\n' );
+}
+
+/** Indents (or with outdent, outdents) the lines of a textarea's selection by two spaces; no selection: inserts two */
+export function indentSource( area, outdent ) {
+    const value = area.value, start = area.selectionStart, end = area.selectionEnd;
+    if ( !outdent && start === end ) {
+        area.setRangeText( '  ', start, end, 'end' );
+        return;
+    }
+    const from = value.lastIndexOf( '\n', start - 1 ) + 1;
+    const to = end > start && value[end - 1] === '\n' ? end - 1 : end;
+    const lines = value.slice( from, to ).split( '\n' );
+    const changed = lines.map( ( l ) => ( outdent ? l.replace( /^ {1,2}/, '' ) : '  ' + l ) );
+    const first = changed[0].length - lines[0].length;
+    area.setRangeText( changed.join( '\n' ), from, to, 'preserve' );
+    const delta = changed.join( '\n' ).length - lines.join( '\n' ).length;
+    area.setSelectionRange( Math.max( from, start + first ), Math.max( from, end + delta ) );
+}
+
+/** The text of one change sourceChanges() found */
+function sourceChangeText( t, change ) {
+    if ( change.type === 'paragraph' )
+        return t( '%1 becomes a paragraph' ).replace( '%1', change.tag );
+    if ( change.type === 'attribute' )
+        return t( 'Attribute %1 of %2 is removed or changed' ).replace( '%1', change.attribute ).replace( '%2', change.tag );
+    if ( change.type === 'text' )
+        return t( 'Text is removed: %1' ).replace( '%1', '\u201e' + change.text + '\u201c' );
+    return t( '%1 is removed' ).replace( '%1', change.tag );
+}
+
+/**
+ * The source of the text: the HTML of ezoe's dialect that the form posts (eZOEInputParser turns it into the stored
+ * ezxmltext), one block per line, with a copy button. Editable unless exp_oe_tiptap.ini [EditorSettings]
+ * SourceEditable=disabled: Apply cleans the HTML as pasted HTML (source.js), lists what the schema would drop and
+ * asks before it does, then puts the document into the editor as one step of Undo.
+ */
+function sourceDialog( ctx ) {
+    const { t } = ctx;
+    const html = ctx.instance.getHTML();
+    const editable = ctx.options.sourceEditable !== false && !ctx.schema.isFallback && ctx.instance.isEditable();
+    const area = h( 'textarea', {
+        class: 'exp-oe-source-view', readonly: !editable, rows: 18, spellcheck: 'false', wrap: 'off',
+        autocapitalize: 'off', autocomplete: 'off', 'data-exp-oe-tab': editable ? 'insert' : null
+    } );
+    area.value = formatSource( html );
+    const status = h( 'div', { class: 'exp-oe-hint exp-oe-source-status', role: 'status', 'aria-live': 'polite' } );
+    const copy = () => {
+        const done = () => { status.textContent = t( 'Copied to the clipboard.' ); };
+        if ( navigator.clipboard && navigator.clipboard.writeText )
+            return navigator.clipboard.writeText( area.value ).then( done, () => { area.select(); status.textContent = t( 'Select the text and copy it with Ctrl+C.' ); } ).then( () => false );
+        area.select();
+        status.textContent = t( 'Select the text and copy it with Ctrl+C.' );
+        return false;
+    };
+    const note = h( 'p', { class: 'exp-oe-source-note', text: t( 'HTML of the editor; what is stored is ezxmltext, which the server makes of it when the form is stored.' ) } );
+    let dialog;
+    if ( !editable ) {
+        dialog = open( ctx, {
+            title: t( 'Source' ), width: 720, className: 'exp-oe-source',
+            description: t( 'The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.' ),
+            body: [ note, field( t( 'HTML' ), area, t( '%n characters' ).replace( '%n', html.length ) ), status ],
+            buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Close' ), primary: true } ]
+        } );
+    } else {
+        const keysHint = () => ( area.getAttribute( 'data-exp-oe-tab' ) === 'insert'
+            // Ctrl+M is the Control key on a Mac too (Cmd+M minimises the window): ⌃M there
+            ? t( 'Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.', null, { control: true } )
+            : t( 'Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.', null, { control: true } ) ) + ' ' + t( '%n characters' ).replace( '%n', area.value.length );
+        const wrap = h( 'input', { type: 'checkbox', class: 'exp-oe-source-wrap', onchange: () => {
+            area.setAttribute( 'wrap', wrap.checked ? 'soft' : 'off' );
+            area.classList.toggle( 'exp-oe-source-wrapped', wrap.checked );
+        } } );
+        const list = h( 'ul', { class: 'exp-oe-source-changes' } );
+        const warning = h( 'div', { class: 'exp-oe-source-warning', role: 'alert', hidden: true }, [
+            h( 'p', { text: t( 'The editor cannot keep all of it:' ) } ), list,
+            h( 'p', { text: t( 'Apply anyway takes the text as listed; or change the source.' ) } )
+        ] );
+        let confirmed = false, discard = false;
+        const initial = area.value;
+        // unapplied changes: the first Cancel (or Escape, or ×) asks, the second one discards them
+        const cancelSource = () => {
+            if ( area.value === initial || discard )
+                return true;
+            discard = true;
+            status.textContent = t( 'The changes are not applied. Cancel again (or Escape) to discard them.' );
+            area.focus();
+            return false;
+        };
+        const primaryButton = () => dialog && dialog.element.querySelector( '.exp-oe-dialog-footer .exp-oe-primary' );
+        const reset = () => {
+            if ( !confirmed && warning.hidden )
+                return;
+            confirmed = false;
+            warning.hidden = true;
+            if ( primaryButton() )
+                primaryButton().textContent = t( 'Apply' );
+        };
+        const sourceField = field( t( 'HTML' ), area, keysHint() );
+        const hintEl = sourceField.querySelector( '.exp-oe-hint' );
+        area.addEventListener( 'input', () => {
+            reset();
+            discard = false;
+            hintEl.textContent = keysHint();
+        } );
+        area.addEventListener( 'keydown', ( e ) => {
+            if ( e.key === 'm' || e.key === 'M' ) {
+                if ( !e.ctrlKey || e.altKey || e.metaKey || e.shiftKey )
+                    return;
+                e.preventDefault();
+                area.setAttribute( 'data-exp-oe-tab', area.getAttribute( 'data-exp-oe-tab' ) === 'insert' ? 'move' : 'insert' );
+                hintEl.textContent = keysHint();
+                status.textContent = area.getAttribute( 'data-exp-oe-tab' ) === 'insert' ? t( 'Tab indents.' ) : t( 'Tab moves the focus.' );
+            } else if ( e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && area.getAttribute( 'data-exp-oe-tab' ) === 'insert' ) {
+                e.preventDefault();
+                indentSource( area, e.shiftKey );
+                area.dispatchEvent( new Event( 'input' ) );
+            }
+        } );
+        const apply = () => {
+            const read = readSource( area.value, ctx.instance );
+            if ( read.changes.length && !confirmed && !read.same ) {
+                clear( list );
+                for ( const change of read.changes )
+                    list.appendChild( h( 'li', { text: sourceChangeText( t, change ) } ) );
+                warning.hidden = false;
+                confirmed = true;
+                primaryButton().textContent = t( 'Apply anyway' );
+                if ( warning.scrollIntoView )
+                    warning.scrollIntoView( { block: 'nearest' } );
+                return false;
+            }
+            applySource( ctx.instance, read );
+            return true;
+        };
+        dialog = open( ctx, {
+            title: t( 'Source' ), width: 720, className: 'exp-oe-source exp-oe-source-editable',
+            description: t( 'Apply puts the changed HTML into the editor; Undo takes it back.' ),
+            body: [ note, sourceField, field( t( 'Wrap lines' ), wrap ), warning, status ],
+            buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Cancel' ), cancel: true, onClick: cancelSource }, { text: t( 'Apply' ), primary: true, onClick: apply } ]
+        } );
+    }
+    // the focus is in the field: from its start, not scrolled to its end
+    if ( dialog && area.setSelectionRange ) {
+        area.setSelectionRange( 0, 0 );
+        area.scrollTop = 0;
+    }
+}
 
 function helpDialog( ctx ) {
     const { t } = ctx;
-    const table = h( 'table', { class: 'exp-oe-shortcuts' }, h( 'tbody', {}, SHORTCUTS.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { text: k } ), h( 'td', { text: t( d ) } ) ] ) ) ) );
-    open( ctx, {
-        title: t( 'Help' ), width: 460,
-        description: t( 'Online editor based on Tiptap. Keyboard shortcuts:' ),
-        body: [ table ],
+    const dialog = open( ctx, {
+        title: t( 'Help' ), width: 640, className: 'exp-oe-help',
+        description: t( 'How to use the editor: the buttons, the keyboard, the tags, tips.' ),
+        body: helpContent( ctx, ctx.instance && ctx.instance.toolbar ? ctx.instance.toolbar.buttons : [], ctx.instance ? ctx.instance.commands : {} ),
         buttons: [ { text: t( 'Close' ), primary: true } ]
     } );
+    // o2k7: the icons are ezoe's sprite, whose URL the editor's wrapper carries
+    const wrapper = ctx.instance && ctx.instance.wrapper;
+    for ( const name of [ '--exp-oe-icons', '--exp-oe-button-bg' ] ) {
+        const value = wrapper && wrapper.style.getPropertyValue( name );
+        if ( value )
+            dialog.element.style.setProperty( name, value );
+    }
 }
 
 export function createDialogs() {
@@ -744,10 +1156,13 @@ export function createDialogs() {
         customTag: customTagDialog,
         table: tableDialog,
         cellProperties: cellPropertiesDialog,
+        rowProperties: rowPropertiesDialog,
         literal: literalDialog,
+        general: generalDialog,
+        source: sourceDialog,
         charmap: charmapDialog,
         help: helpDialog
     };
 }
 
-export { nodeForTag, markForTag };
+export { nodeForTag, markForTag, SHORTCUTS };

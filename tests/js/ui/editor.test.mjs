@@ -165,6 +165,8 @@ test( 'status bar shows the ezxml path with the tag alias names', () => {
     inst.editor.commands.setTextSelection( pos );
     const path = inst.wrapper.querySelector( '.exp-oe-path' ).textContent;
     assert.equal( path, 'table » table row » table cell » paragraph » strong' );
+    // "Path:" then the path, the space between them a margin: the bar is a flex row, which drops an item's trailing space
+    assert.equal( inst.wrapper.querySelector( '.exp-oe-path-label' ).textContent, 'Path:' );
     assert.equal( inst.toolbar.controls.delete_table.disabled, false, 'table buttons enabled in a table' );
 } );
 
@@ -308,4 +310,12 @@ test( 'every fixture posts exactly what the schema round trip expects (toEditorH
         checked++;
     }
     assert.equal( checked, files.length );
+} );
+
+test( 'the status bar keeps a space after "Path:", and "Editing with" gives way to ezoe\'s engine switch', () => {
+    const text = readFileSync( resolve( root, 'src/css/exp_oe_tiptap.css' ), 'utf8' ).replace( /\/\*[\s\S]*?\*\//g, '' );
+    assert.match( text, /\.exp-oe-statusbar \{[^}]*display: flex;/, 'the bar is a flex row' );
+    assert.match( text, /\.exp-oe-path-label \{ flex: none; margin-right: \.35em; \}/, 'the space after the label is a margin' );
+    // ezoe 6.0.15 names the engine in use in its switch (div.ezoe-engine-switch); an older ezoe has only buttons
+    assert.match( text, /\.ezoe-engine-switch ~ \.exp-oe-switch-current \{ display: none; \}/ );
 } );

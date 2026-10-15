@@ -50,9 +50,10 @@ test( 'every fixture is stable: a second pass through Tiptap changes nothing', (
     }
 } );
 
-test( 'plain content comes out exactly as ezoe wrote it', () => {
+test( 'plain content comes out exactly as ezoe wrote it (without the empty paragraph inputXML() appends)', () => {
     const html = '<p align="center">Centered <strong>bold</strong> <em>it</em></p><h2 class="x">Head</h2>' +
-                 '<p>first line<br><strong>second</strong> line<br>third line<br></p><p><br></p>';
+                 '<p>first line<br><strong>second</strong> line<br>third line<br></p>';
+    assertSameHTML( roundtrip( html + '<p><br></p>' ), html );
     assertSameHTML( roundtrip( html ), html );
 } );
 
@@ -82,18 +83,19 @@ test( 'literal keeps its text, line breaks as <br>', () => {
     assert.equal( json.content[ 0 ].content[ 0 ].text, '<div>\n    a & b\n\nend' );
 } );
 
-test( 'tables keep ezoe attributes and write no Tiptap extras', () => {
-    const html = '<table customattributes="summary|S" width="80%" border="1" align="center" class="list"><tbody>' +
+test( 'tables keep ezoe attributes and write no Tiptap extras; a table is posted in a paragraph of its own', () => {
+    const html = '<p><table customattributes="summary|S" width="80%" border="1" align="center" class="list"><tbody>' +
                  '<tr><th customattributes="scope|col" width="30%"><p>H</p></th><th><p>H2</p></th></tr>' +
-                 '<tr><td colspan="2" align="right"><p>x</p></td></tr></tbody></table>';
+                 '<tr><td colspan="2" align="right"><p>x</p></td></tr></tbody></table></p>';
     const out = roundtrip( html );
+    assert.ok( out.startsWith( '<p><table' ) && out.endsWith( '</table></p>' ), out );
     assertSameHTML( out, html );
     assert.ok( !/colgroup|min-width|text-align|colspan="1"/.test( out ) );
 } );
 
 test( 'empty table cells and paragraphs are written as ezoe expects', () => {
     const out = roundtrip( '<table><tbody><tr><td><p><br data-mce-bogus="1"></p></td></tr></tbody></table>' );
-    assert.equal( out, '<table><tbody><tr><td><p><br></p></td></tr></tbody></table>' );
+    assert.equal( out, '<p><table><tbody><tr><td><p><br></p></td></tr></tbody></table></p>' );
 } );
 
 test( 'block embeds: attributes kept, preview shown in the editor, "ezembed" on save', () => {
@@ -167,7 +169,7 @@ test( 'a <br> between blocks stays a bare <br> (the <line> after block embeds), 
     assert.ok( !out.includes( '<p><br></p><table' ), 'no empty paragraph instead of the <br>' );
     assertSameHTML( roundtrip( '<p>one<br>two</p>' ), '<p>one<br>two</p>', 'a <br> in a paragraph is a hard break' );
     assertSameHTML( roundtrip( '<table width="100%" border="0" class="default"><tbody><tr><td><p>a<br>b</p></td></tr></tbody></table>' ),
-        '<table width="100%" border="0" class="default"><tbody><tr><td><p>a<br>b</p></td></tr></tbody></table>', 'in a cell paragraph too' );
+        '<p><table width="100%" border="0" class="default"><tbody><tr><td><p>a<br>b</p></td></tr></tbody></table></p>', 'in a cell paragraph too' );
 } );
 
 test( 'customattributes helpers', () => {

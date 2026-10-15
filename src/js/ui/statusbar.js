@@ -16,7 +16,9 @@ const TAG_TO_XML = {
 /** The dialog a click on a path item opens (options.pathOpenDialog): ezxml name => button */
 const PATH_DIALOGS = {
     link: 'link', anchor: 'anchor', table: 'table', td: 'cell_props', th: 'cell_props', custom: 'custom',
-    embed: 'object', 'embed-inline': 'object', literal: 'literal'
+    embed: 'object', 'embed-inline': 'object', literal: 'literal',
+    paragraph: 'tag_props', header: 'tag_props', ul: 'tag_props', ol: 'tag_props', li: 'tag_props', strong: 'tag_props',
+    emphasize: 'tag_props', tr: 'row_props'
 };
 
 function firstTag( type ) {
@@ -52,7 +54,9 @@ export class StatusBar {
         this.info = h( 'span', { class: 'exp-oe-info' } );
         this.resize = h( 'span', { class: 'exp-oe-resize', title: ctx.t( 'Drag to resize' ), 'aria-hidden': 'true' } );
         this.element = h( 'div', { class: 'exp-oe-statusbar' }, [
-            h( 'span', { class: 'exp-oe-path-label', text: ctx.t( 'Path' ) + ': ' } ), this.path, this.resize, this.info
+            // "Path:" without a trailing space: the bar is a flex row, which drops white space at the end of an item;
+            // the space after the colon is the label's margin (exp_oe_tiptap.css)
+            h( 'span', { class: 'exp-oe-path-label', text: ctx.t( 'Path' ) + ':' } ), this.path, this.resize, this.info
         ] );
         this.resize.addEventListener( 'mousedown', ( e ) => this.startResize( e ) );
     }
@@ -89,7 +93,7 @@ export class StatusBar {
                     e.preventDefault();
                     this.select( item );
                     if ( this.ctx.options.pathOpenDialog )
-                        this.openDialog( xml );
+                        this.openDialog( xml, item );
                 }
             } );
             if ( i )
@@ -121,11 +125,11 @@ export class StatusBar {
      * ezoe.ini [EditorSettings] TagPathOpenDialog: a click on a path item also opens the dialog of that tag, for the
      * tags the editor has a dialog for.
      */
-    openDialog( xml ) {
+    openDialog( xml, item ) {
         const button = PATH_DIALOGS[xml], instance = this.ctx.instance;
         const def = button && instance && instance.commands[button];
         if ( def && ( !def.available || def.available( this.ctx ) ) )
-            instance.runButton( button );
+            instance.runButton( button, item && ( item.mark ? { mark: item.mark } : { node: item.node, pos: item.pos } ) );
     }
 
     startResize( e ) {

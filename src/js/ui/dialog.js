@@ -25,7 +25,7 @@ function focusable( el ) {
 /**
  * @param {Object} spec { title, description, body: Node|Node[], buttons: [ { text, primary, cancel, onClick( dialog ) } ],
  *                        width, className, skin, closeText, busyText, onClose, returnFocus }
- *                        onClick returns false to keep the dialog open.
+ *                        onClick returns false to keep the dialog open (also the cancel button's, for Escape and ×).
  * @return {Object} { element, panel, close(), setError( text ), setBusy( bool, text ) }
  */
 export function openDialog( spec ) {
@@ -124,9 +124,10 @@ export function openDialog( spec ) {
             cancelButton = b;
     }
 
+    // Escape and the close button cancel as the cancel button does; its onClick returns false to keep the dialog open
     function cancel() {
-        if ( cancelButton && cancelButton.onClick )
-            cancelButton.onClick( api );
+        if ( cancelButton && cancelButton.onClick && cancelButton.onClick( api ) === false )
+            return;
         api.close();
     }
 
@@ -142,6 +143,9 @@ export function openDialog( spec ) {
             e.preventDefault();
             run( primary );
         } else if ( e.key === 'Tab' ) {
+            // a field whose Tab key inserts an indent (the source view) keeps it, until it is switched off there
+            if ( e.target && e.target.getAttribute && e.target.getAttribute( 'data-exp-oe-tab' ) === 'insert' && box.contains( e.target ) )
+                return;
             const list = Array.prototype.filter.call( box.querySelectorAll( FOCUSABLE ), focusable );
             if ( !list.length )
                 return;

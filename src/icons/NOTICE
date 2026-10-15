@@ -11,8 +11,8 @@ tiptap/  Tiptap's editor icons from Tiptap UI Components
 lucide/  Lucide icons
          Source:  lucide-static 0.468.0 (npm), https://lucide.dev, https://github.com/lucide-icons/lucide
          License: ISC License, Copyright (c) Lucide Contributors 2022, as shipped in lucide-static 0.468.0; the icons
-                  derived from Feather (of those used here: maximize, plus) are MIT, Copyright (c) 2013-present
+                  derived from Feather (of those used here: chevron-down, chevron-up, maximize, plus, search) are MIT, Copyright (c) 2013-present
                   Cole Bemis - both texts in lucide/LICENSE, the MIT part as in Lucide's own LICENSE
          Used for the editor functions Tiptap ships no icon for (anchor, embedded object, file, special characters,
-         custom tag, page break, table operations, indent, full screen, help, AI ...). Tiptap's icons follow
+         custom tag, page break, table operations, indent, full screen, help, AI, tag properties ...). Tiptap's icons follow
          Lucide's style (24px grid, 2px lines), so both sets match.

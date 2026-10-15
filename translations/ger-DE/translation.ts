@@ -56,6 +56,10 @@
         <translation>Alle %n Elemente (Bilder, Objekte, benutzerdefinierte Tags, Anker, Tabellen, Links) bleiben an ihrer Stelle.</translation>
     </message>
     <message>
+        <source>Alt</source>
+        <translation>Alt</translation>
+    </message>
+    <message>
         <source>Anchor</source>
         <translation>Anker</translation>
     </message>
@@ -124,12 +128,20 @@
         <translation>Weiterschreiben</translation>
     </message>
     <message>
+        <source>Ctrl</source>
+        <translation>Strg</translation>
+    </message>
+    <message>
         <source>Custom tag</source>
         <translation>Benutzerdefiniertes Tag</translation>
     </message>
     <message>
         <source>Custom tag controls</source>
         <translation>Steuerung des benutzerdefinierten Tags</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Entf</translation>
     </message>
     <message>
         <source>Delete column</source>
@@ -144,8 +156,20 @@
         <translation>Tabelle löschen</translation>
     </message>
     <message>
+        <source>Down</source>
+        <translation>Nach unten</translation>
+    </message>
+    <message>
         <source>Edit the custom tag</source>
         <translation>Benutzerdefiniertes Tag bearbeiten</translation>
+    </message>
+    <message>
+        <source>Enter</source>
+        <translation>Eingabe</translation>
+    </message>
+    <message>
+        <source>Escape</source>
+        <translation>Esc</translation>
     </message>
     <message>
         <source>Example</source>
@@ -644,12 +668,20 @@
         <translation>Veröffentlichen</translation>
     </message>
     <message>
+        <source>Shift</source>
+        <translation>Umschalt</translation>
+    </message>
+    <message>
         <source>Size</source>
         <translation>Größe</translation>
     </message>
     <message>
         <source>Source</source>
         <translation>Quelltext</translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation>Leertaste</translation>
     </message>
     <message>
         <source>Spanish</source>
@@ -846,6 +878,10 @@
     <message>
         <source>Turkish</source>
         <translation>Türkisch</translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>URL</source>
@@ -1078,6 +1114,582 @@
     <message>
         <source>Limit</source>
         <translation>Anzahl</translation>
+    </message>
+    <message>
+        <source>Element</source>
+        <translation>Element</translation>
+    </message>
+    <message>
+        <source>Heading</source>
+        <translation>Überschrift</translation>
+    </message>
+    <message>
+        <source>List item</source>
+        <translation>Listenpunkt</translation>
+    </message>
+    <message>
+        <source>Table row</source>
+        <translation>Tabellenzeile</translation>
+    </message>
+    <message>
+        <source>Tag properties</source>
+        <translation>Tag-Eigenschaften</translation>
+    </message>
+    <message>
+        <source>The class and the custom attributes of the element.</source>
+        <translation>Die Klasse und die benutzerdefinierten Attribute des Elements.</translation>
+    </message>
+    <message>
+        <source>The element at the cursor whose attributes are edited.</source>
+        <translation>Das Element am Cursor, dessen Attribute bearbeitet werden.</translation>
+    </message>
+    <message>
+        <source>This tag has no classes or custom attributes in content.ini.</source>
+        <translation>Für dieses Tag sind in content.ini keine Klassen oder benutzerdefinierten Attribute eingerichtet.</translation>
+    </message>
+    <message>
+        <source>Table row properties</source>
+        <translation>Zeileneigenschaften</translation>
+    </message>
+    <message>
+        <source>The attributes of the table row.</source>
+        <translation>Die Attribute der Tabellenzeile.</translation>
+    </message>
+    <message>
+        <source>All cells of the table</source>
+        <translation>Alle Zellen der Tabelle</translation>
+    </message>
+    <message>
+        <source>Apply to</source>
+        <translation>Anwenden auf</translation>
+    </message>
+    <message>
+        <source>Cell</source>
+        <translation>Zelle</translation>
+    </message>
+    <message>
+        <source>Selected cells</source>
+        <translation>Ausgewählte Zellen</translation>
+    </message>
+    <message>
+        <source>The same type, width, alignment, class and custom attributes for every cell of the choice.</source>
+        <translation>Derselbe Typ, dieselbe Breite, Ausrichtung, Klasse und dieselben benutzerdefinierten Attribute für jede Zelle der Auswahl.</translation>
+    </message>
+    <message>
+        <source>Paste as text (Ctrl+Shift+V)</source>
+        <translation>Als Text einfügen (Strg+Umschalt+V)</translation>
+    </message>
+    <message>
+        <source>Commands at the cursor</source>
+        <translation>Befehle am Cursor</translation>
+    </message>
+    <message>
+        <source>Context menu</source>
+        <translation>Kontextmenü</translation>
+    </message>
+    <message>
+        <source>Edit anchor</source>
+        <translation>Anker bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit custom tag</source>
+        <translation>Benutzerdefiniertes Tag bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit embedded object</source>
+        <translation>Eingebettetes Objekt bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit file</source>
+        <translation>Datei bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit image</source>
+        <translation>Bild bearbeiten</translation>
+    </message>
+    <message>
+        <source>Literal text properties</source>
+        <translation>Eigenschaften des Literal-Texts</translation>
+    </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation>%1 von %2</translation>
+    </message>
+    <message>
+        <source>%n replaced</source>
+        <translation>%n ersetzt</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation>Suchen</translation>
+    </message>
+    <message>
+        <source>Find (Ctrl+F)</source>
+        <translation>Suchen (Strg+F)</translation>
+    </message>
+    <message>
+        <source>Find and replace</source>
+        <translation>Suchen und ersetzen</translation>
+    </message>
+    <message>
+        <source>Match case</source>
+        <translation>Groß-/Kleinschreibung beachten</translation>
+    </message>
+    <message>
+        <source>Next / previous match</source>
+        <translation>Nächster / vorheriger Treffer</translation>
+    </message>
+    <message>
+        <source>Next match (Enter)</source>
+        <translation>Nächster Treffer (Eingabe)</translation>
+    </message>
+    <message>
+        <source>No matches</source>
+        <translation>Keine Treffer</translation>
+    </message>
+    <message>
+        <source>Previous match (Shift+Enter)</source>
+        <translation>Vorheriger Treffer (Umschalt+Eingabe)</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Ersetzen</translation>
+    </message>
+    <message>
+        <source>Replace all</source>
+        <translation>Alle ersetzen</translation>
+    </message>
+    <message>
+        <source>Replace with</source>
+        <translation>Ersetzen durch</translation>
+    </message>
+    <message>
+        <source>A custom tag of the site (fact box, quote, underline ...): a box around paragraphs or a mark on text, with its own attributes.</source>
+        <translation>Ein benutzerdefiniertes Tag der Site (Infobox, Zitat, Unterstreichung ...): ein Kasten um Absätze oder eine Auszeichnung von Text, mit eigenen Attributen.</translation>
+    </message>
+    <message>
+        <source>A heading, level 1 to 6 (Ctrl+1 ... Ctrl+6). The level follows the order of the headings.</source>
+        <translation>Eine Überschrift, Ebene 1 bis 6 (Strg+1 ... Strg+6). Die Ebene folgt der Reihenfolge der Überschriften.</translation>
+    </message>
+    <message>
+        <source>A link to an address, an object or node of the site, an e-mail address or an anchor.</source>
+        <translation>Ein Link auf eine Adresse, ein Objekt oder einen Knoten der Site, eine E-Mail-Adresse oder einen Anker.</translation>
+    </message>
+    <message>
+        <source>A named place in the text that links can point to; shown as a small anchor.</source>
+        <translation>Eine benannte Stelle im Text, auf die Links zeigen können; als kleiner Anker dargestellt.</translation>
+    </message>
+    <message>
+        <source>A paragraph. Enter starts a new one, Shift+Enter a new line in it.</source>
+        <translation>Ein Absatz. Eingabe beginnt einen neuen, Umschalt+Eingabe eine neue Zeile darin.</translation>
+    </message>
+    <message>
+        <source>A text field stores these tags (ezxmltext); the editor shows them as they look on the site:</source>
+        <translation>Ein Textfeld speichert diese Tags (ezxmltext); der Editor zeigt sie so, wie sie auf der Site aussehen:</translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation>Über</translation>
+    </message>
+    <message>
+        <source>Align the paragraph, heading or table cell to the left, or remove the alignment.</source>
+        <translation>Absatz, Überschrift oder Tabellenzelle links ausrichten oder die Ausrichtung entfernen.</translation>
+    </message>
+    <message>
+        <source>Align the paragraph, heading or table cell to the right, or remove the alignment.</source>
+        <translation>Absatz, Überschrift oder Tabellenzelle rechts ausrichten oder die Ausrichtung entfernen.</translation>
+    </message>
+    <message>
+        <source>An embedded image, object or file; in a line of its own or inside the text. Shown with its preview.</source>
+        <translation>Ein eingebettetes Bild, Objekt oder eine Datei; in einer eigenen Zeile oder im Text. Mit Vorschau dargestellt.</translation>
+    </message>
+    <message>
+        <source>Below the editor you can switch to the other editor; the text is stored first and nothing is lost.</source>
+        <translation>Unter dem Editor können Sie zum anderen Editor wechseln; der Text wird zuerst gespeichert, nichts geht verloren.</translation>
+    </message>
+    <message>
+        <source>Bold and italic text.</source>
+        <translation>Fetter und kursiver Text.</translation>
+    </message>
+    <message>
+        <source>Bulleted and numbered lists and their items, also nested.</source>
+        <translation>Aufzählungen und nummerierte Listen mit ihren Punkten, auch verschachtelt.</translation>
+    </message>
+    <message>
+        <source>Center the paragraph, heading or table cell, or remove the alignment.</source>
+        <translation>Absatz, Überschrift oder Tabellenzelle zentrieren oder die Ausrichtung entfernen.</translation>
+    </message>
+    <message>
+        <source>Choose the format of the paragraph at the cursor: paragraph, preformatted text or a heading of level 1 to 6.</source>
+        <translation>Das Format des Absatzes am Cursor wählen: Absatz, vorformatierter Text oder Überschrift der Ebene 1 bis 6.</translation>
+    </message>
+    <message>
+        <source>Class and custom attributes of the paragraph, heading, list, list item or bold or italic text at the cursor.</source>
+        <translation>Klasse und benutzerdefinierte Attribute des Absatzes, der Überschrift, Liste, des Listenpunkts oder des fetten oder kursiven Texts am Cursor.</translation>
+    </message>
+    <message>
+        <source>Close a menu, the search bar or a dialog</source>
+        <translation>Ein Menü, die Suchleiste oder einen Dialog schließen</translation>
+    </message>
+    <message>
+        <source>Delete the column at the cursor.</source>
+        <translation>Die Spalte am Cursor löschen.</translation>
+    </message>
+    <message>
+        <source>Delete the row at the cursor.</source>
+        <translation>Die Zeile am Cursor löschen.</translation>
+    </message>
+    <message>
+        <source>Delete the table at the cursor.</source>
+        <translation>Die Tabelle am Cursor löschen.</translation>
+    </message>
+    <message>
+        <source>Discard the draft.</source>
+        <translation>Den Entwurf verwerfen.</translation>
+    </message>
+    <message>
+        <source>Drag the bottom right corner to make the editor taller or shorter.</source>
+        <translation>Die untere rechte Ecke ziehen, um den Editor höher oder niedriger zu machen.</translation>
+    </message>
+    <message>
+        <source>Edit this text in the whole browser window. Press again to go back.</source>
+        <translation>Diesen Text im ganzen Browserfenster bearbeiten. Erneut drücken, um zurückzukehren.</translation>
+    </message>
+    <message>
+        <source>Embed a file: search, browse or upload it, then choose how it is shown.</source>
+        <translation>Eine Datei einbetten: suchen, durchsuchen oder hochladen, dann wählen, wie sie dargestellt wird.</translation>
+    </message>
+    <message>
+        <source>Embed an image: search, browse or upload it, then choose its size, alignment, view and class.</source>
+        <translation>Ein Bild einbetten: suchen, durchsuchen oder hochladen, dann Größe, Ausrichtung, Ansicht und Klasse wählen.</translation>
+    </message>
+    <message>
+        <source>Embed an object of the site: search, browse or upload it, then choose how it is shown. An embedded object starts a line of its own unless it is inline.</source>
+        <translation>Ein Objekt der Site einbetten: suchen, durchsuchen oder hochladen, dann wählen, wie es dargestellt wird. Ein eingebettetes Objekt beginnt eine eigene Zeile, außer es ist eingebunden (inline).</translation>
+    </message>
+    <message>
+        <source>Find a word or text (Ctrl+F).</source>
+        <translation>Ein Wort oder einen Text suchen (Strg+F).</translation>
+    </message>
+    <message>
+        <source>Find a word or text and replace it, one by one or all at once.</source>
+        <translation>Ein Wort oder einen Text suchen und ersetzen, einzeln oder alle auf einmal.</translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation>Funktion</translation>
+    </message>
+    <message>
+        <source>How to use the editor: the buttons, the keyboard, the tags, tips.</source>
+        <translation>So bedienen Sie den Editor: die Schaltflächen, die Tastatur, die Tags, Tipps.</translation>
+    </message>
+    <message>
+        <source>Insert a column after the one at the cursor.</source>
+        <translation>Eine Spalte nach der am Cursor einfügen.</translation>
+    </message>
+    <message>
+        <source>Insert a column before the one at the cursor.</source>
+        <translation>Eine Spalte vor der am Cursor einfügen.</translation>
+    </message>
+    <message>
+        <source>Insert a custom tag, or edit the one at the cursor: select text first to put it into the tag, choose the tag and fill in its attributes.</source>
+        <translation>Ein benutzerdefiniertes Tag einfügen oder das am Cursor bearbeiten: zuerst Text markieren, um ihn in das Tag zu setzen, dann das Tag wählen und seine Attribute ausfüllen.</translation>
+    </message>
+    <message>
+        <source>Insert a page break (the custom tag "pagebreak").</source>
+        <translation>Einen Seitenumbruch einfügen (das benutzerdefinierte Tag "pagebreak").</translation>
+    </message>
+    <message>
+        <source>Insert a row above the one at the cursor.</source>
+        <translation>Eine Zeile über der am Cursor einfügen.</translation>
+    </message>
+    <message>
+        <source>Insert a row below the one at the cursor.</source>
+        <translation>Eine Zeile unter der am Cursor einfügen.</translation>
+    </message>
+    <message>
+        <source>Insert a special character.</source>
+        <translation>Ein Sonderzeichen einfügen.</translation>
+    </message>
+    <message>
+        <source>Insert a table, or edit the table at the cursor: width, border, class and custom attributes.</source>
+        <translation>Eine Tabelle einfügen oder die Tabelle am Cursor bearbeiten: Breite, Rahmen, Klasse und benutzerdefinierte Attribute.</translation>
+    </message>
+    <message>
+        <source>Insert or edit a named anchor, which links can point to with #name.</source>
+        <translation>Einen benannten Anker einfügen oder bearbeiten, auf den Links mit #name zeigen können.</translation>
+    </message>
+    <message>
+        <source>Justify the paragraph, heading or table cell: every line gets the same width.</source>
+        <translation>Absatz, Überschrift oder Tabellenzelle im Blocksatz: jede Zeile erhält dieselbe Breite.</translation>
+    </message>
+    <message>
+        <source>Keyboard</source>
+        <translation>Tastatur</translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation>Tasten</translation>
+    </message>
+    <message>
+        <source>Literal text, kept exactly as typed.</source>
+        <translation>Literal-Text, genau so gespeichert, wie er eingegeben wurde.</translation>
+    </message>
+    <message>
+        <source>Literal text: shown exactly as it is typed, for code or preformatted text.</source>
+        <translation>Literal-Text: genau so dargestellt, wie er eingegeben wird, für Code oder vorformatierten Text.</translation>
+    </message>
+    <message>
+        <source>Make a bulleted list. Enter adds an item, Enter on an empty item ends the list. Inside a list the button removes it.</source>
+        <translation>Eine Aufzählung anlegen. Eingabe fügt einen Punkt hinzu, Eingabe in einem leeren Punkt beendet die Liste. In einer Liste entfernt die Schaltfläche sie.</translation>
+    </message>
+    <message>
+        <source>Make a numbered list. Enter adds an item, Enter on an empty item ends the list. Inside a list the button removes it.</source>
+        <translation>Eine nummerierte Liste anlegen. Eingabe fügt einen Punkt hinzu, Eingabe in einem leeren Punkt beendet die Liste. In einer Liste entfernt die Schaltfläche sie.</translation>
+    </message>
+    <message>
+        <source>Make the selected text a link, or edit the link at the cursor: address (also an object or node of the site, chosen with search or browse), target, title, class, view and custom attributes.</source>
+        <translation>Den markierten Text zum Link machen oder den Link am Cursor bearbeiten: Adresse (auch ein Objekt oder Knoten der Site, per Suche oder Durchsuchen gewählt), Ziel, Titel, Klasse, Ansicht und benutzerdefinierte Attribute.</translation>
+    </message>
+    <message>
+        <source>Make the selected text bold. If it is bold already, the formatting is removed.</source>
+        <translation>Den markierten Text fett setzen. Ist er schon fett, wird die Formatierung entfernt.</translation>
+    </message>
+    <message>
+        <source>Make the selected text italic. If it is italic already, the formatting is removed.</source>
+        <translation>Den markierten Text kursiv setzen. Ist er schon kursiv, wird die Formatierung entfernt.</translation>
+    </message>
+    <message>
+        <source>Merge the selected cells into one (select cells with Shift+click or by dragging across them).</source>
+        <translation>Die markierten Zellen zu einer verbinden (Zellen mit Umschalt+Klick oder durch Ziehen markieren).</translation>
+    </message>
+    <message>
+        <source>Most tags take a class and custom attributes from the site's settings: tag properties, or a click on the tag in the path below the text.</source>
+        <translation>Die meisten Tags nehmen eine Klasse und benutzerdefinierte Attribute aus den Einstellungen der Site: über die Tag-Eigenschaften oder einen Klick auf das Tag im Pfad unter dem Text.</translation>
+    </message>
+    <message>
+        <source>Move the custom tag up or down</source>
+        <translation>Das benutzerdefinierte Tag nach oben oder unten verschieben</translation>
+    </message>
+    <message>
+        <source>Move the list item one level down (into a nested list).</source>
+        <translation>Den Listenpunkt eine Ebene tiefer setzen (in eine verschachtelte Liste).</translation>
+    </message>
+    <message>
+        <source>Move the list item one level up (out of a nested list).</source>
+        <translation>Den Listenpunkt eine Ebene höher setzen (aus einer verschachtelten Liste heraus).</translation>
+    </message>
+    <message>
+        <source>Open this help (Alt+0).</source>
+        <translation>Diese Hilfe öffnen (Alt+0).</translation>
+    </message>
+    <message>
+        <source>Paste as text: while it is on, everything is pasted without formatting. Ctrl+Shift+V does it for one paste.</source>
+        <translation>Als Text einfügen: solange eingeschaltet, wird alles ohne Formatierung eingefügt. Strg+Umschalt+V tut das für ein Einfügen.</translation>
+    </message>
+    <message>
+        <source>Redo what Undo took back.</source>
+        <translation>Wiederholen, was Rückgängig zurückgenommen hat.</translation>
+    </message>
+    <message>
+        <source>Remove bold, italic, links and other formatting from the selected text.</source>
+        <translation>Fett, kursiv, Links und andere Formatierungen aus dem markierten Text entfernen.</translation>
+    </message>
+    <message>
+        <source>Remove the link at the cursor; its text stays.</source>
+        <translation>Den Link am Cursor entfernen; sein Text bleibt.</translation>
+    </message>
+    <message>
+        <source>Right click (or Shift+F10) for the commands at the cursor; Ctrl+right click for the browser's own menu.</source>
+        <translation>Rechtsklick (oder Umschalt+F10) für die Befehle am Cursor; Strg+Rechtsklick für das Menü des Browsers.</translation>
+    </message>
+    <message>
+        <source>Send the object for publishing.</source>
+        <translation>Das Objekt zur Veröffentlichung senden.</translation>
+    </message>
+    <message>
+        <source>Split a merged cell into its cells again.</source>
+        <translation>Eine verbundene Zelle wieder in ihre Zellen teilen.</translation>
+    </message>
+    <message>
+        <source>Store the draft (Ctrl+S).</source>
+        <translation>Den Entwurf speichern (Strg+S).</translation>
+    </message>
+    <message>
+        <source>Store the draft and continue in the other editor.</source>
+        <translation>Den Entwurf speichern und im anderen Editor weiterarbeiten.</translation>
+    </message>
+    <message>
+        <source>Subscript the selected text, or remove it.</source>
+        <translation>Den markierten Text tiefstellen oder das Tiefstellen entfernen.</translation>
+    </message>
+    <message>
+        <source>Superscript the selected text, or remove it.</source>
+        <translation>Den markierten Text hochstellen oder das Hochstellen entfernen.</translation>
+    </message>
+    <message>
+        <source>Tables with rows, header and data cells; cells can be merged.</source>
+        <translation>Tabellen mit Zeilen, Kopf- und Datenzellen; Zellen lassen sich verbinden.</translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <translation>Tags</translation>
+    </message>
+    <message>
+        <source>Text pasted from Word or a web page is cleaned to what a text field can store; Ctrl+Shift+V pastes the text only.</source>
+        <translation>Aus Word oder einer Webseite eingefügter Text wird auf das bereinigt, was ein Textfeld speichern kann; Strg+Umschalt+V fügt nur den Text ein.</translation>
+    </message>
+    <message>
+        <source>The AI assistant: improve, shorten, extend, correct, translate, summarize or continue the selected text, shown as a suggestion you accept or reject.</source>
+        <translation>Der KI-Assistent: den markierten Text verbessern, kürzen, erweitern, korrigieren, übersetzen, zusammenfassen oder fortsetzen, als Vorschlag, den Sie annehmen oder ablehnen.</translation>
+    </message>
+    <message>
+        <source>The Online Editor of Exponential with Tiptap: it edits the same text as ezoe's TinyMCE and stores it the same way, so either editor can be used on the same content.</source>
+        <translation>Der Online-Editor von Exponential mit Tiptap: Er bearbeitet denselben Text wie TinyMCE von ezoe und speichert ihn genauso, sodass beide Editoren für denselben Inhalt verwendet werden können.</translation>
+    </message>
+    <message>
+        <source>The buttons of this editor:</source>
+        <translation>Die Schaltflächen dieses Editors:</translation>
+    </message>
+    <message>
+        <source>The cell at the cursor: data or header cell, width, alignment, class and custom attributes, for the cell, its row, its column or the whole table.</source>
+        <translation>Die Zelle am Cursor: Daten- oder Kopfzelle, Breite, Ausrichtung, Klasse und benutzerdefinierte Attribute, für die Zelle, ihre Zeile, ihre Spalte oder die ganze Tabelle.</translation>
+    </message>
+    <message>
+        <source>The path below the text shows the tag at the cursor and the tags around it. A click on one selects it and opens its dialog.</source>
+        <translation>Der Pfad unter dem Text zeigt das Tag am Cursor und die Tags darum. Ein Klick auf eines markiert es und öffnet seinen Dialog.</translation>
+    </message>
+    <message>
+        <source>The row at the cursor: class and custom attributes.</source>
+        <translation>Die Zeile am Cursor: Klasse und benutzerdefinierte Attribute.</translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation>Tipps</translation>
+    </message>
+    <message>
+        <source>To make an image a link, select the image and press the link button.</source>
+        <translation>Um ein Bild zum Link zu machen, das Bild markieren und die Link-Schaltfläche drücken.</translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation>Werkzeugleiste</translation>
+    </message>
+    <message>
+        <source>Turn the editor off and edit the text as plain HTML in a text field.</source>
+        <translation>Den Editor ausschalten und den Text als einfaches HTML in einem Textfeld bearbeiten.</translation>
+    </message>
+    <message>
+        <source>Underline the selected text, or remove the underline (the custom tag "underline").</source>
+        <translation>Den markierten Text unterstreichen oder die Unterstreichung entfernen (das benutzerdefinierte Tag "underline").</translation>
+    </message>
+    <message>
+        <source>Undo the last change. Press again to undo more.</source>
+        <translation>Die letzte Änderung rückgängig machen. Erneut drücken, um weitere rückgängig zu machen.</translation>
+    </message>
+    <message>
+        <source>While typing: **text** makes bold, *text* italic, "# " at the start of a line a heading, "- " or "1. " a list.</source>
+        <translation>Beim Tippen: **Text** macht fett, *Text* kursiv, "# " am Zeilenanfang eine Überschrift, "- " oder "1. " eine Liste.</translation>
+    </message>
+    <message>
+        <source>%n characters</source>
+        <translation>%n Zeichen</translation>
+    </message>
+    <message>
+        <source>Copied to the clipboard.</source>
+        <translation>In die Zwischenablage kopiert.</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Kopieren</translation>
+    </message>
+    <message>
+        <source>HTML</source>
+        <translation>HTML</translation>
+    </message>
+    <message>
+        <source>Select the text and copy it with Ctrl+C.</source>
+        <translation>Den Text markieren und mit Strg+C kopieren.</translation>
+    </message>
+    <message>
+        <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
+        <translation>Das HTML, das der Editor sendet; der Server speichert es als ezxmltext. Nur lesend: Änderungen im Editor vornehmen.</translation>
+    </message>
+    <message>
+        <source>Insert a non-breaking space: the words on both sides stay on one line (Ctrl+Shift+Space).</source>
+        <translation>Ein geschütztes Leerzeichen einfügen: Die Wörter davor und danach bleiben in einer Zeile (Strg+Umschalt+Leertaste).</translation>
+    </message>
+    <message>
+        <source>Insert non-breaking space (Ctrl+Shift+Space)</source>
+        <translation>Geschütztes Leerzeichen einfügen (Strg+Umschalt+Leertaste)</translation>
+    </message>
+    <message>
+        <source>%1 becomes a paragraph</source>
+        <translation>%1 wird zu einem Absatz</translation>
+    </message>
+    <message>
+        <source>%1 is removed</source>
+        <translation>%1 wird entfernt</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Übernehmen</translation>
+    </message>
+    <message>
+        <source>Apply anyway</source>
+        <translation>Trotzdem übernehmen</translation>
+    </message>
+    <message>
+        <source>Apply anyway takes the text as listed; or change the source.</source>
+        <translation>„Trotzdem übernehmen“ übernimmt den Text wie aufgeführt; oder Sie ändern die Quelle.</translation>
+    </message>
+    <message>
+        <source>Attribute %1 of %2 is removed or changed</source>
+        <translation>Attribut %1 von %2 wird entfernt oder geändert</translation>
+    </message>
+    <message>
+        <source>HTML of the editor; what is stored is ezxmltext, which the server makes of it when the form is stored.</source>
+        <translation>HTML des Editors; gespeichert wird ezxmltext, das der Server beim Speichern des Formulars daraus erzeugt.</translation>
+    </message>
+    <message>
+        <source>Show the source of the text: the HTML of the editor, which the server stores as ezxmltext. Where the site allows it, change it there and apply it (Undo takes it back).</source>
+        <translation>Den Quelltext anzeigen: das HTML des Editors, das der Server als ezxmltext speichert. Wo die Site es erlaubt, dort ändern und übernehmen (Rückgängig nimmt es zurück).</translation>
+    </message>
+    <message>
+        <source>Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.</source>
+        <translation>Tab rückt ein, Umschalt+Tab rückt aus; mit Strg+M wechselt Tab zum nächsten Element. Esc bricht ab.</translation>
+    </message>
+    <message>
+        <source>Tab indents.</source>
+        <translation>Tab rückt ein.</translation>
+    </message>
+    <message>
+        <source>Tab moves the focus.</source>
+        <translation>Tab wechselt zum nächsten Element.</translation>
+    </message>
+    <message>
+        <source>Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.</source>
+        <translation>Tab wechselt zum nächsten Element; mit Strg+M rückt Tab wieder ein. Esc bricht ab.</translation>
+    </message>
+    <message>
+        <source>Text is removed: %1</source>
+        <translation>Text wird entfernt: %1</translation>
+    </message>
+    <message>
+        <source>Apply puts the changed HTML into the editor; Undo takes it back.</source>
+        <translation>„Übernehmen“ setzt das geänderte HTML in den Editor; Rückgängig nimmt es zurück.</translation>
+    </message>
+    <message>
+        <source>The editor cannot keep all of it:</source>
+        <translation>Der Editor kann nicht alles davon behalten:</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>Zeilen umbrechen</translation>
+    </message>
+    <message>
+        <source>The changes are not applied. Cancel again (or Escape) to discard them.</source>
+        <translation>Die Änderungen sind nicht übernommen. Noch einmal Abbrechen (oder Esc) verwirft sie.</translation>
     </message>
 </context>
 <context>

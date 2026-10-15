@@ -23,4 +23,17 @@ final class SettingsDefaultsTest extends TestCase
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
         $this->assertStringContainsString( "ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )", $tpl );
     }
+
+    /** SourceEditable is named, left to the siteaccess as Skin is, and editable unless it says disabled */
+    public function testSourceEditableIsEnabledUnlessASiteaccessDisablesIt()
+    {
+        $file = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/settings/exp_oe_tiptap.ini.append.php' );
+        $this->assertStringStartsWith( '<?php /* #?ini charset="utf-8"?', $file, 'the INI wrapper' );
+        $this->assertMatchesRegularExpression( '/^#SourceEditable=enabled$/m', $file );
+        $this->assertDoesNotMatchRegularExpression( '/^\s*SourceEditable\s*=/m', $file );
+        $php = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/expoetiptapeditor.php' );
+        $this->assertStringContainsString( "self::setting( 'EditorSettings', 'SourceEditable', 'enabled' ) !== 'disabled'", $php );
+        $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
+        $this->assertStringContainsString( "sourceEditable: {cond( \$exp_oe.source_editable, 'true', 'false' )}", $tpl );
+    }
 }

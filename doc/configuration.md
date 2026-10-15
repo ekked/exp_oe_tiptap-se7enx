@@ -25,6 +25,8 @@ settings (see [ezoe.ini](#ezoeini) below). `DefaultEditor` and `AllowSwitch` of 
 | `Styles[]` | `exp_oe_tiptap/exp_oe_tiptap.css` | The built styles, design paths below `stylesheets/`. |
 | `Skin` | (not set) | The look of the editor. Not set or empty: ezoe's `Skin` (o2k7: the look of TinyMCE 3 with ezoe's icon sprite). `a4`: a Tiptap editor in admin4's look: a flat toolbar with Tiptap's own icons (Lucide where Tiptap has none; sources and licenses in `src/icons/`), a bubble menu over selected text, a "+" on empty lines for the insert commands, roomy content typography, colors from admin4's `--a4-*` tokens (light and dark), and every dialog as an admin4 card (label above field, hint below, primary button on the right, the whole width on a phone; Escape closes it and the focus returns to the text). Set it per siteaccess (`settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php`); the extension leaves it undefined, because its own settings are read after a siteaccess's and would hide that choice. |
 | `MinHeight` | `300` | Minimum height of the editing area in pixels. The class attribute's "number of text rows" can make it taller. |
+| `ContextMenu` | `enabled` | The editor's context menu: a right click, the context menu key or Shift+F10 opens a menu with the commands for what is at the cursor (link, anchor, embed, custom tag, literal, table, row, cell, tag properties). Ctrl+right click or a second right click open the browser's own menu. `disabled`: always the browser's menu. |
+| `SourceEditable` | (not set: `enabled`) | The source view (button `code`): `enabled` lets the HTML be changed and applied (see the button `code` below), `disabled` shows it read only. Left undefined by the extension, like `Skin`, so that a siteaccess's value counts; set it in `settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php` or `settings/override/`. |
 
 ### [AISettings]
 
@@ -74,7 +76,7 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 
 | File | Setting | Used for |
 | --- | --- | --- |
-| `ezoe.ini` | `[EditorLayout] Buttons[]` (and its siteaccess/class variants, through `editor_layout_settings`) | which toolbar buttons exist, in which order |
+| `ezoe.ini` | `[EditorLayout] Buttons[]` (and its siteaccess/class variants, through `editor_layout_settings`) | which toolbar buttons exist, in which order; besides ezoe's names Tiptap knows the buttons [below](#toolbar-buttons-beyond-ezoes-defaults) |
 | `ezoe.ini` | `[EditorLayout] PathLocation`, `ToolbarLocation` | status bar and toolbar position |
 | `ezoe.ini` | `[EditorSettings] Skin`, `CustomAttributeStyleMap`, `UploadFileExtensions[]`, `UploadFromUrl` | skin class, custom attribute styles, upload rules |
 | `ezoe.ini` | `[EditorSettings] TagPathOpenDialog` | `enabled` (ezoe's default): a click on a tag of the status bar path also opens its dialog (link, anchor, table, cell, custom tag, embed, literal) |
@@ -84,6 +86,25 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 | `ezoe_attributes.ini` | everything | types and titles of custom attributes in the dialogs (the title is shown as a hint below the field; names Tiptap knows, such as ezoe's example `Summary (WAI)`, are translated) |
 | `design.ini` | `[StylesheetSettings] EditorCSSFileList[]` | the content CSS of the editing area |
 | `image.ini` | `[AliasSettings] AliasList[]` | image sizes of embeds |
+
+## Toolbar buttons beyond ezoe's defaults
+
+ezoe's default `[EditorLayout] Buttons[]` does not list these; a site adds them where it wants them (in a
+siteaccess's `ezoe.ini.append.php`, e.g. `Buttons[]=tag_props`). Without the button the function stays reachable as
+noted.
+
+| Button | Function | Also reachable |
+| --- | --- | --- |
+| `tag_props` | Tag properties: class and custom attributes of the paragraph, header, list, list item, strong or emphasize at the cursor (ezoe's `tag_general.tpl`, `tag_header.tpl`), from content.ini `[<tag>] AvailableClasses[]`, `ClassDescription[]`, `CustomAttributes[]` and ezoe_attributes.ini. Inside several of them the dialog lists them, innermost first. | a click on the tag in the status bar path (`TagPathOpenDialog=enabled`) |
+| `row_props` | Table row properties: class and custom attributes of the row at the cursor (content.ini `[tr]`), like ezoe's row dialog. TinyMCE 3's name and icon. | a click on `tr` in the status bar path |
+| `pastetext` | Paste as text, a switch as in TinyMCE 3: while it is on, every paste is plain text. Pasted HTML is always cleaned (Word, Google Docs, web pages); ezoe's `pasteword` dialog is not needed and not offered. | Ctrl+Shift+V (the next paste only) |
+| `search`, `replace` | Find and replace (TinyMCE 3's names and icons): a bar under the toolbar; `replace` puts the focus into the replace field. | Ctrl+F in the text |
+| `code` | Source (TinyMCE 3's name and icon): the HTML of the editor (ezoe's dialect, what the form posts), one block per line, with a copy button. The ezxmltext XML is made by the server when the form is stored and is not shown (making it in the browser would need the parser, which registers link URLs in the database). Editable unless `[EditorSettings] SourceEditable=disabled`: **Apply** parses the HTML in an inert document, cleans it as pasted HTML (no scripts, styles, frames, SVG, event handlers; links only relative, http(s), mailto, tel, ftp, eznode, ezobject), lets the schema read it, lists what the schema drops (elements, attributes, style declarations, text; not white space or the order of attributes) and asks **Apply anyway** first; one Undo takes it back. Tab indents, Ctrl+M makes Tab move the focus, Escape cancels (unapplied changes: the first Escape or Cancel asks). | |
+| `nonbreaking` | Insert a non-breaking space (TinyMCE 3's name and icon); ezxmltext keeps it as the character U+00A0. | Ctrl+Shift+Space |
+
+ezoe's `ltr` and `rtl` (text direction) are not offered: ezxmltext has no attribute for the direction of a paragraph,
+so `eZOEInputParser` would drop it on saving. ezoe's `pasteword` is not needed: every paste is cleaned. The buttons
+of the spell checkers (`spellchecker`, `AtD`) and `visualchars`, `emotions`, `tablemenu` have no counterpart.
 
 ## Preferences
 

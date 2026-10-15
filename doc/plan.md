@@ -126,6 +126,7 @@ Links: https://tiptap.dev/product/editor , https://tiptap.dev/product/ai-toolkit
   | `i18n` | English text => translation (context `extension/exp_oe_tiptap`), placeholders such as `%editor` kept; a text missing from the map stays English. Sources: the list in `expOETiptapEditor::$strings` plus `strings.json` (a JSON array of English texts) that the build may write next to the bundle |
   | `editorLabel`, `otherEditorLabel` | translated names of the current and the other editor (for "Switch to %editor") |
   | `minHeight`, `uploadExtensions`, `uploadFromUrl` | `[EditorSettings] MinHeight`; ezoe.ini upload rules |
+  | `contextMenu` | `[EditorSettings] ContextMenu` (`enabled` unless `disabled`): the context menu with the commands at the cursor |
   | `locale` | the http locale, e.g. `de-DE` |
 - **Schema** (B): `src/js/schema/index.js` exports `ezoeExtensions(options)` and `toEditorHTML/fromEditorHTML`; C
   imports it from `src/js/index.js`.

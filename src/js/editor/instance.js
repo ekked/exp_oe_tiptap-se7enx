@@ -9,14 +9,18 @@
 import { Editor, Extension, getSchema } from '@tiptap/core';
 import { UndoRedo, Dropcursor, Gapcursor } from '@tiptap/extensions';
 import { schema as defaultSchema } from './schema-bridge.js';
-import { createCommands, resolveButtons, setBlockFormat } from './commands.js';
+import { createCommands, resolveButtons, setBlockFormat, insertNonBreakingSpace } from './commands.js';
 import { selectedAncestor } from './schema-utils.js';
 import { Toolbar } from '../ui/toolbar.js';
 import { FloatingMenus } from '../ui/floating-menus.js';
+import { ContextMenu } from '../ui/context-menu.js';
+import { SearchBar } from '../ui/search-bar.js';
+import { SearchExtension } from './search.js';
 import { StatusBar } from '../ui/statusbar.js';
 import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
 import { customTagControls } from '../ui/customtag-controls.js';
+import { pasteExtension } from './paste.js';
 import { h, translator } from '../ui/dom.js';
 
 /** ezoe.ini [EditorLayout] Buttons[] defaults, used when the template gives no list */
@@ -36,7 +40,7 @@ export function normalizeOptions( options ) {
         buttons: null, pathLocation: 'bottom', pathOpenDialog: false, toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
-        urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] },
+        urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] }, contextMenu: true, sourceEditable: true,
         i18n: {}, locale: '', height: 0
     }, options || {} );
     o.urls = Object.assign( { root: '/', ezoe: '/ezoe/', ezjscore: '/ezjscore/', contentEdit: '/content/edit', switch: '' }, o.urls || {} );
@@ -74,6 +78,21 @@ function tinyMCEKeys( instance ) {
                 instance.runButton( 'help' );
                 return true;
             };
+            // find and replace (the search bar): Ctrl+F opens it, F3 / Shift+F3 move through the matches, Escape closes it
+            keys['Mod-f'] = () => {
+                instance.searchBar.open( false );
+                return true;
+            };
+            keys.F3 = () => instance.searchBar.isOpen() && ( instance.searchBar.go( 1 ), true );
+            keys['Shift-F3'] = () => instance.searchBar.isOpen() && ( instance.searchBar.go( -1 ), true );
+            keys.Escape = () => {
+                if ( !instance.searchBar.isOpen() )
+                    return false;
+                instance.searchBar.close( false );
+                return true;
+            };
+            // a non-breaking space, as TinyMCE's nonbreaking plugin (Ctrl+Shift+Space, on a Mac Cmd+Shift+Space too)
+            keys['Mod-Shift-Space'] = keys['Ctrl-Shift-Space'] = () => insertNonBreakingSpace( this.editor );
             keys['Alt-F10'] = () => {
                 const first = instance.toolbar && instance.toolbar.element.querySelector( 'button:not([disabled]), select' );
                 if ( first )
@@ -117,7 +136,8 @@ export class ExpOETiptapInstance {
         this.contentArea.style.height = height + 'px';
 
         // the editor
-        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ) ],
+        this.pasteAsText = false;
+        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ), pasteExtension( this ), SearchExtension ],
                                       o.customTagControls ? [ customTagControls( this ) ] : [] );
         const content = this.schema.load( textarea.value, getSchema( extensions ) );
         const mount = h( 'div', { class: 'exp-oe-mount' } );
@@ -169,13 +189,14 @@ export class ExpOETiptapInstance {
         // the a4 skin works like Tiptap's own editors: a bubble menu over selected text and a "+" on empty lines
         this.floating = ( o.floatingMenus === undefined ? o.skin === 'a4' : !!o.floatingMenus ) ? new FloatingMenus( this.ctx, this.commands, resolved ) : null;
         this.statusbar = o.pathLocation === 'none' ? null : new StatusBar( this.ctx );
+        this.searchBar = new SearchBar( this.ctx );
 
         const parts = [];
         if ( this.statusbar && o.pathLocation === 'top' )
             parts.push( this.statusbar.element );
         if ( o.toolbarLocation !== 'bottom' )
             parts.push( this.toolbar.element );
-        parts.push( this.ai.element, this.contentArea );
+        parts.push( this.searchBar.element, this.ai.element, this.contentArea );
         if ( o.toolbarLocation === 'bottom' )
             parts.push( this.toolbar.element );
         if ( this.statusbar && o.pathLocation !== 'top' )
@@ -184,6 +205,12 @@ export class ExpOETiptapInstance {
         if ( this.floating ) {
             this.contentArea.appendChild( this.floating.element );
             this.floating.attach( ( target, type, fn, capture ) => this.listen( target, type, fn, capture ) );
+        }
+        // the context menu (exp_oe_tiptap.ini [EditorSettings] ContextMenu)
+        this.contextMenu = o.contextMenu === false ? null : new ContextMenu( this.ctx, this.commands );
+        if ( this.contextMenu ) {
+            this.wrapper.appendChild( this.contextMenu.element );
+            this.contextMenu.attach( ( target, type, fn, capture ) => this.listen( target, type, fn, capture ) );
         }
         if ( this.schema.isFallback )
             this.wrapper.appendChild( h( 'div', { class: 'exp-oe-warning', role: 'note', text: t( 'Fallback schema: ezoe attributes, embeds and custom tags are not kept. Do not save.' ) } ) );
@@ -238,6 +265,8 @@ export class ExpOETiptapInstance {
             this.floating.update( this.editor.isFocused );
         if ( this.statusbar )
             this.statusbar.update();
+        if ( this.searchBar && this.searchBar.isOpen() )
+            this.searchBar.refresh();
     }
 
     statusInfo() {
@@ -261,12 +290,17 @@ export class ExpOETiptapInstance {
         this.updateUI();
     }
 
-    runButton( name ) {
+    /**
+     * Runs a command of the registry, whether the toolbar shows it or not.
+     * @param {string} name
+     * @param {Object} [target] the element it is for (a status bar path item: { node, pos } or { mark })
+     */
+    runButton( name, target ) {
         const def = this.commands[name];
         if ( !def || this.locked )
             return false;
         const button = this.toolbar.controls[name];
-        def.run( this.ctx, button );
+        def.run( this.ctx, button, target );
         this.updateUI();
         return true;
     }

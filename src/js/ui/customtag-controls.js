@@ -16,6 +16,7 @@
 import { Extension, getMarkRange } from '@tiptap/core';
 import { Plugin, PluginKey, TextSelection, NodeSelection } from '@tiptap/pm/state';
 import { h } from './dom.js';
+import { shortcutLabel } from './keys.js';
 
 const BLOCK = 'ezCustomBlock';
 const IMAGE = 'ezCustomImage';
@@ -174,7 +175,7 @@ class CustomTagBar {
         this.instance = instance;
         this.editor = editor;
         const button = ( cls, symbol, label, keys, fn ) => h( 'button', {
-            type: 'button', class: 'exp-oe-custom-tag-' + cls, 'aria-label': label, title: label + ' (' + keys + ')',
+            type: 'button', class: 'exp-oe-custom-tag-' + cls, 'aria-label': label, title: label + ' (' + shortcutLabel( keys, t ) + ')',
             onmousedown: ( e ) => e.preventDefault(),
             onclick: ( e ) => {
                 e.preventDefault();

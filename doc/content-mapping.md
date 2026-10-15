@@ -65,9 +65,26 @@ The marks are nested in this order on output, outermost first: inline custom tag
 Stored content usually has formatting around a link (`<emphasize>Credit: <link>…</link></emphasize>`). With the link
 innermost, that formatting is not split around it.
 
+### Paragraphs only TinyMCE needs (`fromEditorHTML`, `prepareFromEzoe()`)
+
+`eZOEXMLInput::inputXML()` appends `<p><br></p>` to every text: the line TinyMCE needs to put the cursor after a
+last table or embed (`validateInput()` removes it again on store). A paragraph holding a table is written as
+`<p><table>...</table></p>`; TinyMCE keeps that, the HTML parser of a browser closes the `<p>` before the table and
+makes an empty `<p></p>` of the stray `</p>` after it. Left in the document, these became empty paragraphs before and
+after every table and at the end of the text, and each pass through the editor (or a switch to the other editor and
+back) showed them again. On load they are left out: empty `<p></p>` without attributes (ezoe writes every empty
+paragraph of the ezxml as `<p><br></p>`), the last `<p><br></p>` of a whole document (not of a dialog's fragment), and
+the `<br>` of `<p><br></p>`, TinyMCE's form of an empty paragraph, which becomes an empty paragraph rather than a line
+break. Tiptap puts the cursor after a last table with its gap cursor. An empty paragraph between two others stays.
+
 ### Clean-ups on save (`toEditorHTML`, as ezoe's TinyMCE plugins do)
 
-- An empty paragraph is written as `<p><br></p>`.
+- An empty paragraph is written as `<p><br></p>`; empty paragraphs at the end of the document are not written
+  (`trimTrailingParagraphs()`: `validateInput()` and the parser drop them, so they are never stored).
+- A table is written in a paragraph of its own, `<p><table>...</table></p>`, as `inputXML()` writes it
+  (`wrapTables()`): the parser puts blocks that follow each other without a `<p>` into one ezxml paragraph, so two
+  tables in a row would be stored as one paragraph. A table after the `<br>` of a line of block embeds goes into the
+  paragraph of that line.
 - A list item with one paragraph and no attributes is written without the `<p>`.
 - The preview inside a `<div>`/`<span>` embed becomes the text `ezembed` (ezembed plugin, issue 18264).
 - The `ezoeAlign<align>` helper class is removed from image embeds (EZP-22487).
@@ -75,7 +92,7 @@ innermost, that formatting is not split around it.
 
 ## Tests
 
-- `tests/fixtures/`: 63 pairs of `NAME.xml` (stored ezxml) and `NAME.html` (what `eZOEXMLInput::inputXML()` makes of
+- `tests/fixtures/`: 66 pairs of `NAME.xml` (stored ezxml) and `NAME.html` (what `eZOEXMLInput::inputXML()` makes of
   it in the admin siteaccess). The 50 `a*` fixtures are real alpha content, taken with read-only queries, with e-mail
   addresses, the names in credit lines, the names of private persons and of local performers, and the organiser's
   postal address and phone number replaced by placeholders, the same way in the `.xml` and the `.html` of each
@@ -85,13 +102,21 @@ innermost, that formatting is not split around it.
   pair therefore name the same target. The 22 alpha fixtures whose content was later brought into ezoe's dialect
   on alpha (lists, embeds and headers moved where ezoe keeps them, see below) were taken again from the repaired
   content, from the same objects, attributes and languages, so their names and manifest entries did not change.
-  The 13 `s*` fixtures are synthetic and cover what alpha's
+  The 16 `s*` fixtures are synthetic and cover what alpha's
   content does not use: anchors, literals, tables with th/colspan/rowspan/width/custom attributes, every kind of
-  embed, block and inline custom tags, links to objects and nodes with target/title/id/view. `manifest.json` lists
+  embed, block and inline custom tags, links to objects and nodes with target/title/id/view, classes and custom
+  attributes of paragraphs, headers, lists, list items, strong and emphasize (`s065`, with a custom attribute of
+  ezoe.ini `CustomAttributeStyleMap`) and table rows (`s066`). Their classes and custom attributes are not in the default content.ini: a
+  round trip of them sets them for the parser (`AvailableClasses[]`, `CustomAttributes[]` of each tag). `manifest.json` lists
   the source and the features of each.
 - `node --test tests/js/schema/schema.test.mjs`: 17 unit tests. Every fixture must be stable through Tiptap, attributes
   must be kept, embeds, custom tags, tables, lists, literal and white space must survive, and a headless editor must
   edit and save.
+- `node --test tests/js/schema/empty-paragraphs.test.mjs`: a paragraph alone, a table at the end, in the middle, first,
+  two tables, a wanted empty paragraph and lines go through Tiptap three times, in the form a browser parses the field;
+  the document and the posted HTML are the same after every pass.
+- `tests/php/EmptyParagraphRoundtripTest.php` (PHPUnit, needs node and `npm ci`): the same through the real
+  `inputXML()` and `eZOEInputParser`, three passes, the stored ezxml identical to the original every time. No database.
 - `tests/php/roundtrip/run.sh <copy-of-the-db> <work-dir>`, run from the installation root: first every fixture
   goes ezoe HTML → Tiptap → HTML (`tests/js/schema/roundtrip.mjs`), then `run.php` feeds that HTML to
   `eZOEInputParser` exactly as `validateInput()` does and compares the result with the original ezxml. It does the

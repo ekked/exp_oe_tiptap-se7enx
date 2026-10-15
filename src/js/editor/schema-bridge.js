@@ -8,7 +8,8 @@
  *   cleanupForEzoe( element, options )      the clean-up toEditorHTML applies after serialising
  *
  * The bridge turns that into what the editor needs:
- *   extensions( options ), load( html, schema ), save( editor ), parseFragment( html, schema ), cleanup( el )
+ *   extensions( options ), load( html, schema, options ), save( editor ), serialize( node, options ),
+ *   parseFragment( html, schema ), cleanup( el )
  */
 import * as schemaModule from '#ezoe-schema';
 
@@ -23,17 +24,23 @@ export function createBridge( mod ) {
                 throw new Error( 'exp_oe_tiptap: the schema module does not export ezoeExtensions()' );
             return mod.ezoeExtensions( options );
         },
-        /** Content for new Editor() / setContent() from the textarea value */
-        load( html, schema ) {
-            return fn( 'fromEditorHTML' ) ? mod.fromEditorHTML( html || '', { schema } ) : ( html || '' );
+        /** Content for new Editor() / setContent() from the textarea value (options.document: where it is parsed) */
+        load( html, schema, options ) {
+            return fn( 'fromEditorHTML' ) ? mod.fromEditorHTML( html || '', Object.assign( {}, options, { schema } ) ) : ( html || '' );
         },
         /** The ezoe HTML the form posts */
         save( editor ) {
             return fn( 'toEditorHTML' ) ? mod.toEditorHTML( editor, { schema: editor.schema } ) : editor.getHTML();
         },
+        /** The ezoe HTML of a ProseMirror node (options.document: where it is serialised) */
+        serialize( node, options ) {
+            if ( !fn( 'toEditorHTML' ) )
+                throw new Error( 'exp_oe_tiptap: the schema module does not export toEditorHTML()' );
+            return mod.toEditorHTML( node, Object.assign( {}, options, { schema: node.type.schema } ) );
+        },
         /** Content (array of node JSON) for insertContent() from a piece of ezoe HTML */
         parseFragment( html, schema ) {
-            const loaded = this.load( html, schema );
+            const loaded = this.load( html, schema, { fragment: true } );
             return loaded && typeof loaded === 'object' && Array.isArray( loaded.content ) ? loaded.content : loaded;
         },
         /** Turns rendered editor DOM into the posted dialect in place */
