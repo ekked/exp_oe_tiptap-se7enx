@@ -63,6 +63,11 @@ site; the page says so in its status column.
   (Word's bulleted and numbered paragraphs become real lists), tables, links, bold, italic, underline, sub- and
   superscript. Fonts, colours, Word's comments, header and footer, bookmarks and images of the clipboard are left out;
   the text of everything else stays. Text copied inside the editor keeps everything (embeds, custom tags, classes).
+- **Context menu**: a right click into the text, the context menu key or Shift+F10 shows the commands for what is
+  at the cursor: edit or remove a link, edit an anchor, an embedded object or a custom tag, the table, row and cell
+  properties, insert and delete rows and columns, merge and split cells, and the tag properties. The arrow keys move
+  through it, Enter runs a command, Escape closes it. For the browser's own menu (spelling suggestions, copy as ...)
+  hold Ctrl while right-clicking, or right-click a second time.
 - **Paste as text**: Ctrl+Shift+V pastes only the text, once; the toolbar's **Paste as text** (where the site has it)
   switches it on until you switch it off. A blank line starts a new paragraph, a single line break stays a line
   break.

@@ -1143,6 +1143,38 @@
         <source>Paste as text (Ctrl+Shift+V)</source>
         <translation>Als Text einfügen (Strg+Umschalt+V)</translation>
     </message>
+    <message>
+        <source>Commands at the cursor</source>
+        <translation>Befehle am Cursor</translation>
+    </message>
+    <message>
+        <source>Context menu</source>
+        <translation>Kontextmenü</translation>
+    </message>
+    <message>
+        <source>Edit anchor</source>
+        <translation>Anker bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit custom tag</source>
+        <translation>Benutzerdefiniertes Tag bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit embedded object</source>
+        <translation>Eingebettetes Objekt bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit file</source>
+        <translation>Datei bearbeiten</translation>
+    </message>
+    <message>
+        <source>Edit image</source>
+        <translation>Bild bearbeiten</translation>
+    </message>
+    <message>
+        <source>Literal text properties</source>
+        <translation>Eigenschaften des Literal-Texts</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

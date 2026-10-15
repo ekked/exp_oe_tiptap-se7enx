@@ -196,6 +196,26 @@
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button { width: auto; justify-content: flex-start; gap: 8px; padding: 0 10px 0 8px; }
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button::after { content: attr(aria-label); font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif); white-space: nowrap; }
 
+/* context menu (ui/context-menu.js): a card like the floating menus, the label beside the icon */
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-context-menu {
+    min-width: 220px;
+    padding: 4px;
+    border: 1px solid var(--exp-oe-border);
+    border-radius: 10px;
+    background: var(--a4-card, #fff);
+    box-shadow: var(--a4-shadow-m, 0 8px 24px rgba(0, 0, 0, .14));
+    color: var(--exp-oe-text);
+    font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif);
+}
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item { height: 32px; gap: 10px; padding: 0 12px 0 8px; border: 0; border-radius: 6px; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:hover, .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:focus { background: var(--exp-oe-hover); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:focus-visible { outline: 2px solid var(--exp-oe-accent); outline-offset: -2px; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-separator { margin: 4px 6px; background: var(--exp-oe-border); }
+@media (forced-colors: active) {
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-context-menu { border: 1px solid CanvasText; }
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-menu-item:focus { outline: 2px solid Highlight; }
+}
+
 /* dialogs (ui/dialog.js; the overlay carries exp-oe-skin-a4): a card in admin4's look instead of ezoe's inline popup.
    Title without a bar, close button with an icon, label above field and hint below, secondary button left of the
    primary one; at most 32rem wide, the whole width on a phone. */

@@ -253,6 +253,22 @@
 .exp-oe-fullscreen .exp-oe-content-area { flex: 1 1 auto; height: auto !important; }
 html.exp-oe-has-fullscreen, html.exp-oe-has-fullscreen body { overflow: hidden; }
 
+/* ---------- context menu (ui/context-menu.js), in the look of TinyMCE 3's o2k7 menus */
+.exp-oe-tiptap .exp-oe-context-menu {
+    position: fixed; z-index: 10040; display: flex; flex-direction: column; min-width: 180px; max-height: 80vh; overflow: auto;
+    padding: 1px; border: 1px solid #8f8f8f; background: #fff; box-shadow: 2px 2px 3px rgba(0, 0, 0, .25);
+    font: 11px Tahoma, Verdana, Arial, sans-serif; color: #000;
+}
+.exp-oe-tiptap .exp-oe-context-menu[hidden] { display: none; }
+.exp-oe-tiptap .exp-oe-menu-item {
+    display: flex; align-items: center; gap: 6px; width: 100%; height: 22px; margin: 0; padding: 0 12px 0 2px;
+    border: 1px solid transparent; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; white-space: nowrap;
+}
+.exp-oe-tiptap .exp-oe-menu-item:hover, .exp-oe-tiptap .exp-oe-menu-item:focus { border-color: #94b6e8; background: #dbecf3; outline: none; }
+.exp-oe-tiptap .exp-oe-menu-item:focus-visible { outline: 1px dotted #000; outline-offset: -3px; }
+.exp-oe-tiptap .exp-oe-menu-item .exp-oe-icon { flex: none; }
+.exp-oe-tiptap .exp-oe-menu-separator { height: 1px; margin: 2px 0 2px 26px; background: #d5d5d5; }
+
 /* ---------- dialogs (ezoe inline popup look) */
 .exp-oe-dialog-overlay {
     position: fixed; inset: 0; z-index: 10050; display: flex; align-items: flex-start; justify-content: center;

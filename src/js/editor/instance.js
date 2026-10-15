@@ -13,6 +13,7 @@ import { createCommands, resolveButtons, setBlockFormat } from './commands.js';
 import { selectedAncestor } from './schema-utils.js';
 import { Toolbar } from '../ui/toolbar.js';
 import { FloatingMenus } from '../ui/floating-menus.js';
+import { ContextMenu } from '../ui/context-menu.js';
 import { StatusBar } from '../ui/statusbar.js';
 import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
@@ -37,7 +38,7 @@ export function normalizeOptions( options ) {
         buttons: null, pathLocation: 'bottom', pathOpenDialog: false, toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
-        urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] },
+        urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] }, contextMenu: true,
         i18n: {}, locale: '', height: 0
     }, options || {} );
     o.urls = Object.assign( { root: '/', ezoe: '/ezoe/', ezjscore: '/ezjscore/', contentEdit: '/content/edit', switch: '' }, o.urls || {} );
@@ -186,6 +187,12 @@ export class ExpOETiptapInstance {
         if ( this.floating ) {
             this.contentArea.appendChild( this.floating.element );
             this.floating.attach( ( target, type, fn, capture ) => this.listen( target, type, fn, capture ) );
+        }
+        // the context menu (exp_oe_tiptap.ini [EditorSettings] ContextMenu)
+        this.contextMenu = o.contextMenu === false ? null : new ContextMenu( this.ctx, this.commands );
+        if ( this.contextMenu ) {
+            this.wrapper.appendChild( this.contextMenu.element );
+            this.contextMenu.attach( ( target, type, fn, capture ) => this.listen( target, type, fn, capture ) );
         }
         if ( this.schema.isFallback )
             this.wrapper.appendChild( h( 'div', { class: 'exp-oe-warning', role: 'note', text: t( 'Fallback schema: ezoe attributes, embeds and custom tags are not kept. Do not save.' ) } ) );

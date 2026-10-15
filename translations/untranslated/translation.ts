@@ -1143,6 +1143,38 @@
         <source>Paste as text (Ctrl+Shift+V)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Commands at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Context menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit anchor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit custom tag</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit embedded object</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Literal text properties</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

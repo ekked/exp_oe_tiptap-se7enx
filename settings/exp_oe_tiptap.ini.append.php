@@ -34,6 +34,10 @@ Styles[]=exp_oe_tiptap/exp_oe_tiptap.css
 # Minimum height of the editing area in pixels; the class attribute's text rows can make it taller.
 MinHeight=300
 
+# The editor's context menu (right click, the context menu key, Shift+F10) with the commands at the cursor.
+# enabled (default) or disabled. The browser's own menu stays at hand with Ctrl+right click or a second right click.
+ContextMenu=enabled
+
 
 [AISettings]
 # The AI commands of the editor (improve, shorten, ...). Off by default. When enabled, only users with the

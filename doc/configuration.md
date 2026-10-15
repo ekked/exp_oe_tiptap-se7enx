@@ -25,6 +25,7 @@ settings (see [ezoe.ini](#ezoeini) below). `DefaultEditor` and `AllowSwitch` of 
 | `Styles[]` | `exp_oe_tiptap/exp_oe_tiptap.css` | The built styles, design paths below `stylesheets/`. |
 | `Skin` | (not set) | The look of the editor. Not set or empty: ezoe's `Skin` (o2k7: the look of TinyMCE 3 with ezoe's icon sprite). `a4`: a Tiptap editor in admin4's look: a flat toolbar with Tiptap's own icons (Lucide where Tiptap has none; sources and licenses in `src/icons/`), a bubble menu over selected text, a "+" on empty lines for the insert commands, roomy content typography, colors from admin4's `--a4-*` tokens (light and dark), and every dialog as an admin4 card (label above field, hint below, primary button on the right, the whole width on a phone; Escape closes it and the focus returns to the text). Set it per siteaccess (`settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php`); the extension leaves it undefined, because its own settings are read after a siteaccess's and would hide that choice. |
 | `MinHeight` | `300` | Minimum height of the editing area in pixels. The class attribute's "number of text rows" can make it taller. |
+| `ContextMenu` | `enabled` | The editor's context menu: a right click, the context menu key or Shift+F10 opens a menu with the commands for what is at the cursor (link, anchor, embed, custom tag, literal, table, row, cell, tag properties). Ctrl+right click or a second right click open the browser's own menu. `disabled`: always the browser's menu. |
 
 ### [AISettings]
 

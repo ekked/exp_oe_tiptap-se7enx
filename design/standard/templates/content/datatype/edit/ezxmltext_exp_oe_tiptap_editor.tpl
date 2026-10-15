@@ -106,6 +106,8 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     language: {json_encode( $attribute.language_code )},
     rows: {$editorRow},
     minHeight: {$exp_oe.min_height},
+    // exp_oe_tiptap.ini [EditorSettings] ContextMenu
+    contextMenu: {cond( $exp_oe.context_menu, 'true', 'false' )},
     buttons: {json_encode( $layout_settings['buttons'] )},
     pathLocation: {json_encode( $layout_settings['path_location'] )},
     // ezoe.ini [EditorSettings] TagPathOpenDialog: a click on a tag of the path opens its dialog

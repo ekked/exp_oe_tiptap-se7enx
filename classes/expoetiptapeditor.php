@@ -231,6 +231,8 @@ class expOETiptapEditor
             'asset_loading'    => self::setting( 'EditorSettings', 'AssetLoading', 'ezdesign' ) === 'ezjscore' ? 'ezjscore' : 'ezdesign',
             'cache_key'        => self::cacheKey(),
             'min_height'       => (int) self::setting( 'EditorSettings', 'MinHeight', 300 ),
+            // [EditorSettings] ContextMenu: the context menu with the commands at the cursor
+            'context_menu'     => self::setting( 'EditorSettings', 'ContextMenu', 'enabled' ) !== 'disabled',
             // the upload rules of ezoe's embed dialog (ezoe.ini [EditorSettings] UploadFileExtensions[], UploadFromUrl)
             'upload_extensions' => self::hasRegistry() ? expOEEditor::uploadExtensions() : array(),
             'upload_from_url'   => class_exists( 'expOEUrlFetcher' ) ? (bool) expOEUrlFetcher::enabled() : false,
