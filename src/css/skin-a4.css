@@ -152,16 +152,22 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .ProseMirror-selectednode { outline: 2px solid var(--exp-oe-accent); outline-offset: 2px; }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content p.is-editor-empty:first-child::before { color: var(--exp-oe-muted); }
 
-/* status bar */
+/* status bar: admin4's small type (the font of the editor, --a4-text-xs), "Path:" in its label weight, the path
+   items muted and underlined only on hover, like TinyMCE 8's status bar in admin4 */
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-statusbar {
+    min-height: 24px;
+    padding: 0 0 0 var(--a4-space-2, 8px);
     border-top: 1px solid var(--exp-oe-border);
     background: var(--exp-oe-bar);
     color: var(--exp-oe-muted);
+    font: inherit;
     font-size: var(--a4-text-xs, 12px);
+    line-height: 16px;
     border-radius: 0 0 var(--exp-oe-a4-radius) var(--exp-oe-a4-radius);
 }
-.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a { color: var(--exp-oe-muted); }
-.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a:hover { background: var(--exp-oe-hover); color: var(--exp-oe-text); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path-label { font-weight: 600; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a { padding: 0 2px; color: var(--exp-oe-muted); text-decoration: none; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a:hover { background: var(--exp-oe-hover); color: var(--exp-oe-text); text-decoration: underline; }
 
 /* floating menus: bubble over selected text, "+" beside an empty line */
 .exp-oe-tiptap .exp-oe-floating { position: static; }

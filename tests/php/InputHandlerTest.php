@@ -56,6 +56,14 @@ final class InputHandlerTest extends TestCase
         $this->assertTrue( $handler->hasAttribute( 'exp_oe_editor' ) );
     }
 
+    public function testEveryEngineAttributeMovesThePreferenceOf010First()
+    {
+        // ezoe's engine switch reads engine_switch_options since Exponential 6.0.15 (engine_switch_choices before):
+        // each of them moves the preference exp_oe_editor of 0.1.0 to ezoe_engine before ezoe resolves the engine
+        $source = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/expoetiptapxmlinput.php' );
+        $this->assertStringContainsString( "if ( \$name === 'engine' || \$name === 'engine_switch_choices' || \$name === 'engine_switch_options' )\n            expOETiptapEditor::migratePreference();", $source );
+    }
+
     public function testRegisteredAsTheAliasOfTheSimplifiedInput()
     {
         $aliases = eZINI::instance( 'ezxml.ini' )->variable( 'InputSettings', 'AliasClasses' );

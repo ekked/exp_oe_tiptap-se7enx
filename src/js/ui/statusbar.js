@@ -54,7 +54,9 @@ export class StatusBar {
         this.info = h( 'span', { class: 'exp-oe-info' } );
         this.resize = h( 'span', { class: 'exp-oe-resize', title: ctx.t( 'Drag to resize' ), 'aria-hidden': 'true' } );
         this.element = h( 'div', { class: 'exp-oe-statusbar' }, [
-            h( 'span', { class: 'exp-oe-path-label', text: ctx.t( 'Path' ) + ': ' } ), this.path, this.resize, this.info
+            // "Path:" without a trailing space: the bar is a flex row, which drops white space at the end of an item;
+            // the space after the colon is the label's margin (exp_oe_tiptap.css)
+            h( 'span', { class: 'exp-oe-path-label', text: ctx.t( 'Path' ) + ':' } ), this.path, this.resize, this.info
         ] );
         this.resize.addEventListener( 'mousedown', ( e ) => this.startResize( e ) );
     }

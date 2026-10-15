@@ -28,6 +28,10 @@ Below the text field there is a button for each other editor, e.g.:
 - with Tiptap: **Switch to the editor TinyMCE 3** (and TinyMCE 8 where the site has it); Tiptap's toolbar has the
   same action, and the text next to the buttons says "Editing with Tiptap".
 
+Since Exponential 6.0.15 ezoe shows the switch as one control named **Editor** with every editor of the site, e.g.
+"Tiptap | TinyMCE 3 | TinyMCE 8": the editor in use is marked, a click on another one switches. That control names
+the editor in use itself, so "Editing with Tiptap" is not shown next to it (with an older ezoe it still is).
+
 When you press one, the whole form is stored as a draft first, exactly as when you press "Disable editor", and the
 form comes back with the other editor. Nothing you typed is lost, in any field. Nothing is published.
 

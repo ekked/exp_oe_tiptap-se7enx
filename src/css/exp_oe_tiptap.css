@@ -239,7 +239,8 @@
     white-space: nowrap;
     overflow: hidden;
 }
-.exp-oe-path-label { flex: none; }
+/* the space between "Path:" and the path: a margin, because a flex item loses its trailing white space */
+.exp-oe-path-label { flex: none; margin-right: .35em; }
 .exp-oe-path { flex: 1 1 auto; overflow: hidden; text-overflow: ellipsis; }
 .exp-oe-path a { color: #000; text-decoration: underline; padding: 0 1px 1px; cursor: pointer; }
 .exp-oe-path a:hover { background: #fff; }
@@ -397,3 +398,8 @@ html.exp-oe-has-fullscreen, html.exp-oe-has-fullscreen body { overflow: hidden; 
     .exp-oe-dialog-overlay:has(> .exp-oe-source) { padding: 0; }
     .exp-oe-dialog.exp-oe-source { width: 100% !important; border-width: 0; }
 }
+
+/* ---------- below the field: ezoe's engine switch (since Exponential 6.0.15 one group, div.ezoe-engine-switch, that
+   names the engine in use itself) makes "Editing with Tiptap" redundant; with an older ezoe, whose switch is only
+   buttons, the text stays */
+.ezoe-engine-switch ~ .exp-oe-switch-current { display: none; }
