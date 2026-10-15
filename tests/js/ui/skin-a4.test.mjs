@@ -67,6 +67,9 @@ test( 'the icon sources and their licences are shipped; the marks use Tiptap\'s 
         assert.ok( readFileSync( resolve( root, f ), 'utf8' ).length > 100, f );
     assert.match( css( 'src/icons/tiptap/LICENSE' ), /MIT License[\s\S]*Tiptap/ );
     assert.match( css( 'src/icons/lucide/LICENSE' ), /ISC License/ );
+    assert.match( css( 'src/icons/lucide/LICENSE' ), /MIT License[\s\S]*Copyright \(c\) 2013-present Cole Bemis[\s\S]*Permission is hereby granted/, 'the Feather part, MIT' );
+    assert.match( css( 'src/icons/NOTICE' ), /799929bea4804c73767562b69f8acc2acdb8ac86/ );
+    assert.match( css( 'src/icons/NOTICE' ), /lucide-static 0\.468\.0/ );
     const tool = css( 'tools/build-skin-a4.py' );
     for ( const name of [ 'bold', 'italic', 'underline', 'link', 'bullist', 'numlist', 'undo', 'redo' ] )
         assert.match( tool, new RegExp( "'" + name + "': 'tiptap/" ), name + ' uses Tiptap\'s icon' );
