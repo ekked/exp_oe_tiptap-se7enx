@@ -466,8 +466,27 @@ export function rebuild( markup, map, schema, options = {} ) {
     const opts = Object.assign( { mode: 'blocks', tokens: true, repair: false }, options );
     let source = String( markup || '' ).replace( /\r\n?/g, '\n' ).trim();
     if ( opts.mode === 'blocks' && !/<\s*(p|h[1-6]|ul|ol|li)\b/i.test( source ) ) {
-        // plain text answer: blank lines separate paragraphs, a line feed is a line break
-        source = source.split( /\n{2,}/ ).map( ( p ) => '<p>' + p.trim().replace( /\n/g, '<br>' ) + '</p>' ).join( '\n' );
+        // plain text answer: blank lines separate paragraphs, a line feed is a line break; a line that is a block
+        // token alone (a table, an embed) stands between the paragraphs, not in one (two blocks in a row came back
+        // with an empty paragraph of a line break between them)
+        const blockLine = ( line ) => {
+            const m = /^\s*\u27E6([A-Z]\d+)\u27E7\s*$/.exec( line );
+            const t = m && map && map.tokens ? map.tokens.get( m[1] ) : null;
+            return !!( t && t.kind === 'block' );
+        };
+        const paragraph = ( lines ) => ( lines.length ? [ '<p>' + lines.join( '<br>' ).trim() + '</p>' ] : [] );
+        source = source.split( /\n{2,}/ ).map( ( p ) => {
+            const out = [];
+            let lines = [];
+            for ( const line of p.trim().split( '\n' ) ) {
+                if ( blockLine( line ) ) {
+                    out.push( ...paragraph( lines ), line.trim() );
+                    lines = [];
+                } else
+                    lines.push( line );
+            }
+            return out.concat( paragraph( lines ) ).join( '\n' );
+        } ).join( '\n' );
     }
     const { root } = parseMarkup( source );
     const b = new Builder( map, schema, opts );

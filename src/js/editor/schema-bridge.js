@@ -40,7 +40,7 @@ export function createBridge( mod ) {
         },
         /** Content (array of node JSON) for insertContent() from a piece of ezoe HTML */
         parseFragment( html, schema ) {
-            const loaded = this.load( html, schema );
+            const loaded = this.load( html, schema, { fragment: true } );
             return loaded && typeof loaded === 'object' && Array.isArray( loaded.content ) ? loaded.content : loaded;
         },
         /** Turns rendered editor DOM into the posted dialect in place */

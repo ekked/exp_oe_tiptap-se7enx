@@ -19,10 +19,10 @@ import { DOMParser as PMDOMParser, DOMSerializer, Node as PMNode } from '@tiptap
 import { ezoeNodes } from './nodes.js';
 import { ezoeMarks } from './marks.js';
 import { ezoeTables } from './table.js';
-import { cleanupForEzoe } from '../convert/ezoehtml.js';
+import { cleanupForEzoe, prepareFromEzoe, trimTrailingParagraphs, wrapTables } from '../convert/ezoehtml.js';
 
 export { parseCustomAttributes, serializeCustomAttributes, cleanClass, customTagName } from './attributes.js';
-export { cleanupForEzoe } from '../convert/ezoehtml.js';
+export { cleanupForEzoe, prepareFromEzoe, trimTrailingParagraphs, wrapTables } from '../convert/ezoehtml.js';
 export * from './nodes.js';
 export * from './marks.js';
 export * from './table.js';
@@ -70,14 +70,18 @@ function documentFor( options ) {
 /**
  * ezoe editor HTML (the textarea value) -> Tiptap JSON document.
  *
+ * The paragraphs only TinyMCE's way of editing needs are left out (prepareFromEzoe()): the empty one inputXML()
+ * appends, and the empty ones the browser makes around a <p><table>...</table></p>.
+ *
  * @param {string} html
- * @param {object} [options] { schema | extensions, document }
+ * @param {object} [options] { schema | extensions, document, fragment: true for a piece of HTML, not a document }
  * @returns {object} ProseMirror/Tiptap JSON
  */
 export function fromEditorHTML( html, options = {} ) {
     const schema = schemaFor( options );
     const container = documentFor( options ).createElement( 'div' );
     container.innerHTML = html || '';
+    prepareFromEzoe( container, { trailer: !options.fragment } );
     // ezoe's HTML has no formatting white space (eZOEXMLInput strips line breaks and writes runs of spaces with
     // &nbsp;), so every space in it is content: a space at the end of a paragraph is kept as ezoe keeps it
     const doc = PMDOMParser.fromSchema( schema ).parse( container, { preserveWhitespace: options.preserveWhitespace === undefined ? true : options.preserveWhitespace } );
@@ -87,8 +91,11 @@ export function fromEditorHTML( html, options = {} ) {
 /**
  * Tiptap document -> ezoe editor HTML, ready to post (or, with save: false, to show with the embed previews).
  *
+ * Empty paragraphs at the end of the document are not written (trimTrailingParagraphs()): they are never stored.
+ * Tables are written in a paragraph of their own (wrapTables()), as eZOEXMLInput writes them.
+ *
  * @param {object} input a Tiptap Editor, a ProseMirror Node or Tiptap JSON
- * @param {object} [options] { schema | extensions, document, save = true }
+ * @param {object} [options] { schema | extensions, document, save = true, fragment: true for a piece of a document }
  * @returns {string}
  */
 export function toEditorHTML( input, options = {} ) {
@@ -110,6 +117,10 @@ export function toEditorHTML( input, options = {} ) {
     const container = doc.createElement( 'div' );
     container.appendChild( DOMSerializer.fromSchema( schema ).serializeFragment( node.content, { document: doc } ) );
     cleanupForEzoe( container, options );
+    if ( !options.fragment ) {
+        trimTrailingParagraphs( container );
+        wrapTables( container );
+    }
     return container.innerHTML;
 }
 

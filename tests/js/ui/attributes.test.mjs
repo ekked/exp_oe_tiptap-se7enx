@@ -273,7 +273,7 @@ test( 'cell_props applies to the cell, its row, its column, the whole table or t
     assert.equal( fieldOf( 'Apply to' ).value, 'selection' );
     change( fieldOf( 'Class' ), 'num' );
     ok();
-    assert.match( inst.getHTML(), /^<table border="1"><tbody><tr><th class="num"><p>A<\/p><\/th><th class="num"><p>B<\/p><\/th><\/tr><tr><td><p>a1/ );
+    assert.match( inst.getHTML(), /^<p><table border="1"><tbody><tr><th class="num"><p>A<\/p><\/th><th class="num"><p>B<\/p><\/th><\/tr><tr><td><p>a1/ );
 } );
 
 test( 'cell_props keeps the span of every cell it changes', () => {
@@ -283,7 +283,7 @@ test( 'cell_props keeps the span of every cell it changes', () => {
     change( fieldOf( 'Apply to' ), 'column' );
     change( fieldOf( 'Alignment' ), 'right' );
     ok();
-    assert.equal( inst.getHTML(), '<table><tbody><tr><td align="right" colspan="2"><p>wide</p></td></tr><tr><td><p>x</p></td><td align="right"><p>y</p></td></tr></tbody></table>' );
+    assert.equal( inst.getHTML(), '<p><table><tbody><tr><td align="right" colspan="2"><p>wide</p></td></tr><tr><td><p>x</p></td><td align="right"><p>y</p></td></tr></tbody></table></p>' );
 } );
 
 test( 'bold only switched on for the next typing (no text yet) is not offered as an element', () => {

@@ -168,7 +168,7 @@ test( 'whole document with a table: the table is kept as a placeholder, Accept i
     assert.ok( inst.wrapper.querySelector( '.exp-oe-ai-chip[data-token="T1"]' ), 'the table is a chip in the preview' );
     assert.ok( inst.wrapper.querySelector( '[data-action="Accept"]' ).classList.contains( 'exp-oe-primary' ) );
     inst.wrapper.querySelector( '[data-action="Accept"]' ).click();
-    assert.equal( t.value, '<p>New text</p><table><tbody><tr><td><p>c</p></td></tr></tbody></table>' );
+    assert.equal( t.value, '<p>New text</p><p><table><tbody><tr><td><p>c</p></td></tr></tbody></table></p>' );
 } );
 
 test( 'server error is shown with try again', async () => {

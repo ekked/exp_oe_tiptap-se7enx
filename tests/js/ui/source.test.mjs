@@ -65,7 +65,7 @@ test( 'with SourceEditable=disabled the code button shows the posted HTML read o
     const dialog = document.querySelector( '.exp-oe-dialog.exp-oe-source' );
     const area = dialog.querySelector( 'textarea' );
     assert.equal( area.readOnly, true );
-    assert.equal( area.value, '<p>Hello <em>world</em></p>\n<table>\n  <tbody>\n    <tr>\n      <td>\n        <p>c</p>\n      </td>\n    </tr>\n  </tbody>\n</table>' );
+    assert.equal( area.value, '<p>Hello <em>world</em></p>\n<p>\n  <table>\n    <tbody>\n      <tr>\n        <td>\n          <p>c</p>\n        </td>\n      </tr>\n    </tbody>\n  </table>\n</p>' );
     assert.match( dialog.textContent, /characters/ );
     assert.deepEqual( Array.prototype.map.call( dialog.querySelectorAll( '.exp-oe-dialog-footer button' ), ( b ) => b.textContent ), [ 'Copy', 'Close' ] );
     dialog.querySelector( '.exp-oe-primary' ).click();

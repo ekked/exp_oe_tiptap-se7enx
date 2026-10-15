@@ -99,7 +99,10 @@ test( 'move up and down by button and by Alt+Shift+Up/Down; a tag moved last get
     assert.ok( key( inst, 'ArrowDown', { altKey: true, shiftKey: true } ) );
     assert.match( t.value, /^<p>first<\/p><div[^>]*factbox[^>]*><p>box<\/p><\/div><p>last<\/p>$/ );
     assert.ok( key( inst, 'ArrowDown', { altKey: true, shiftKey: true } ) );
-    assert.match( t.value, /^<p>first<\/p><p>last<\/p><div[^>]*factbox[^>]*><p>box<\/p><\/div><p>/ );
+    // the paragraph to go on writing is in the editor, but an empty last paragraph is never posted
+    assert.match( t.value, /^<p>first<\/p><p>last<\/p><div[^>]*factbox[^>]*><p>box<\/p><\/div>$/ );
+    assert.equal( inst.editor.state.doc.lastChild.type.name, 'paragraph' );
+    assert.equal( inst.editor.state.doc.lastChild.content.size, 0 );
     assert.ok( !t.value.includes( 'exp-oe-custom-tag' ), 'nothing of the controls in the saved text' );
 } );
 
