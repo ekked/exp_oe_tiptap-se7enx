@@ -644,6 +644,13 @@
             "features": [
                 "link-embed-inline"
             ]
+        },
+        {
+            "name": "s064-line-after-block-embeds",
+            "source": "synthetic",
+            "features": [
+                "line-after-block-embeds"
+            ]
         }
     ]
 }

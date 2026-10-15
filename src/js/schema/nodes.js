@@ -109,6 +109,26 @@ export const HardBreak = Node.create( {
     }
 } );
 
+/**
+ * A <br> between two blocks, outside any paragraph. eZOEXMLInput writes it after block embeds whose paragraph goes
+ * on (ezxml <paragraph><line><embed/>...</line><table/>...</paragraph>), and eZOEInputParser reads it back as that
+ * <line>. Left to the hard break, the parse put it into an empty paragraph of its own, and the <line> was lost.
+ * Only matched where a block stands (the document, a cell, a list item, a custom tag); a <br> in a paragraph stays
+ * a hard break.
+ */
+export const BlockBreak = Node.create( {
+    name: 'ezBlockBreak',
+    group: 'block',
+    atom: true,
+    selectable: true,
+    parseHTML() {
+        return [ { tag: 'br:not([data-mce-bogus])', priority: 61, context: 'doc/|tableCell/|tableHeader/|listItem/|ezCustomBlock/' } ];
+    },
+    renderHTML() {
+        return [ 'br' ];
+    }
+} );
+
 function list( name, tag, command, shortcut ) {
     return Node.create( {
         name,
@@ -437,6 +457,6 @@ export const CustomImage = Node.create( {
 
 /** The block and inline nodes (tables are in table.js). Paragraph comes first: it is the default block. */
 export function ezoeNodes() {
-    return [ Document, Text, Paragraph, Heading, HardBreak, BulletList, OrderedList, ListItem, Literal, Anchor,
+    return [ Document, Text, Paragraph, Heading, HardBreak, BlockBreak, BulletList, OrderedList, ListItem, Literal, Anchor,
              EmbedBlock, EmbedInline, EmbedImage, CustomBlock, CustomImage ];
 }
