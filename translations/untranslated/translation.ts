@@ -1079,6 +1079,38 @@
         <source>Limit</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Element</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Heading</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List item</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Table row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tag properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The class and the custom attributes of the element.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The element at the cursor whose attributes are edited.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This tag has no classes or custom attributes in content.ini.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

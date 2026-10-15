@@ -46,6 +46,9 @@ site; the page says so in its status column.
 - The dialogs for links, embedding (with the object browser and upload), custom tags, tables, table cells (with
   the cell type, data or header cell) and literal text (when content.ini gives literal classes or attributes) are
   the same dialogs as in the Online Editor.
+- Classes and custom attributes of paragraphs, headings, lists, list items, bold and italic text: click the tag in
+  the path below the text (e.g. `paragraph` or `li`), or use the toolbar's **Tag properties** where the site has
+  it. Where the cursor is inside several of them, choose the element in the dialog.
 - "Disable editor" works the same: it turns either editor into the plain text field.
 
 ## What is different

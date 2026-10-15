@@ -75,7 +75,7 @@ innermost, that formatting is not split around it.
 
 ## Tests
 
-- `tests/fixtures/`: 63 pairs of `NAME.xml` (stored ezxml) and `NAME.html` (what `eZOEXMLInput::inputXML()` makes of
+- `tests/fixtures/`: 65 pairs of `NAME.xml` (stored ezxml) and `NAME.html` (what `eZOEXMLInput::inputXML()` makes of
   it in the admin siteaccess). The 50 `a*` fixtures are real alpha content, taken with read-only queries, with e-mail
   addresses, the names in credit lines, the names of private persons and of local performers, and the organiser's
   postal address and phone number replaced by placeholders, the same way in the `.xml` and the `.html` of each
@@ -85,9 +85,12 @@ innermost, that formatting is not split around it.
   pair therefore name the same target. The 22 alpha fixtures whose content was later brought into ezoe's dialect
   on alpha (lists, embeds and headers moved where ezoe keeps them, see below) were taken again from the repaired
   content, from the same objects, attributes and languages, so their names and manifest entries did not change.
-  The 13 `s*` fixtures are synthetic and cover what alpha's
+  The 15 `s*` fixtures are synthetic and cover what alpha's
   content does not use: anchors, literals, tables with th/colspan/rowspan/width/custom attributes, every kind of
-  embed, block and inline custom tags, links to objects and nodes with target/title/id/view. `manifest.json` lists
+  embed, block and inline custom tags, links to objects and nodes with target/title/id/view, classes and custom
+  attributes of paragraphs, headers, lists, list items, strong and emphasize (`s065`, with a custom attribute of
+  ezoe.ini `CustomAttributeStyleMap`). Their classes and custom attributes are not in the default content.ini: a
+  round trip of them sets them for the parser (`AvailableClasses[]`, `CustomAttributes[]` of each tag). `manifest.json` lists
   the source and the features of each.
 - `node --test tests/js/schema/schema.test.mjs`: 17 unit tests. Every fixture must be stable through Tiptap, attributes
   must be kept, embeds, custom tags, tables, lists, literal and white space must survive, and a headless editor must

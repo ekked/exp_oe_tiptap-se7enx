@@ -651,6 +651,16 @@
             "features": [
                 "line-after-block-embeds"
             ]
+        },
+        {
+            "name": "s065-general-attributes",
+            "source": "synthetic",
+            "features": [
+                "general-attributes",
+                "class",
+                "custom-attributes",
+                "style-map"
+            ]
         }
     ]
 }

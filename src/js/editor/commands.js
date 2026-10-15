@@ -1,13 +1,15 @@
 /**
  * The toolbar buttons of ezoe (ezoe.ini [EditorLayout] Buttons[]) and what they do in Tiptap.
  *
- * Every entry: { title, icon, run( ctx ), active?( ctx ), enabled?( ctx ), select? }
+ * Every entry: { title, icon, run( ctx, anchor, target ), active?( ctx ), enabled?( ctx ), select? }
+ *   run    anchor: the button pressed (menus open beside it); target: the element a status bar path click chose
  *   title  translation key (ctx.t), the TinyMCE 3 ez theme's tooltip text
  *   icon   the class of ezoe's o2k7 icon sprite (span.mce_<icon>)
  * Buttons whose node or mark type the schema does not have are left out of the toolbar
  * (available() false), like ezoe hides buttons for tags ezxml does not allow.
  */
 import { nodeForTag, markForTag, linkMark, hasCommand, knownAttrs, selectedAncestor, currentBlock, attrsFromElement } from './schema-utils.js';
+import { generalTargets } from './tags.js';
 
 const BLOCK_FORMATS = [
     [ 'p', 'Paragraph' ],
@@ -253,6 +255,12 @@ export function createCommands() {
             available: ( { editor } ) => hasCommand( editor, 'insertTable' ),
             run: ( ctx ) => ctx.dialogs.cellProperties( ctx ),
             enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' )
+        },
+        tag_props: {
+            title: 'Tag properties', icon: 'tag_props',
+            available: ( ctx ) => !!( ctx.dialogs && ctx.dialogs.general ),
+            run: ( ctx, anchor, target ) => ctx.dialogs.general( ctx, target ),
+            enabled: ( { editor } ) => generalTargets( editor ).length > 0
         },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',

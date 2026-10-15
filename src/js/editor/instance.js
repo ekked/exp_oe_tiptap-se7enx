@@ -261,12 +261,17 @@ export class ExpOETiptapInstance {
         this.updateUI();
     }
 
-    runButton( name ) {
+    /**
+     * Runs a command of the registry, whether the toolbar shows it or not.
+     * @param {string} name
+     * @param {Object} [target] the element it is for (a status bar path item: { node, pos } or { mark })
+     */
+    runButton( name, target ) {
         const def = this.commands[name];
         if ( !def || this.locked )
             return false;
         const button = this.toolbar.controls[name];
-        def.run( this.ctx, button );
+        def.run( this.ctx, button, target );
         this.updateUI();
         return true;
     }

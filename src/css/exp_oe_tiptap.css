@@ -129,6 +129,9 @@
 .exp-oe-icon.mce_ai::before { content: "AI"; }
 .exp-oe-icon.mce_switch { background: none; font: bold 13px/20px Tahoma, Verdana, sans-serif; color: #24477a; text-align: center; }
 .exp-oe-icon.mce_switch::before { content: "\21C4"; }
+/* tag properties (class and custom attributes): no icon in ezoe's sprite either */
+.exp-oe-icon.mce_tag_props { background: none; font: bold 13px/20px Tahoma, Verdana, sans-serif; color: #24477a; text-align: center; }
+.exp-oe-icon.mce_tag_props::before { content: "\00B6"; }
 
 .exp-oe-listbox {
     height: 20px;

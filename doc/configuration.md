@@ -74,7 +74,7 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 
 | File | Setting | Used for |
 | --- | --- | --- |
-| `ezoe.ini` | `[EditorLayout] Buttons[]` (and its siteaccess/class variants, through `editor_layout_settings`) | which toolbar buttons exist, in which order |
+| `ezoe.ini` | `[EditorLayout] Buttons[]` (and its siteaccess/class variants, through `editor_layout_settings`) | which toolbar buttons exist, in which order; besides ezoe's names Tiptap knows the buttons [below](#toolbar-buttons-beyond-ezoes-defaults) |
 | `ezoe.ini` | `[EditorLayout] PathLocation`, `ToolbarLocation` | status bar and toolbar position |
 | `ezoe.ini` | `[EditorSettings] Skin`, `CustomAttributeStyleMap`, `UploadFileExtensions[]`, `UploadFromUrl` | skin class, custom attribute styles, upload rules |
 | `ezoe.ini` | `[EditorSettings] TagPathOpenDialog` | `enabled` (ezoe's default): a click on a tag of the status bar path also opens its dialog (link, anchor, table, cell, custom tag, embed, literal) |
@@ -84,6 +84,16 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 | `ezoe_attributes.ini` | everything | types and titles of custom attributes in the dialogs (the title is shown as a hint below the field; names Tiptap knows, such as ezoe's example `Summary (WAI)`, are translated) |
 | `design.ini` | `[StylesheetSettings] EditorCSSFileList[]` | the content CSS of the editing area |
 | `image.ini` | `[AliasSettings] AliasList[]` | image sizes of embeds |
+
+## Toolbar buttons beyond ezoe's defaults
+
+ezoe's default `[EditorLayout] Buttons[]` does not list these; a site adds them where it wants them (in a
+siteaccess's `ezoe.ini.append.php`, e.g. `Buttons[]=tag_props`). Without the button the function stays reachable as
+noted.
+
+| Button | Function | Also reachable |
+| --- | --- | --- |
+| `tag_props` | Tag properties: class and custom attributes of the paragraph, header, list, list item, strong or emphasize at the cursor (ezoe's `tag_general.tpl`, `tag_header.tpl`), from content.ini `[<tag>] AvailableClasses[]`, `ClassDescription[]`, `CustomAttributes[]` and ezoe_attributes.ini. Inside several of them the dialog lists them, innermost first. | a click on the tag in the status bar path (`TagPathOpenDialog=enabled`) |
 
 ## Preferences
 

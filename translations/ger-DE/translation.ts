@@ -1079,6 +1079,38 @@
         <source>Limit</source>
         <translation>Anzahl</translation>
     </message>
+    <message>
+        <source>Element</source>
+        <translation>Element</translation>
+    </message>
+    <message>
+        <source>Heading</source>
+        <translation>Überschrift</translation>
+    </message>
+    <message>
+        <source>List item</source>
+        <translation>Listenpunkt</translation>
+    </message>
+    <message>
+        <source>Table row</source>
+        <translation>Tabellenzeile</translation>
+    </message>
+    <message>
+        <source>Tag properties</source>
+        <translation>Tag-Eigenschaften</translation>
+    </message>
+    <message>
+        <source>The class and the custom attributes of the element.</source>
+        <translation>Die Klasse und die benutzerdefinierten Attribute des Elements.</translation>
+    </message>
+    <message>
+        <source>The element at the cursor whose attributes are edited.</source>
+        <translation>Das Element am Cursor, dessen Attribute bearbeitet werden.</translation>
+    </message>
+    <message>
+        <source>This tag has no classes or custom attributes in content.ini.</source>
+        <translation>Für dieses Tag sind in content.ini keine Klassen oder benutzerdefinierten Attribute eingerichtet.</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

@@ -1,6 +1,7 @@
 /**
  * The ezoe dialogs for Tiptap: link, anchor, embed (image/object/file with search, browse, bookmarks
- * and upload), custom tag, table, table cell, special characters and help.
+ * and upload), custom tag, table, table cell, literal, tag properties (class and custom attributes of paragraphs,
+ * headings, lists and strong / emphasize), special characters and help.
  *
  * They call ezoe's own server side (ezoe-api.js) and produce the ezoe HTML dialect, exactly the
  * markup eZOEXMLInput writes and eZOEInputParser reads. The markup goes into Tiptap through the
@@ -16,6 +17,7 @@ import {
     linkMark, markForTag, nodeForTag, selectedAncestor, attrsFromElement, dialectElement, makeElement, escapeHtml
 } from '../editor/schema-utils.js';
 import { setBlockFormat } from '../editor/commands.js';
+import { generalTargets, preferredTarget, TAG_LABELS } from '../editor/tags.js';
 
 
 const EMBED_ID = /^eZ(Object|Node)_(\d+)$/;
@@ -695,6 +697,142 @@ function literalDialog( ctx ) {
     } );
 }
 
+// ---------------------------------------------------------------- general attributes (class and custom attributes)
+
+/**
+ * The style attribute after a change of the custom attributes: the styles of ezoe.ini [EditorSettings]
+ * CustomAttributeStyleMap are made from the values exactly as eZOEXMLInput::getCustomAttrPart() writes them (only
+ * margin, border, padding, width and height; the value as it is), every other style of the element stays.
+ */
+export function styleWithCustomAttributes( style, values, styleMap ) {
+    const map = {};
+    for ( const [ name, property ] of Object.entries( styleMap || {} ) ) {
+        if ( /(margin|border|padding|width|height)/.test( property ) )
+            map[name] = String( property ).toLowerCase();
+    }
+    const mapped = Object.values( map );
+    const kept = String( style || '' ).split( ';' ).map( ( s ) => s.trim() )
+        .filter( ( s ) => s && mapped.indexOf( s.split( ':' )[0].trim().toLowerCase() ) === -1 );
+    let out = kept.length ? kept.join( '; ' ) + '; ' : '';
+    for ( const [ name, value ] of Object.entries( values || {} ) ) {
+        if ( value !== '' && map[name] )
+            out += map[name] + ': ' + value + '; ';
+    }
+    return out.trim();
+}
+
+/** Class options of a definition, plus the current class where content.ini does not list it (it stays selectable) */
+function classOptionsWith( t, classes, current ) {
+    const list = classOptions( t, classes );
+    if ( current && !list.some( ( [ v ] ) => v === current ) )
+        list.push( [ current, current ] );
+    return list;
+}
+
+/**
+ * Class, custom attributes and their styles of a node or mark: the element of the ezoe dialect is changed and read
+ * back through the schema's parse rules, so the dialog does not depend on the schema's attribute names. ezoe's
+ * internal classes (ezoeItem..., mceItem...) of the element stay.
+ */
+function elementAttrs( ctx, type, el, cssClass, values ) {
+    const before = attrsFromElement( type, el ) || {};
+    const internal = String( el.getAttribute( 'class' ) || '' ).split( /\s+/ ).filter( ( c ) => c && cleanClass( c ) === '' );
+    const set = ( name, value ) => ( value ? el.setAttribute( name, value ) : el.removeAttribute( name ) );
+    set( 'class', internal.concat( cssClass ? [ cssClass ] : [] ).join( ' ' ) );
+    set( 'customattributes', serializeCustomAttributes( values ) );
+    set( 'style', styleWithCustomAttributes( el.getAttribute( 'style' ), values, ctx.options.customAttributeStyleMap ) );
+    return withRemoved( type, before, attrsFromElement( type, el ) );
+}
+
+/**
+ * The attributes read from a changed element, plus the default of every attribute the element had before and has no
+ * more: the parse rules leave out an attribute that is not in the HTML, so merged over the old attributes a removed
+ * class or custom attribute would come back.
+ */
+export function withRemoved( type, before, after ) {
+    if ( !after )
+        return after;
+    const result = Object.assign( {}, after );
+    for ( const key of Object.keys( before || {} ) ) {
+        if ( !( key in result ) )
+            result[key] = type.attrs && type.attrs[key] ? type.attrs[key].default : null;
+    }
+    return result;
+}
+
+/** Writes new attributes onto a node (setNodeMarkup) or over the range of a mark */
+function applyAttrs( ctx, item, attrs ) {
+    if ( !attrs )
+        return true;
+    return ctx.editor.chain().focus().command( ( { tr } ) => {
+        if ( item.mark ) {
+            tr.removeMark( item.range.from, item.range.to, item.mark );
+            tr.addMark( item.range.from, item.range.to, item.mark.type.create( Object.assign( {}, item.mark.attrs, attrs ) ) );
+        }
+        else
+            tr.setNodeMarkup( item.pos, undefined, Object.assign( {}, item.node.attrs, attrs ) );
+        return true;
+    } ).run();
+}
+
+/**
+ * The class and custom attributes of a paragraph, heading, list, list item, strong or emphasize, like ezoe's
+ * tag_general.tpl and tag_header.tpl: content.ini [<tag>] AvailableClasses[] (ClassDescription[]) and
+ * CustomAttributes[] with the types and names of ezoe_attributes.ini (options.generalDefinitions). Where the cursor
+ * is inside several of them (bold text in a list item ...), the dialog lists them, innermost first; target, a status
+ * bar path item, chooses one.
+ */
+function generalDialog( ctx, target ) {
+    const { t, options } = ctx;
+    const targets = generalTargets( ctx.editor );
+    if ( !targets.length )
+        return;
+    const defs = options.generalDefinitions || {};
+    let current = preferredTarget( targets, target );
+    const box = h( 'div', { class: 'exp-oe-general-attributes' } );
+    let state = null;
+    const render = () => {
+        clear( box );
+        const item = targets[current];
+        const def = defs[item.xml] || {};
+        const el = dialect( ctx, item.mark || item.node );
+        const value = cleanClass( el && el.getAttribute( 'class' ) );
+        const cls = select( classOptionsWith( t, def.classes, value ), value );
+        cls.value = value;
+        const custom = attributeFields( t, def.attributes, parseCustomAttributes( el && el.getAttribute( 'customattributes' ) ) );
+        box.appendChild( field( t( 'Class' ), cls ) );
+        custom.rows.forEach( ( r ) => box.appendChild( r ) );
+        if ( !Object.keys( def.classes || {} ).length && !( def.attributes || [] ).length )
+            box.appendChild( h( 'p', { class: 'exp-oe-hint', text: t( 'This tag has no classes or custom attributes in content.ini.' ) } ) );
+        state = { item, el, cls, custom };
+    };
+    const body = [];
+    if ( targets.length > 1 ) {
+        const which = select( targets.map( ( c, i ) => [ String( i ), t( TAG_LABELS[c.xml] || c.xml ) + ' <' + c.xml + '>' ] ), String( current ) );
+        which.value = String( current );
+        which.addEventListener( 'change', () => {
+            current = parseInt( which.value, 10 );
+            render();
+        } );
+        body.push( field( t( 'Element' ), which, t( 'The element at the cursor whose attributes are edited.' ) ) );
+    }
+    render();
+    body.push( box );
+    open( ctx, {
+        title: t( 'Tag properties' ), width: 420,
+        description: t( 'The class and the custom attributes of the element.' ),
+        body,
+        buttons: [
+            { text: t( 'OK' ), primary: true, onClick: () => {
+                const { item, el, cls, custom } = state;
+                const values = custom.read();
+                return !el || applyAttrs( ctx, item, elementAttrs( ctx, ( item.mark || item.node ).type, el, cls.value, values ) );
+            } },
+            { text: t( 'Cancel' ), cancel: true }
+        ]
+    } );
+}
+
 // ---------------------------------------------------------------- special characters and help
 
 const CHARS = '  & © ® ™ ° ± × ÷ µ ¶ § … – — ‘ ’ ‚ “ ” „ ‹ › « » • · † ‡ ‰ ′ ″ € £ ¥ ¢ ¤ ¼ ½ ¾ ¹ ² ³ ª º ¿ ¡ ← ↑ → ↓ ↔ ⇒ ⇔ ∀ ∂ ∃ ∅ ∇ ∈ ∉ ∏ ∑ − √ ∝ ∞ ∧ ∨ ∩ ∪ ∫ ≈ ≠ ≡ ≤ ≥ α β γ δ ε λ μ π σ ω Δ Σ Ω Ä Ö Ü ä ö ü ß À Á Â Ç È É Ê à á â ç è é ê ñ Ñ ø Ø å Å æ Æ œ Œ'.split( ' ' );
@@ -745,6 +883,7 @@ export function createDialogs() {
         table: tableDialog,
         cellProperties: cellPropertiesDialog,
         literal: literalDialog,
+        general: generalDialog,
         charmap: charmapDialog,
         help: helpDialog
     };
