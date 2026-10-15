@@ -35,7 +35,7 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-toolbar {
     position: sticky;
     top: 0;
-    z-index: 3;
+    z-index: var(--a4-z-raised, 2);
     gap: 2px 4px;
     padding: 6px 8px;
     min-height: 0;
@@ -54,11 +54,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: var(--a4-control-h, 32px);
+    height: var(--a4-control-h, 32px);
     padding: 0;
     border: 0;
-    border-radius: 6px;
+    border-radius: var(--exp-oe-a4-radius);
     background: transparent;
     color: var(--exp-oe-text);
     line-height: 1;
@@ -82,11 +82,11 @@
 
 /* paragraph / heading dropdown */
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-listbox {
-    height: 32px;
+    height: var(--a4-control-h, 32px);
     min-width: 9.5em;
     padding: 0 28px 0 10px;
     border: 1px solid var(--exp-oe-border);
-    border-radius: 6px;
+    border-radius: var(--exp-oe-a4-radius);
     background-color: var(--exp-oe-content-bg);
     color: var(--exp-oe-text);
     font: inherit;
@@ -101,7 +101,7 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content {
     padding: 16px 20px 16px 44px;
     color: var(--exp-oe-text);
-    font: 16px/1.6 var(--a4-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
+    font: var(--a4-text-l, 16px)/1.6 var(--a4-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
     caret-color: var(--a4-accent, #f26a21);
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content p { margin: 0 0 .75em; }
@@ -122,7 +122,7 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content a[href] { color: var(--a4-accent-text, #c2410c); text-decoration: underline; text-underline-offset: 2px; }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content pre {
     padding: .75em 1em;
-    border-radius: 6px;
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-code-bg, #f6f8fa);
     color: var(--a4-code-ink, #1f2328);
     font: .875em/1.5 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
@@ -136,12 +136,12 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .selectedCell { background: var(--a4-accent-soft, #fff1e8); }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .ezoeItemNonEditable {
     outline: 1px dashed var(--exp-oe-border);
-    border-radius: 6px;
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--exp-oe-hover);
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content div.ezoeItemCustomTag {
     border: 1px dashed var(--a4-warn-line, #d4a72c);
-    border-radius: 6px;
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-warn-bg, #fff8c5);
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content span.ezoeItemCustomTag { background: var(--a4-warn-bg, #fff8c5); }
@@ -153,7 +153,7 @@
     border-top: 1px solid var(--exp-oe-border);
     background: var(--exp-oe-bar);
     color: var(--exp-oe-muted);
-    font-size: 12px;
+    font-size: var(--a4-text-xs, 12px);
     border-radius: 0 0 var(--exp-oe-a4-radius) var(--exp-oe-a4-radius);
 }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-path a { color: var(--exp-oe-muted); }
@@ -163,12 +163,12 @@
 .exp-oe-tiptap .exp-oe-floating { position: static; }
 .exp-oe-tiptap .exp-oe-bubble, .exp-oe-tiptap .exp-oe-plus-menu {
     position: absolute;
-    z-index: 5;
+    z-index: var(--a4-z-sticky, 5);
     display: flex;
     gap: 2px;
     padding: 4px;
     border: 1px solid var(--exp-oe-border, #d0d7de);
-    border-radius: 8px;
+    border-radius: var(--exp-oe-a4-radius, var(--a4-radius-s, 9px));
     background: var(--a4-card, #fff);
     box-shadow: var(--a4-shadow-m, 0 8px 24px rgba(0, 0, 0, .14));
 }
@@ -178,7 +178,7 @@
 .exp-oe-tiptap .exp-oe-plus-menu { flex-direction: column; }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus:not([hidden]) {
     position: absolute;
-    z-index: 4;
+    z-index: var(--a4-z-raised, 2);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -194,4 +194,4 @@
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus:hover, .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus[aria-expanded="true"] { color: var(--a4-accent-text, #c2410c); border-color: var(--a4-accent, #f26a21); }
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-plus:focus-visible { outline: 2px solid var(--exp-oe-accent); outline-offset: 1px; }
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button { width: auto; justify-content: flex-start; gap: 8px; padding: 0 10px 0 8px; }
-.exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button::after { content: attr(aria-label); font: 13px var(--a4-font, system-ui, sans-serif); white-space: nowrap; }
+.exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button::after { content: attr(aria-label); font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif); white-space: nowrap; }
