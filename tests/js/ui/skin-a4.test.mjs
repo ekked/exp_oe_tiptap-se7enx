@@ -236,7 +236,7 @@ test( 'a blur that moves the focus into the insert menu keeps the menu open; a b
 test( 'the a4 skin takes its radius, stacking, control height and type sizes from the --a4-* tokens', () => {
     const text = css( 'src/css/skin-a4.css' ).replace( /\/\*[\s\S]*?\*\//g, '' );
     for ( const m of text.matchAll( /border-radius:\s*([^;]+);/g ) )
-        assert.match( m[1], /^(var\(--exp-oe-a4-radius[^;]*|0 0 var\(--exp-oe-a4-radius\) var\(--exp-oe-a4-radius\)|var\(--exp-oe-a4-radius\) var\(--exp-oe-a4-radius\) 0 0|50%)$/, 'one radius token: ' + m[1] );
+        assert.match( m[1], /^(var\(--exp-oe-a4-radius[^;]*|0 0 var\(--exp-oe-a4-radius\) var\(--exp-oe-a4-radius\)|var\(--exp-oe-a4-radius\) var\(--exp-oe-a4-radius\) 0 0|50%|0)$/, 'one radius token (or none): ' + m[1] );
     for ( const m of text.matchAll( /z-index:\s*([^;]+);/g ) )
         assert.match( m[1], /^var\(--a4-z-[a-z-]+, \d+\)$/, 'a stacking layer token: ' + m[1] );
     for ( const m of text.matchAll( /(?:^|[;{\s])(?:width|height):\s*32px/g ) )

@@ -200,6 +200,8 @@
    Title without a bar, close button with an icon, label above field and hint below, secondary button left of the
    primary one; at most 32rem wide, the whole width on a phone. */
 .exp-oe-dialog-overlay.exp-oe-skin-a4 {
+    /* the overlay lies outside the editor: the one component radius again */
+    --exp-oe-a4-radius: var(--a4-radius-s, 9px);
     align-items: flex-start;
     padding: 8vh 16px 16px;
     background: var(--a4-overlay, rgba(16, 24, 40, .45));
@@ -213,7 +215,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     max-height: calc(100vh - 8vh - 16px);
     max-height: calc(100dvh - 8vh - 16px);
     border: 1px solid var(--a4-line, #e3e6eb);
-    border-radius: var(--a4-radius, 18px);
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-card, #fff);
     box-shadow: var(--a4-shadow-m, 0 12px 32px -6px rgba(16, 24, 40, .12));
     color: var(--a4-ink, #1f2430);
@@ -241,12 +243,12 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     flex: none;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
+    width: var(--a4-control-h, 32px);
+    height: var(--a4-control-h, 32px);
     margin: -4px -4px 0 0;
     padding: 0;
     border: 0;
-    border-radius: 8px;
+    border-radius: var(--exp-oe-a4-radius);
     background: transparent;
     color: var(--a4-muted, #5d6573);
 }
@@ -276,7 +278,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     flex: none;
     margin: 8px 24px 0;
     padding: 8px 12px;
-    border-radius: var(--a4-radius-s, 9px);
+    border-radius: var(--exp-oe-a4-radius);
     font-size: var(--a4-text-s, 13px);
 }
 .exp-oe-skin-a4 .exp-oe-dialog-error {
@@ -313,7 +315,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     min-height: 36px;
     padding: 6px 14px;
     border: 1px solid var(--a4-line-strong, #c9ced6);
-    border-radius: var(--a4-radius-s, 9px);
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-card, #fff);
     color: var(--a4-ink, #1f2430);
     font: 600 var(--a4-text-s, 13px)/1.2 var(--a4-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -354,7 +356,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     min-height: 36px;
     padding: 6px 10px;
     border: 1px solid var(--a4-field-line, #8f96a3);
-    border-radius: var(--a4-radius-s, 9px);
+    border-radius: var(--exp-oe-a4-radius);
     background-color: var(--a4-field, #fff);
     color: var(--a4-ink, #1f2430);
     font: var(--a4-text-m, 14px)/1.4 var(--a4-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -387,7 +389,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     margin: 0 0 14px;
     padding: 0 12px;
     border: 1px solid var(--a4-line, #e3e6eb);
-    border-radius: var(--a4-radius-s, 9px);
+    border-radius: var(--exp-oe-a4-radius);
 }
 .exp-oe-skin-a4 .exp-oe-link-picker[open], .exp-oe-skin-a4 .exp-oe-embed-upload[open] { padding-bottom: 12px; }
 .exp-oe-skin-a4 .exp-oe-link-picker summary, .exp-oe-skin-a4 .exp-oe-embed-upload summary {
@@ -402,7 +404,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     margin: 0 0 12px;
     padding: 8px 12px;
     border: 1px solid var(--a4-line, #e3e6eb);
-    border-radius: var(--a4-radius-s, 9px);
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-soft, #f6f7f9);
     font-size: var(--a4-text-s, 13px);
 }
@@ -412,13 +414,13 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     margin: 0 0 10px;
     padding: 3px;
     border: 0;
-    border-radius: var(--a4-radius-s, 9px);
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-soft, #f6f7f9);
 }
 .exp-oe-skin-a4 .exp-oe-tab {
     padding: 4px 12px;
     border: 0;
-    border-radius: 7px;
+    border-radius: var(--exp-oe-a4-radius);
     background: transparent;
     color: var(--a4-muted, #5d6573);
     font: 600 var(--a4-text-s, 13px) var(--a4-font, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif);
@@ -435,17 +437,17 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
 .exp-oe-skin-a4 .exp-oe-picker-class { color: var(--a4-muted, #5d6573); }
 .exp-oe-skin-a4 .exp-oe-picker-paging { margin: 8px 0 0; font-size: var(--a4-text-s, 13px); }
 .exp-oe-skin-a4 .exp-oe-empty { color: var(--a4-muted, #5d6573); }
-.exp-oe-skin-a4 .exp-oe-custom-tag-preview img { max-width: 100%; height: auto; border-radius: var(--a4-radius-s, 9px); }
+.exp-oe-skin-a4 .exp-oe-custom-tag-preview img { max-width: 100%; height: auto; border-radius: var(--exp-oe-a4-radius); }
 
 /* special characters and the shortcut table */
 .exp-oe-skin-a4 .exp-oe-charmap { grid-template-columns: repeat(auto-fill, minmax(36px, 1fr)); gap: 4px; }
 .exp-oe-skin-a4 .exp-oe-char {
     height: 36px;
     border: 1px solid var(--a4-line, #e3e6eb);
-    border-radius: 8px;
+    border-radius: var(--exp-oe-a4-radius);
     background: var(--a4-card, #fff);
     color: var(--a4-ink, #1f2430);
-    font-size: 17px;
+    font-size: var(--a4-text-l, 16px);
 }
 .exp-oe-skin-a4 .exp-oe-char:hover, .exp-oe-skin-a4 .exp-oe-char:focus { border-color: var(--a4-accent, #f26a21); background: var(--a4-accent-soft, rgba(242, 106, 33, .12)); }
 .exp-oe-skin-a4 .exp-oe-shortcuts { width: 100%; border-collapse: collapse; font-size: var(--a4-text-s, 13px); }
@@ -460,7 +462,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
         max-height: 92vh;
         max-height: 92dvh;
         border-width: 1px 0 0;
-        border-radius: var(--a4-radius, 18px) var(--a4-radius, 18px) 0 0;
+        border-radius: var(--exp-oe-a4-radius) var(--exp-oe-a4-radius) 0 0;
     }
     .exp-oe-skin-a4 .exp-oe-dialog-title { padding: 16px 12px 4px 16px; }
     .exp-oe-skin-a4 .exp-oe-dialog-description { padding: 0 16px 4px; }
