@@ -344,6 +344,10 @@ html.exp-oe-has-fullscreen, html.exp-oe-has-fullscreen body { overflow: hidden; 
 .exp-oe-char { height: 28px; border: 1px solid #ccc; background: #fff; font-size: 15px; cursor: pointer; }
 .exp-oe-char:hover, .exp-oe-char:focus { background: #dbecf3; }
 .exp-oe-shortcuts th { text-align: left; padding: 2px 10px 2px 0; white-space: nowrap; }
+.exp-oe-help-table th, .exp-oe-help-table td { vertical-align: top; }
+.exp-oe-help-table th > .exp-oe-icon { display: inline-block; margin-right: 4px; vertical-align: middle; }
+.exp-oe-help-panel[hidden] { display: none; }
+.exp-oe-help-panel { max-height: 60vh; overflow: auto; }
 
 /* ---------- AI menu and suggestion panel */
 .exp-oe-menu {

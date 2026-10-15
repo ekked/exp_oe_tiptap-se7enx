@@ -1227,6 +1227,338 @@
         <source>Replace with</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>A custom tag of the site (fact box, quote, underline ...): a box around paragraphs or a mark on text, with its own attributes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A heading, level 1 to 6 (Ctrl+1 ... Ctrl+6). The level follows the order of the headings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A link to an address, an object or node of the site, an e-mail address or an anchor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A named place in the text that links can point to; shown as a small anchor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A paragraph. Enter starts a new one, Shift+Enter a new line in it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A text field stores these tags (ezxmltext); the editor shows them as they look on the site:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>About</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align the paragraph, heading or table cell to the left, or remove the alignment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align the paragraph, heading or table cell to the right, or remove the alignment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An embedded image, object or file; in a line of its own or inside the text. Shown with its preview.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Below the editor you can switch to the other editor; the text is stored first and nothing is lost.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bold and italic text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bulleted and numbered lists and their items, also nested.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Center the paragraph, heading or table cell, or remove the alignment.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the format of the paragraph at the cursor: paragraph, preformatted text or a heading of level 1 to 6.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Class and custom attributes of the paragraph, heading, list, list item or bold or italic text at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close a menu, the search bar or a dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the column at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the row at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete the table at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Discard the draft.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag the bottom right corner to make the editor taller or shorter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit this text in the whole browser window. Press again to go back.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Embed a file: search, browse or upload it, then choose how it is shown.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Embed an image: search, browse or upload it, then choose its size, alignment, view and class.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Embed an object of the site: search, browse or upload it, then choose how it is shown. An embedded object starts a line of its own unless it is inline.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find a word or text (Ctrl+F).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find a word or text and replace it, one by one or all at once.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Function</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How to use the editor: the buttons, the keyboard, the tags, tips.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a column after the one at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a column before the one at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a custom tag, or edit the one at the cursor: select text first to put it into the tag, choose the tag and fill in its attributes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a page break (the custom tag "pagebreak").</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a row above the one at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a row below the one at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a special character.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert a table, or edit the table at the cursor: width, border, class and custom attributes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert or edit a named anchor, which links can point to with #name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Justify the paragraph, heading or table cell: every line gets the same width.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keyboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Keys</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Literal text, kept exactly as typed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Literal text: shown exactly as it is typed, for code or preformatted text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Make a bulleted list. Enter adds an item, Enter on an empty item ends the list. Inside a list the button removes it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Make a numbered list. Enter adds an item, Enter on an empty item ends the list. Inside a list the button removes it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Make the selected text a link, or edit the link at the cursor: address (also an object or node of the site, chosen with search or browse), target, title, class, view and custom attributes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Make the selected text bold. If it is bold already, the formatting is removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Make the selected text italic. If it is italic already, the formatting is removed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge the selected cells into one (select cells with Shift+click or by dragging across them).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Most tags take a class and custom attributes from the site's settings: tag properties, or a click on the tag in the path below the text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the custom tag up or down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the list item one level down (into a nested list).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move the list item one level up (out of a nested list).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>On a Mac, Cmd instead of Ctrl.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open this help (Alt+0).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Paste as text: while it is on, everything is pasted without formatting. Ctrl+Shift+V does it for one paste.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Redo what Undo took back.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove bold, italic, links and other formatting from the selected text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove the link at the cursor; its text stays.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right click (or Shift+F10) for the commands at the cursor; Ctrl+right click for the browser's own menu.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Send the object for publishing.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Split a merged cell into its cells again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Store the draft (Ctrl+S).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Store the draft and continue in the other editor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Subscript the selected text, or remove it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Superscript the selected text, or remove it.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tables with rows, header and data cells; cells can be merged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text pasted from Word or a web page is cleaned to what a text field can store; Ctrl+Shift+V pastes the text only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The AI assistant: improve, shorten, extend, correct, translate, summarise or continue the selected text, shown as a suggestion you accept or reject.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The Online Editor of Exponential with Tiptap: it edits the same text as ezoe's TinyMCE and stores it the same way, so either editor can be used on the same content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The buttons of this editor:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The cell at the cursor: data or header cell, width, alignment, class and custom attributes, for the cell, its row, its column or the whole table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The path below the text shows the tag at the cursor and the tags around it. A click on one selects it and opens its dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The row at the cursor: class and custom attributes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tips</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To make an image a link, select the image and press the link button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turn the editor off and edit the text as plain HTML in a text field.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Underline the selected text, or remove the underline (the custom tag "underline").</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Undo the last change. Press again to undo more.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>While typing: **text** makes bold, *text* italic, "# " at the start of a line a heading, "- " or "1. " a list.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

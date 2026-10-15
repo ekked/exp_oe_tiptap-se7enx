@@ -19,6 +19,7 @@ import {
 } from '../editor/schema-utils.js';
 import { setBlockFormat } from '../editor/commands.js';
 import { generalTargets, preferredTarget, TAG_LABELS } from '../editor/tags.js';
+import { helpContent, SHORTCUTS } from './help.js';
 
 
 const EMBED_ID = /^eZ(Object|Node)_(\d+)$/;
@@ -932,22 +933,21 @@ function charmapDialog( ctx ) {
     } );
 }
 
-export const SHORTCUTS = [
-    [ 'Ctrl+B', 'Bold' ], [ 'Ctrl+I', 'Italic' ], [ 'Ctrl+U', 'Underline' ], [ 'Ctrl+Z', 'Undo' ], [ 'Ctrl+Y / Ctrl+Shift+Z', 'Redo' ],
-    [ 'Ctrl+1 ... Ctrl+6', 'Heading 1 to 6' ], [ 'Ctrl+7', 'Paragraph' ], [ 'Ctrl+8, Ctrl+9', 'Literal text' ], [ 'Ctrl+K', 'Insert/edit link' ],
-    [ 'Ctrl+S', 'Store draft' ], [ 'Ctrl+Shift+V', 'Paste as text' ], [ 'Ctrl+F', 'Find and replace' ], [ 'F3 / Shift+F3', 'Next / previous match' ], [ 'Shift+Enter', 'Line break' ], [ 'Tab / Shift+Tab', 'Indent / outdent list item, next / previous table cell' ],
-    [ 'Alt+0', 'Help' ], [ 'Alt+F10', 'Move to the toolbar' ], [ 'Shift+F10', 'Context menu' ]
-];
-
 function helpDialog( ctx ) {
     const { t } = ctx;
-    const table = h( 'table', { class: 'exp-oe-shortcuts' }, h( 'tbody', {}, SHORTCUTS.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { text: k } ), h( 'td', { text: t( d ) } ) ] ) ) ) );
-    open( ctx, {
-        title: t( 'Help' ), width: 460,
-        description: t( 'Online editor based on Tiptap. Keyboard shortcuts:' ),
-        body: [ table ],
+    const dialog = open( ctx, {
+        title: t( 'Help' ), width: 640, className: 'exp-oe-help',
+        description: t( 'How to use the editor: the buttons, the keyboard, the tags, tips.' ),
+        body: helpContent( ctx, ctx.instance && ctx.instance.toolbar ? ctx.instance.toolbar.buttons : [], ctx.instance ? ctx.instance.commands : {} ),
         buttons: [ { text: t( 'Close' ), primary: true } ]
     } );
+    // o2k7: the icons are ezoe's sprite, whose URL the editor's wrapper carries
+    const wrapper = ctx.instance && ctx.instance.wrapper;
+    for ( const name of [ '--exp-oe-icons', '--exp-oe-button-bg' ] ) {
+        const value = wrapper && wrapper.style.getPropertyValue( name );
+        if ( value )
+            dialog.element.style.setProperty( name, value );
+    }
 }
 
 export function createDialogs() {
@@ -966,4 +966,4 @@ export function createDialogs() {
     };
 }
 
-export { nodeForTag, markForTag };
+export { nodeForTag, markForTag, SHORTCUTS };

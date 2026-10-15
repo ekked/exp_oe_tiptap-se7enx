@@ -77,6 +77,11 @@ site; the page says so in its status column.
   switches it on until you switch it off. A blank line starts a new paragraph, a single line break stays a line
   break.
 
+## Help
+
+The toolbar's **Help** (Alt+0) describes every button of this toolbar, the keyboard shortcuts, the tags a text field
+stores and how the editor shows them, and a few tips.
+
 ## AI commands
 
 If the site has them switched on and your role has the policy `exp_oe_tiptap/ai`, Tiptap's toolbar has an **AI**
