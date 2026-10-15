@@ -1,5 +1,5 @@
 /**
- * Modal dialog of the editor. Skin o2k7 keeps the look of ezoe's inline popups (title bar, grey panel, OK/Cancel);
+ * Modal dialog of the editor. Skin o2k7 keeps the look of ezoe's inline popups (title bar, gray panel, OK/Cancel);
  * skin a4 (spec.skin) draws the same markup as a card in admin4's look (skin-a4.css): title without a bar, a close
  * button with an icon, stacked fields, the primary button on the right.
  * Both: role="dialog" with aria-modal, aria-labelledby (the title) and aria-describedby (spec.description), focus on

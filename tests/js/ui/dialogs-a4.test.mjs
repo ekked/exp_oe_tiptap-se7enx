@@ -236,7 +236,7 @@ test( 'TagPathOpenDialog: a click on a path item opens the dialog of that tag', 
     assert.equal( dialog(), null, 'off by default: the click only selects' );
 } );
 
-test( 'the a4 dialog styles use admin4 tokens: no colour without a var(--a4-*) around it, no o2k7 popup colour', () => {
+test( 'the a4 dialog styles use admin4 tokens: no color without a var(--a4-*) around it, no o2k7 popup color', () => {
     const css = read( 'src/css/skin-a4.css' );
     const start = css.indexOf( '/* dialogs (ui/dialog.js' );
     assert.ok( start > 0, 'the dialog section' );
@@ -247,7 +247,7 @@ test( 'the a4 dialog styles use admin4 tokens: no colour without a var(--a4-*) a
         prev = rest;
         rest = rest.replace( /var\(--a4-[\w-]+(?:,\s*(?:[^()]|\([^()]*\))*)?\)/g, 'TOKEN' );
     } while ( rest !== prev );
-    assert.doesNotMatch( rest, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i, 'a literal colour outside a token fallback' );
+    assert.doesNotMatch( rest, /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i, 'a literal color outside a token fallback' );
     assert.doesNotMatch( section, /#e5effd|#f0f0ee|#abc6dd|#919b9c|Tahoma|linear-gradient/i, 'nothing of the o2k7 popup' );
     assert.match( section, /@media \(forced-colors: active\)/ );
     assert.match( section, /@media \(max-width: 40rem\)/ );

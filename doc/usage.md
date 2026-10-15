@@ -57,7 +57,7 @@ site; the page says so in its status column.
 ## AI commands
 
 If the site has them switched on and your role has the policy `exp_oe_tiptap/ai`, Tiptap's toolbar has an **AI**
-menu: improve writing, make shorter, make longer, fix spelling and grammar, translate, summarise, continue
+menu: improve writing, make shorter, make longer, fix spelling and grammar, translate, summarize, continue
 writing. Select text (or place the cursor, for "continue"), choose a command, and the result is shown as a
 suggestion: **Accept** puts it into the text, **Reject** leaves the text as it was. The assistant only changes the
 wording: images, embedded objects, tables, custom tags, anchors, links and formatting stay where they are (they show

@@ -472,7 +472,7 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
     .exp-oe-skin-a4 .exp-oe-dialog-footer .exp-oe-dialog-button { flex: 1 1 0; }
 }
 
-/* Windows high contrast and other forced colours: the system draws the card, the fields and the buttons */
+/* Windows high contrast and other forced colors: the system draws the card, the fields and the buttons */
 @media (forced-colors: active) {
     .exp-oe-skin-a4 .exp-oe-dialog { border: 1px solid CanvasText; }
     .exp-oe-skin-a4 .exp-oe-dialog-button, .exp-oe-skin-a4 .exp-oe-dialog-close, .exp-oe-skin-a4 .exp-oe-tab, .exp-oe-skin-a4 .exp-oe-char { border: 1px solid ButtonText; }
