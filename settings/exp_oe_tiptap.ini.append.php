@@ -8,8 +8,10 @@
 [EditorSettings]
 # The look of the editor. Empty: ezoe's Skin (ezoe.ini [EditorSettings] Skin, o2k7 - TinyMCE 3's look with ezoe's
 # icons). a4: a Tiptap editor in admin4's look - flat toolbar with Tiptap's icons, bubble menu over selected
-# text, "+" on empty lines, colors from admin4's tokens (light and dark). Set it per siteaccess.
-Skin=
+# text, "+" on empty lines, colors from admin4's tokens (light and dark). Set it per siteaccess
+# (settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php). It is left undefined here on purpose: an
+# extension's own settings are read after a siteaccess's, so a value here would hide every siteaccess's choice.
+#Skin=
 # Which editor a user gets is ezoe's choice since 0.1.1: Tiptap is the engine "tiptap" of ezoe's registry
 # (settings/ezoe.ini.append.php). The site default is ezoe.ini [EditorSettings] EditorEngine (EditorEngine=tiptap
 # makes Tiptap the default), the switch buttons are ezoe.ini EngineSwitch, a user's own choice is the preference
@@ -17,7 +19,7 @@ Skin=
 # Tiptap is only offered while the built bundle (Scripts[], first entry) is present.
 
 # How the bundle is put on the page.
-# ezdesign: script and link tags pointing at the built files, cache-busted by their file time
+# ezdesign: script and link tags pointing at the built files, without a version query
 #           (like ezoe's TinyMCE 8 engine; the files are never repacked or minified again).
 # ezjscore: ezscript_require() / ezcss_require(), packed with the rest of the page by ezjscore.
 AssetLoading=ezdesign
