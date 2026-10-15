@@ -11,8 +11,8 @@ nice -n 15 npm test
 ```
 
 The build writes `design/standard/javascript/exp_oe_tiptap/` and `design/standard/stylesheets/exp_oe_tiptap/`.
-Commit them together with the source change. No cache needs clearing for the browser: the asset URLs carry a key
-made of the files' modification times (`expOETiptapEditor::cacheKey()`). With `AssetLoading=ezjscore`, clear the
+Commit them together with the source change. The asset URLs carry no version query (no `?v=`): a browser that
+still shows the previous build after a deploy needs a hard reload (Ctrl+Shift+R). With `AssetLoading=ezjscore`, clear the
 packer cache and template-block cache instead (`--clear-tag=template --clear-id=template-block`, and the packed
 files with `ezjscore-packer`).
 

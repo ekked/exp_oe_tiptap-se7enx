@@ -20,7 +20,7 @@ settings (see [ezoe.ini](#ezoeini) below). `DefaultEditor` and `AllowSwitch` of 
 
 | Setting | Default | Meaning |
 | --- | --- | --- |
-| `AssetLoading` | `ezdesign` | `ezdesign`: `<script>`/`<link>` tags pointing at the built files, with `?v=<file time key>`; the files are never repacked. `ezjscore`: `ezscript_require()`/`ezcss_require()`, packed with the page by ezjscore (only if ezjscore's packer leaves the modern bundle intact). |
+| `AssetLoading` | `ezdesign` | `ezdesign`: `<script>`/`<link>` tags pointing at the built files, with no version query; the files are never repacked (a browser that still shows an older build needs a hard reload). `ezjscore`: `ezscript_require()`/`ezcss_require()`, packed with the page by ezjscore (only if ezjscore's packer leaves the modern bundle intact). |
 | `Scripts[]` | `exp_oe_tiptap/exp_oe_tiptap.js` | The built scripts, design paths below `javascript/`. The first is the bundle defining `window.ExpOETiptap`; Tiptap counts as available only while that file exists. |
 | `Styles[]` | `exp_oe_tiptap/exp_oe_tiptap.css` | The built styles, design paths below `stylesheets/`. |
 | `Skin` | (empty) | The look of the editor. Empty: ezoe's `Skin` (o2k7: the look of TinyMCE 3 with ezoe's icon sprite). `a4`: a Tiptap editor in admin4's look: a flat toolbar with Tiptap's own icons (Lucide where Tiptap has none; sources and licenses in `src/icons/`), a bubble menu over selected text, a "+" on empty lines for the insert commands, roomy content typography, colors from admin4's `--a4-*` tokens (light and dark). Set it per siteaccess. |

@@ -19,10 +19,10 @@
     {ezcss_require( $exp_oe.styles )}
 {else}
     {foreach $exp_oe.styles as $exp_oe_style}
-<link rel="stylesheet" type="text/css" href="{concat( 'stylesheets/', $exp_oe_style )|ezdesign( 'no' )}?v={$exp_oe.cache_key|wash}" />
+<link rel="stylesheet" type="text/css" href="{concat( 'stylesheets/', $exp_oe_style )|ezdesign( 'no' )}" />
     {/foreach}
     {foreach $exp_oe.scripts as $exp_oe_script}
-<script src="{concat( 'javascript/', $exp_oe_script )|ezdesign( 'no' )}?v={$exp_oe.cache_key|wash}" charset="utf-8"></script>
+<script src="{concat( 'javascript/', $exp_oe_script )|ezdesign( 'no' )}" charset="utf-8"></script>
     {/foreach}
 {/if}
 <script type="text/javascript">

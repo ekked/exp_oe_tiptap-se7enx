@@ -318,7 +318,7 @@ class expOETiptapEditor
         return self::bundleFile() !== false;
     }
 
-    /** @return string a short key that changes whenever a built file changes, for ?v= on the asset URLs */
+    /** @return string a short key that changes whenever a built file changes (no longer put on the asset URLs, which carry no version query) */
     public static function cacheKey()
     {
         $times = array();
