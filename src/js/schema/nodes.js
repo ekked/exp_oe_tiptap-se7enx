@@ -117,7 +117,7 @@ export const HardBreak = Node.create( {
  * a hard break.
  */
 export const BlockBreak = Node.create( {
-    name: 'ezBlockBreak',
+    name: 'expBlockBreak',
     group: 'block',
     atom: true,
     selectable: true,
