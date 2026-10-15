@@ -939,6 +939,146 @@
         <source>Formatting</source>
         <translation>Formatierung</translation>
     </message>
+    <message>
+        <source>A name links can point to with #name.</source>
+        <translation>Ein Name, auf den Links mit #name verweisen können.</translation>
+    </message>
+    <message>
+        <source>Address and attributes of the link.</source>
+        <translation>Adresse und Attribute des Links.</translation>
+    </message>
+    <message>
+        <source>Cell type</source>
+        <translation>Zelltyp</translation>
+    </message>
+    <message>
+        <source>Choose a character to insert it at the cursor.</source>
+        <translation>Ein Zeichen wählen, um es an der Schreibmarke einzufügen.</translation>
+    </message>
+    <message>
+        <source>Convert to paragraph</source>
+        <translation>In Absatz umwandeln</translation>
+    </message>
+    <message>
+        <source>Data cell</source>
+        <translation>Datenzelle</translation>
+    </message>
+    <message>
+        <source>Edit link</source>
+        <translation>Link bearbeiten</translation>
+    </message>
+    <message>
+        <source>Header cell</source>
+        <translation>Kopfzelle</translation>
+    </message>
+    <message>
+        <source>Insert link</source>
+        <translation>Link einfügen</translation>
+    </message>
+    <message>
+        <source>Insert table</source>
+        <translation>Tabelle einfügen</translation>
+    </message>
+    <message>
+        <source>Leave empty to remove the link.</source>
+        <translation>Leer lassen, um den Link zu entfernen.</translation>
+    </message>
+    <message>
+        <source>Search, browse or upload the content to embed, then choose how it is shown.</source>
+        <translation>Inhalt suchen, auswählen oder hochladen, dann festlegen, wie er angezeigt wird.</translation>
+    </message>
+    <message>
+        <source>Size and attributes of the new table.</source>
+        <translation>Größe und Attribute der neuen Tabelle.</translation>
+    </message>
+    <message>
+        <source>Special characters</source>
+        <translation>Sonderzeichen</translation>
+    </message>
+    <message>
+        <source>Starts with a letter; then letters, digits, -, _, : and . only.</source>
+        <translation>Beginnt mit einem Buchstaben; danach nur Buchstaben, Ziffern, -, _, : und .</translation>
+    </message>
+    <message>
+        <source>Table properties</source>
+        <translation>Tabelleneigenschaften</translation>
+    </message>
+    <message>
+        <source>The attributes of the literal text.</source>
+        <translation>Die Attribute des Literal-Texts.</translation>
+    </message>
+    <message>
+        <source>The attributes of the selected cell.</source>
+        <translation>Die Attribute der ausgewählten Zelle.</translation>
+    </message>
+    <message>
+        <source>The attributes of the table.</source>
+        <translation>Die Attribute der Tabelle.</translation>
+    </message>
+    <message>
+        <source>The tag and its attributes.</source>
+        <translation>Das Tag und seine Attribute.</translation>
+    </message>
+    <message>
+        <source>Turns the paragraph into literal text, shown as it is typed.</source>
+        <translation>Macht aus dem Absatz Literal-Text, der genau so angezeigt wird, wie er eingegeben ist.</translation>
+    </message>
+    <message>
+        <source>Summary (WAI)</source>
+        <translation>Zusammenfassung (für Screenreader)</translation>
+    </message>
+    <message>
+        <source>Summary</source>
+        <translation>Zusammenfassung</translation>
+    </message>
+    <message>
+        <source>Caption</source>
+        <translation>Beschriftung</translation>
+    </message>
+    <message>
+        <source>Scope</source>
+        <translation>Bezug</translation>
+    </message>
+    <message>
+        <source>Valign</source>
+        <translation>Vertikale Ausrichtung</translation>
+    </message>
+    <message>
+        <source>Abbr</source>
+        <translation>Abkürzung</translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation>Spalte</translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation>Zeile</translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation>Oben</translation>
+    </message>
+    <message>
+        <source>Middle</source>
+        <translation>Mitte</translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation>Unten</translation>
+    </message>
+    <message>
+        <source>Baseline</source>
+        <translation>Grundlinie</translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation>Versatz</translation>
+    </message>
+    <message>
+        <source>Limit</source>
+        <translation>Anzahl</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

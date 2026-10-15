@@ -33,7 +33,7 @@ export const DEFAULT_BUTTONS = [
 export function normalizeOptions( options ) {
     const o = Object.assign( {
         attributeId: 0, contentObjectId: 0, version: 0, language: '', rows: 10,
-        buttons: null, pathLocation: 'bottom', toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
+        buttons: null, pathLocation: 'bottom', pathOpenDialog: false, toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
         urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] },

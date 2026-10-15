@@ -15,11 +15,24 @@ import { EzoeApi, PAGE_SIZE, parseCustomAttributes, serializeCustomAttributes, d
 import {
     linkMark, markForTag, nodeForTag, selectedAncestor, attrsFromElement, dialectElement, makeElement, escapeHtml
 } from '../editor/schema-utils.js';
+import { setBlockFormat } from '../editor/commands.js';
 
 
 const EMBED_ID = /^eZ(Object|Node)_(\d+)$/;
 
 // ---------------------------------------------------------------- helpers
+
+/** openDialog() with the editor's skin and close text; closing gives the focus back to the text */
+function open( ctx, spec ) {
+    return openDialog( Object.assign( {
+        skin: ctx.options.skin, closeText: ctx.t( 'Close' ),
+        returnFocus: () => {
+            // at once, not in the next frame as commands.focus() does: no frame comes in a hidden tab
+            if ( ctx.editor && !ctx.editor.isDestroyed )
+                ctx.editor.view.focus();
+        }
+    }, spec ) );
+}
 
 function dialect( ctx, nodeOrMark ) {
     return dialectElement( ctx.editor, nodeOrMark, ( el ) => ctx.schema.cleanup( el ), Serializer );
@@ -78,7 +91,7 @@ function attributeFields( t, definitions, stored ) {
         const value = stored[a.id] !== undefined ? stored[a.id] : ( a['default'] || '' );
         let control;
         if ( a.type === 'select' ) {
-            const opts = Object.keys( a.selection || {} ).map( ( k ) => [ k === '-0-' ? '' : k, a.selection[k] ] );
+            const opts = Object.keys( a.selection || {} ).map( ( k ) => [ k === '-0-' ? '' : k, t( a.selection[k] ) ] );
             control = select( opts.length ? opts : [ [ '', '' ] ], value );
         } else if ( a.type === 'checkbox' ) {
             control = h( 'input', { type: 'checkbox', checked: value !== '' && value !== 'false' && value !== undefined } );
@@ -86,24 +99,25 @@ function attributeFields( t, definitions, stored ) {
             control = h( 'textarea', { rows: a.rows || 3 } );
             control.value = value;
         } else {
-            control = h( 'input', { type: a.type === 'int' || a.type === 'number' ? 'number' : 'text', value, placeholder: a.title || null } );
+            control = h( 'input', { type: a.type === 'int' || a.type === 'number' ? 'number' : 'text', value } );
         }
         control.disabled = !!a.disabled;
         controls[a.id] = { def: a, control };
-        return field( a.name + ( a.required ? ' *' : '' ), control );
+        // the names and descriptions of ezoe_attributes.ini, translated where the editor knows them (Summary (WAI) ...)
+        return field( t( a.name ), control, a.title ? t( a.title ) : '', { required: !!a.required } );
     } );
     const read = () => {
         const values = {};
         for ( const [ id, { def, control } ] of Object.entries( controls ) ) {
             let v = def.type === 'checkbox' ? ( control.checked ? ( String( def['default'] || '' ).trim() || '1' ) : '' ) : String( control.value ).trim();
             if ( def.required && v === '' )
-                throw new Error( t( 'Please fill in: %s' ).replace( '%s', def.name ) );
+                throw new Error( t( 'Please fill in: %s' ).replace( '%s', t( def.name ) ) );
             if ( v !== '' && def.type === 'int' && !/^-?\d+$/.test( v ) )
-                throw new Error( t( 'Please enter a whole number: %s' ).replace( '%s', def.name ) );
+                throw new Error( t( 'Please enter a whole number: %s' ).replace( '%s', t( def.name ) ) );
             if ( v !== '' && def.type === 'number' && !/^-?\d+([.,]\d+)?$/.test( v ) )
-                throw new Error( t( 'Please enter a number: %s' ).replace( '%s', def.name ) );
+                throw new Error( t( 'Please enter a number: %s' ).replace( '%s', t( def.name ) ) );
             if ( v !== '' && def.type === 'email' && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( v ) )
-                throw new Error( t( 'Please enter an e-mail address: %s' ).replace( '%s', def.name ) );
+                throw new Error( t( 'Please enter an e-mail address: %s' ).replace( '%s', t( def.name ) ) );
             values[id] = v;
         }
         return values;
@@ -121,7 +135,7 @@ function contentPicker( ctx, api, onPick ) {
     const { t, options } = ctx;
     const status = h( 'div', { class: 'exp-oe-picker-status', 'aria-live': 'polite' } );
     const list = h( 'div', { class: 'exp-oe-picker-list' } );
-    const query = h( 'input', { type: 'search', placeholder: t( 'Search' ) } );
+    const query = h( 'input', { type: 'search', placeholder: t( 'Search' ), 'aria-label': t( 'Search' ) } );
     const pathBar = h( 'div', { class: 'exp-oe-picker-path' } );
     let mode = 'search', lastQuery = '', node = options.browseRoots && options.browseRoots[0] ? options.browseRoots[0].node_id : ( options.rootNode || 2 );
 
@@ -142,7 +156,7 @@ function contentPicker( ctx, api, onPick ) {
         }
         const name = 'exp-oe-pick-' + Math.random().toString( 36 ).slice( 2 );
         const rows = result.items.map( ( item ) => h( 'tr', {}, [
-            h( 'td', {}, h( 'input', { type: 'radio', name, onchange: () => onPick( item ) } ) ),
+            h( 'td', {}, h( 'input', { type: 'radio', name, 'aria-label': decodeHtml( item.name ), onchange: () => onPick( item ) } ) ),
             h( 'td', {}, mode === 'browse' && item.children_count
                 ? h( 'a', { href: '#', text: decodeHtml( item.name ), onclick: ( e ) => { e.preventDefault(); node = item.node_id; load( 0 ); } } )
                 : decodeHtml( item.name ) ),
@@ -176,7 +190,7 @@ function contentPicker( ctx, api, onPick ) {
         } );
     };
 
-    const tabs = h( 'div', { class: 'exp-oe-tabs', role: 'tablist' } );
+    const tabs = h( 'div', { class: 'exp-oe-tabs', role: 'tablist', 'aria-label': t( 'Choose content' ) } );
     const searchRow = h( 'div', { class: 'exp-oe-picker-search' }, [
         query, h( 'button', { type: 'button', class: 'exp-oe-dialog-button', text: t( 'Search' ), onclick: () => { lastQuery = query.value.trim(); load( 0 ); } } )
     ] );
@@ -238,9 +252,10 @@ function linkDialog( ctx ) {
     } );
     const pickerBox = h( 'details', { class: 'exp-oe-link-picker' }, [ h( 'summary', { text: t( 'Choose content' ) } ), picker.element ] );
 
-    openDialog( {
-        title: t( active ? 'Edit link' : 'Insert link' ), width: 560, closeText: t( 'Close' ),
-        body: [ field( t( 'URL' ), href ), pickerBox, field( t( 'Target' ), target ), field( t( 'Title' ), title ),
+    open( ctx, {
+        title: active ? t( 'Edit link' ) : t( 'Insert link' ), width: 560,
+        description: t( 'Address and attributes of the link.' ),
+        body: [ field( t( 'URL' ), href, t( 'Leave empty to remove the link.' ) ), pickerBox, field( t( 'Target' ), target ), field( t( 'Title' ), title ),
                 field( t( 'Class' ), cls ), field( t( 'View' ), view ), field( t( 'ID' ), id ) ].concat( custom.rows ),
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
@@ -278,9 +293,10 @@ function anchorDialog( ctx ) {
     const existing = sel instanceof NodeSelection && /anchor/i.test( sel.node.type.name ) ? sel.node : null;
     const el = existing ? dialect( ctx, existing ) : null;
     const name = h( 'input', { type: 'text', value: el ? el.getAttribute( 'name' ) || '' : '', autofocus: true } );
-    openDialog( {
-        title: t( 'Insert/edit anchor' ), width: 360, closeText: t( 'Close' ),
-        body: [ field( t( 'Anchor name' ), name ) ],
+    open( ctx, {
+        title: t( 'Insert/edit anchor' ), width: 360,
+        description: t( 'A name links can point to with #name.' ),
+        body: [ field( t( 'Anchor name' ), name, t( 'Starts with a letter; then letters, digits, -, _, : and . only.' ), { required: true } ) ],
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
                 const v = name.value.trim();
@@ -368,7 +384,7 @@ function embedDialog( ctx, contentType ) {
     const el = existing && existing.el;
     const get = ( a ) => ( el && el.getAttribute( a ) ) || '';
     let embedId = get( 'id' ) && EMBED_ID.test( get( 'id' ) ) ? get( 'id' ) : '';
-    const chosen = h( 'div', { class: 'exp-oe-embed-chosen', text: embedId ? get( 'title' ) + ' (' + embedId + ')' : t( 'Nothing chosen yet' ) } );
+    const chosen = h( 'div', { class: 'exp-oe-embed-chosen', 'aria-live': 'polite', text: embedId ? get( 'title' ) + ' (' + embedId + ')' : t( 'Nothing chosen yet' ) } );
     const choose = ( id, name ) => {
         embedId = id;
         chosen.textContent = decodeHtml( name ) + ' (' + id + ')';
@@ -414,8 +430,9 @@ function embedDialog( ctx, contentType ) {
     const custom = attributeFields( t, def.attributes, parseCustomAttributes( get( 'customattributes' ) ) );
     const titles = { images: 'Insert/edit image', files: 'Insert/edit file', objects: 'Insert/edit object' };
 
-    openDialog( {
-        title: t( titles[contentType] || 'Insert/edit object' ), width: 620, closeText: t( 'Close' ), busyText: t( 'Loading preview...' ),
+    open( ctx, {
+        title: t( titles[contentType] || 'Insert/edit object' ), width: 620, busyText: t( 'Loading preview...' ),
+        description: t( 'Search, browse or upload the content to embed, then choose how it is shown.' ),
         body: [ chosen, picker.element, uploadBox,
                 h( 'fieldset', { class: 'exp-oe-embed-props' }, [ h( 'legend', { text: t( 'Properties' ) } ),
                     field( t( 'Size' ), size ), field( t( 'Alignment' ), align ), field( t( 'View' ), view ),
@@ -498,8 +515,9 @@ function customTagDialog( ctx ) {
     renderAttributes();
 
     const styleMap = options.customAttributeStyleMap || {};
-    openDialog( {
-        title: t( 'Custom tag' ), width: 480, closeText: t( 'Close' ),
+    open( ctx, {
+        title: t( 'Custom tag' ), width: 480,
+        description: t( 'The tag and its attributes.' ),
         body: [ field( t( 'Name' ), nameSelect ), attrBox ],
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
@@ -562,8 +580,9 @@ function tableDialog( ctx ) {
     const cls = select( classOptions( t, tdef.classes ), cleanClass( get( 'class', defaults['class'] ) ) );
     const custom = attributeFields( t, tdef.attributes, parseCustomAttributes( get( 'customattributes' ) ) );
     const body = existing ? [] : [ field( t( 'Rows' ), rows ), field( t( 'Columns' ), cols ), field( t( 'Header row' ), header ) ];
-    openDialog( {
-        title: t( existing ? 'Table properties' : 'Insert table' ), width: 420, closeText: t( 'Close' ),
+    open( ctx, {
+        title: existing ? t( 'Table properties' ) : t( 'Insert table' ), width: 420,
+        description: existing ? t( 'The attributes of the table.' ) : t( 'Size and attributes of the new table.' ),
         body: body.concat( [ field( t( 'Width' ), width, t( 'Percentage with %, or a number for pixels' ) ), field( t( 'Border' ), border ), field( t( 'Class' ), cls ) ], custom.rows ),
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
@@ -598,26 +617,81 @@ function cellPropertiesDialog( ctx ) {
     const def = ( options.tableDefinitions || {} )[tag] || {};
     const get = ( a ) => ( el ? el.getAttribute( a ) || '' : '' );
     const width = h( 'input', { type: 'text', value: get( 'width' ) } );
+    // td or th, like the cell type of ezoe's cell dialog (tag_table_cell.tpl)
+    const headerType = nodeForTag( editor, 'th' ), cellType = nodeForTag( editor, 'td' );
+    const kind = headerType && cellType ? select( [ [ 'td', t( 'Data cell' ) ], [ 'th', t( 'Header cell' ) ] ], tag ) : null;
     const align = select( [ [ '', t( '-- Not set --' ) ], [ 'left', t( 'Left' ) ], [ 'center', t( 'Center' ) ], [ 'right', t( 'Right' ) ], [ 'justify', t( 'Justify' ) ] ], get( 'align' ) );
     const cls = select( classOptions( t, def.classes ), cleanClass( get( 'class' ) ) );
     const custom = attributeFields( t, def.attributes, parseCustomAttributes( get( 'customattributes' ) ) );
-    openDialog( {
-        title: t( 'Table cell properties' ), width: 420, closeText: t( 'Close' ),
-        body: [ field( t( 'Width' ), width ), field( t( 'Alignment' ), align ), field( t( 'Class' ), cls ) ].concat( custom.rows ),
+    open( ctx, {
+        title: t( 'Table cell properties' ), width: 420,
+        description: t( 'The attributes of the selected cell.' ),
+        body: ( kind ? [ field( t( 'Cell type' ), kind ) ] : [] ).concat(
+            [ field( t( 'Width' ), width, t( 'Percentage with %, or a number for pixels' ) ), field( t( 'Alignment' ), align ), field( t( 'Class' ), cls ) ], custom.rows ),
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
-                const cell = makeElement( tag, {
+                const newTag = kind ? kind.value : tag;
+                const type = newTag === tag ? existing.node.type : ( newTag === 'th' ? headerType : cellType ).type;
+                const cell = makeElement( newTag, {
                     width: width.value.trim(), align: align.value, 'class': cls.value, customattributes: serializeCustomAttributes( custom.read() ),
                     colspan: get( 'colspan' ), rowspan: get( 'rowspan' )
                 } );
-                const newAttrs = attrsFromElement( existing.node.type, cell ) || {};
+                const newAttrs = attrsFromElement( type, cell ) || {};
                 return editor.chain().focus().command( ( { tr } ) => {
-                    tr.setNodeMarkup( existing.pos, undefined, Object.assign( {}, existing.node.attrs, newAttrs ) );
+                    tr.setNodeMarkup( existing.pos, type, Object.assign( {}, existing.node.attrs, newAttrs ) );
                     return true;
                 } ).run();
             } },
             { text: t( 'Cancel' ), cancel: true }
         ]
+    } );
+}
+
+// ---------------------------------------------------------------- literal
+
+/**
+ * Literal text with its class and custom attributes (content.ini [literal] AvailableClasses, CustomAttributes), like
+ * ezoe's literal dialog. Without classes and attributes the literal button only switches between paragraph and
+ * literal (commands.js, literalHasProperties()).
+ */
+function literalDialog( ctx ) {
+    const { editor, t, options } = ctx;
+    const pre = nodeForTag( editor, 'pre' );
+    if ( !pre )
+        return;
+    const def = options.literal || {};
+    const existing = selectedAncestor( editor, ( n ) => n.type === pre.type );
+    const el = existing ? dialect( ctx, existing.node ) : null;
+    const get = ( a ) => ( el ? el.getAttribute( a ) || '' : '' );
+    const cls = select( classOptions( t, def.classes ), cleanClass( get( 'class' ) ) );
+    const custom = attributeFields( t, def.attributes, parseCustomAttributes( get( 'customattributes' ) ) );
+    const apply = ( pos, node ) => {
+        const newAttrs = attrsFromElement( pre.type, makeElement( 'pre', { 'class': cls.value, customattributes: serializeCustomAttributes( custom.read() ) } ) ) || {};
+        return editor.chain().focus().command( ( { tr } ) => {
+            tr.setNodeMarkup( pos, undefined, Object.assign( {}, node.attrs, newAttrs ) );
+            return true;
+        } ).run();
+    };
+    const buttons = [ { text: t( 'OK' ), primary: true, onClick: () => {
+        if ( existing )
+            return apply( existing.pos, existing.node );
+        custom.read();
+        if ( !setBlockFormat( editor, 'pre' ) )
+            return true;
+        const now = selectedAncestor( editor, ( n ) => n.type === pre.type );
+        return now ? apply( now.pos, now.node ) : true;
+    } }, { text: t( 'Cancel' ), cancel: true } ];
+    if ( existing )
+        buttons.splice( 1, 0, { text: t( 'Convert to paragraph' ), onClick: () => {
+            // a plain paragraph: the class and the custom attributes of the literal do not carry over
+            const para = nodeForTag( editor, 'p' );
+            return !para || editor.chain().focus().setNode( para.name, Object.assign( {}, para.attrs, { 'class': null, customattributes: null } ) ).run();
+        } } );
+    open( ctx, {
+        title: t( 'Literal text' ), width: 420,
+        description: existing ? t( 'The attributes of the literal text.' ) : t( 'Turns the paragraph into literal text, shown as it is typed.' ),
+        body: [ field( t( 'Class' ), cls ) ].concat( custom.rows ),
+        buttons
     } );
 }
 
@@ -628,8 +702,9 @@ const CHARS = '  & © ® ™ ° ± × ÷ µ ¶ § … – — ‘ ’ ‚ “ �
 function charmapDialog( ctx ) {
     const { editor, t } = ctx;
     let dialog = null;
-    const grid = h( 'div', { class: 'exp-oe-charmap', role: 'grid' }, CHARS.map( ( c ) => h( 'button', {
+    const grid = h( 'div', { class: 'exp-oe-charmap', role: 'group', 'aria-label': t( 'Special characters' ) }, CHARS.map( ( c ) => h( 'button', {
         type: 'button', class: 'exp-oe-char', title: c === ' ' ? t( 'Non-breaking space' ) : 'U+' + c.charCodeAt( 0 ).toString( 16 ).toUpperCase().padStart( 4, '0' ),
+        'aria-label': c === ' ' ? t( 'Non-breaking space' ) : null,
         text: c === ' ' ? '␣' : c,
         onclick: () => {
             editor.chain().focus().insertContent( c === '&' ? '&amp;' : c ).run();
@@ -637,7 +712,10 @@ function charmapDialog( ctx ) {
                 dialog.close();
         }
     } ) ) );
-    dialog = openDialog( { title: t( 'Insert special character' ), width: 460, closeText: t( 'Close' ), body: [ grid ], buttons: [ { text: t( 'Close' ), cancel: true } ] } );
+    dialog = open( ctx, {
+        title: t( 'Insert special character' ), width: 460, description: t( 'Choose a character to insert it at the cursor.' ),
+        body: [ grid ], buttons: [ { text: t( 'Close' ), cancel: true } ]
+    } );
 }
 
 export const SHORTCUTS = [
@@ -650,9 +728,10 @@ export const SHORTCUTS = [
 function helpDialog( ctx ) {
     const { t } = ctx;
     const table = h( 'table', { class: 'exp-oe-shortcuts' }, h( 'tbody', {}, SHORTCUTS.map( ( [ k, d ] ) => h( 'tr', {}, [ h( 'th', { text: k } ), h( 'td', { text: t( d ) } ) ] ) ) ) );
-    openDialog( {
-        title: t( 'Help' ), width: 460, closeText: t( 'Close' ),
-        body: [ h( 'p', { text: t( 'Online editor based on Tiptap. Keyboard shortcuts:' ) } ), table ],
+    open( ctx, {
+        title: t( 'Help' ), width: 460,
+        description: t( 'Online editor based on Tiptap. Keyboard shortcuts:' ),
+        body: [ table ],
         buttons: [ { text: t( 'Close' ), primary: true } ]
     } );
 }
@@ -665,6 +744,7 @@ export function createDialogs() {
         customTag: customTagDialog,
         table: tableDialog,
         cellProperties: cellPropertiesDialog,
+        literal: literalDialog,
         charmap: charmapDialog,
         help: helpDialog
     };

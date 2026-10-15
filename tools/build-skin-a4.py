@@ -22,7 +22,7 @@ ICONS = {
     'bullist': 'tiptap/list-icon', 'numlist': 'tiptap/list-ordered-icon',
     'undo': 'tiptap/undo2-icon', 'redo': 'tiptap/redo2-icon',
     'link': 'tiptap/link-icon', 'image': 'tiptap/image-plus-icon', 'literal': 'tiptap/code-block-icon',
-    'disable': 'tiptap/ban-icon', 'discard': 'tiptap/trash-icon',
+    'disable': 'tiptap/ban-icon', 'discard': 'tiptap/trash-icon', 'close': 'tiptap/close-icon',
     # Lucide, the style Tiptap's icons follow, where Tiptap has none
     'removeformat': 'lucide/remove-formatting', 'indent': 'lucide/indent-increase', 'outdent': 'lucide/indent-decrease',
     'unlink': 'lucide/unlink', 'anchor': 'lucide/anchor', 'object': 'lucide/box', 'file': 'lucide/paperclip',
@@ -43,7 +43,7 @@ def svg_uri(path):
 
 def main():
     out = ['/*',
-           ' * exp_oe_tiptap skin "a4" (skin-a4.css): the icons of the toolbar and the floating menus, drawn in the',
+           ' * exp_oe_tiptap skin "a4" (skin-a4.css): the icons of the toolbar, the floating menus and the dialogs, drawn in the',
            ' * text color through CSS masks. Tiptap\'s own editor icons (Tiptap UI Components, MIT, Copyright (c) 2025',
            ' * Tiptap) and, where Tiptap has none, Lucide icons in the same style (ISC, Copyright (c) Lucide Contributors);',
            ' * the SVGs and both licenses are in src/icons/. No image of ezoe\'s o2k7 skin.',

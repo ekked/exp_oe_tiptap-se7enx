@@ -261,6 +261,9 @@ html.exp-oe-has-fullscreen, html.exp-oe-has-fullscreen body { overflow: hidden; 
     display: flex; align-items: center; justify-content: space-between; padding: 4px 6px;
     background: #e5effd; border-bottom: 1px solid #abc6dd; font-weight: bold;
 }
+.exp-oe-dialog-heading { margin: 0; font: inherit; }
+/* the description is read by screen readers (aria-describedby); the o2k7 look has no line for it */
+.exp-oe-dialog-description { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .exp-oe-dialog-close { border: 0; background: none; font-size: 16px; line-height: 1; cursor: pointer; padding: 0 4px; }
 .exp-oe-dialog-panel { padding: 8px 10px; max-height: 70vh; overflow: auto; }
 .exp-oe-dialog-footer { display: flex; justify-content: flex-end; gap: 6px; padding: 6px 10px 8px; border-top: 1px solid #d5d5d5; }

@@ -108,6 +108,8 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     minHeight: {$exp_oe.min_height},
     buttons: {json_encode( $layout_settings['buttons'] )},
     pathLocation: {json_encode( $layout_settings['path_location'] )},
+    // ezoe.ini [EditorSettings] TagPathOpenDialog: a click on a tag of the path opens its dialog
+    pathOpenDialog: {cond( ezini( 'EditorSettings', 'TagPathOpenDialog', 'ezoe.ini' )|eq( 'enabled' ), 'true', 'false' )},
     toolbarLocation: {json_encode( $layout_settings['toolbar_location'] )},
     skin: {json_encode( $tiptap_skin )},
     contentCss: {json_encode( ezcssfiles( $content_css_list, 3, true() ) )},

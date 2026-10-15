@@ -23,7 +23,7 @@ settings (see [ezoe.ini](#ezoeini) below). `DefaultEditor` and `AllowSwitch` of 
 | `AssetLoading` | `ezdesign` | `ezdesign`: `<script>`/`<link>` tags pointing at the built files, with no version query; the files are never repacked (a browser that still shows an older build needs a hard reload). `ezjscore`: `ezscript_require()`/`ezcss_require()`, packed with the page by ezjscore (only if ezjscore's packer leaves the modern bundle intact). |
 | `Scripts[]` | `exp_oe_tiptap/exp_oe_tiptap.js` | The built scripts, design paths below `javascript/`. The first is the bundle defining `window.ExpOETiptap`; Tiptap counts as available only while that file exists. |
 | `Styles[]` | `exp_oe_tiptap/exp_oe_tiptap.css` | The built styles, design paths below `stylesheets/`. |
-| `Skin` | (not set) | The look of the editor. Not set or empty: ezoe's `Skin` (o2k7: the look of TinyMCE 3 with ezoe's icon sprite). `a4`: a Tiptap editor in admin4's look: a flat toolbar with Tiptap's own icons (Lucide where Tiptap has none; sources and licenses in `src/icons/`), a bubble menu over selected text, a "+" on empty lines for the insert commands, roomy content typography, colors from admin4's `--a4-*` tokens (light and dark). Set it per siteaccess (`settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php`); the extension leaves it undefined, because its own settings are read after a siteaccess's and would hide that choice. |
+| `Skin` | (not set) | The look of the editor. Not set or empty: ezoe's `Skin` (o2k7: the look of TinyMCE 3 with ezoe's icon sprite). `a4`: a Tiptap editor in admin4's look: a flat toolbar with Tiptap's own icons (Lucide where Tiptap has none; sources and licenses in `src/icons/`), a bubble menu over selected text, a "+" on empty lines for the insert commands, roomy content typography, colors from admin4's `--a4-*` tokens (light and dark), and every dialog as an admin4 card (label above field, hint below, primary button on the right, the whole width on a phone; Escape closes it and the focus returns to the text). Set it per siteaccess (`settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php`); the extension leaves it undefined, because its own settings are read after a siteaccess's and would hide that choice. |
 | `MinHeight` | `300` | Minimum height of the editing area in pixels. The class attribute's "number of text rows" can make it taller. |
 
 ### [AISettings]
@@ -77,10 +77,11 @@ Tiptap reads the same settings as ezoe, so one configuration serves both editors
 | `ezoe.ini` | `[EditorLayout] Buttons[]` (and its siteaccess/class variants, through `editor_layout_settings`) | which toolbar buttons exist, in which order |
 | `ezoe.ini` | `[EditorLayout] PathLocation`, `ToolbarLocation` | status bar and toolbar position |
 | `ezoe.ini` | `[EditorSettings] Skin`, `CustomAttributeStyleMap`, `UploadFileExtensions[]`, `UploadFromUrl` | skin class, custom attribute styles, upload rules |
+| `ezoe.ini` | `[EditorSettings] TagPathOpenDialog` | `enabled` (ezoe's default): a click on a tag of the status bar path also opens its dialog (link, anchor, table, cell, custom tag, embed, literal) |
 | `ezoe.ini` | `[EditorSettings] CustomTagControls` (Exponential 6.0.15 and later) | `enabled`: the bar on the focused custom tag (move up, move down, edit, remove; Alt+Shift+Up / Down / E / Delete), Backspace removing an empty block custom tag, and a label with the name of every block custom tag |
 | `content.ini` | `[CustomTagSettings]`, `[paragraph]`, `[link]`, `[table]`, `[embed]`, `[embed-inline]`, ... `AvailableClasses`, `CustomAttributes`, `AvailableViewModes` | classes, custom attributes, custom tags, view modes |
 | `content.ini` | `[CustomTagSettings] IsHidden[]` (Exponential 6.0.15 and later) | custom tags the custom tag dialog does not offer for a new tag; a hidden tag already in the text can still be edited |
-| `ezoe_attributes.ini` | everything | types and titles of custom attributes in the dialogs |
+| `ezoe_attributes.ini` | everything | types and titles of custom attributes in the dialogs (the title is shown as a hint below the field; names Tiptap knows, such as ezoe's example `Summary (WAI)`, are translated) |
 | `design.ini` | `[StylesheetSettings] EditorCSSFileList[]` | the content CSS of the editing area |
 | `image.ini` | `[AliasSettings] AliasList[]` | image sizes of embeds |
 

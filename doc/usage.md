@@ -43,8 +43,9 @@ site; the page says so in its status column.
   links (with their class, view and target), anchors, lists, tables (with their classes and sizes), literal
   blocks, embedded images, objects and files (block and inline), custom tags such as factboxes, and the classes
   and custom attributes of each.
-- The dialogs for links, embedding (with the object browser and upload), custom tags and tables are the same
-  dialogs as in the Online Editor.
+- The dialogs for links, embedding (with the object browser and upload), custom tags, tables, table cells (with
+  the cell type, data or header cell) and literal text (when content.ini gives literal classes or attributes) are
+  the same dialogs as in the Online Editor.
 - "Disable editor" works the same: it turns either editor into the plain text field.
 
 ## What is different

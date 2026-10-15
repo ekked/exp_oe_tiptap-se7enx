@@ -102,6 +102,12 @@ function tableButton( command, title, icon ) {
     };
 }
 
+/** Whether content.ini gives literal classes or custom attributes (options.literal), so its button opens a dialog */
+export function literalHasProperties( options ) {
+    const def = ( options && options.literal ) || {};
+    return Object.keys( def.classes || {} ).length > 0 || ( def.attributes || [] ).length > 0;
+}
+
 /** Converts the current textblock to the format of <tag> (formatselect) */
 export function setBlockFormat( editor, tag ) {
     const found = nodeForTag( editor, tag );
@@ -209,8 +215,11 @@ export function createCommands() {
         literal: {
             title: 'Literal text', icon: 'literal',
             available: ( { editor } ) => !!nodeForTag( editor, 'pre' ),
-            run: ( { editor } ) => {
-                const pre = nodeForTag( editor, 'pre' );
+            run: ( ctx ) => {
+                // with classes or custom attributes for literal (content.ini) the dialog asks for them, as in ezoe
+                if ( ctx.dialogs && ctx.dialogs.literal && literalHasProperties( ctx.options ) )
+                    return ctx.dialogs.literal( ctx );
+                const { editor } = ctx, pre = nodeForTag( editor, 'pre' );
                 return editor.isActive( pre.name ) ? setBlockFormat( editor, 'p' ) : setBlockFormat( editor, 'pre' );
             },
             active: ( { editor } ) => editor.isActive( nodeForTag( editor, 'pre' ).name )

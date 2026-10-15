@@ -115,6 +115,7 @@ Links: https://tiptap.dev/product/editor , https://tiptap.dev/product/ai-toolkit
   | `rows` | the class attribute's text rows, for the initial height |
   | `buttons` | ezoe.ini `[EditorLayout] Buttons[]` (via `editor_layout_settings`), ezoe button names, the toolbar C maps |
   | `pathLocation`, `toolbarLocation` | from `editor_layout_settings` |
+  | `pathOpenDialog` | ezoe.ini `[EditorSettings] TagPathOpenDialog` (`enabled`): a click on a path item opens its dialog |
   | `skin`, `contentCss` | ezoe.ini `Skin`, design.ini `EditorCSSFileList` resolved |
   | `xmlTagAlias`, `customTags`, `literal`, `tableDefinitions`, `generalDefinitions`, `embedDefinitions` | the same structures ezoe's TinyMCE 8 template gets from the input handler |
   | `linkClasses`, `linkViewModes`, `customAttributeStyleMap`, `imageSizes`, `viewModes`, `defaultSize` | content.ini / ezoe.ini, as for TinyMCE 8 |

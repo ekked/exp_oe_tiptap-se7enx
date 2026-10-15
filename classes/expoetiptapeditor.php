@@ -264,6 +264,10 @@ class expOETiptapEditor
         'Undo (Ctrl+Z)', 'Redo (Ctrl+Y)',
         'AI', 'AI assistant', 'Accept', 'Reject', 'Improve writing', 'Make shorter', 'Make longer', 'Fix spelling and grammar',
         'Translate', 'Summarize', 'Continue writing',
+        // names and choices of custom attributes in ezoe_attributes.ini and content.ini (ezoe's example
+        // [CustomAttribute_table_summary], and the names ezoe makes of the attribute ids) the dialogs pass through t()
+        'Summary (WAI)', 'Summary', 'Caption', 'Scope', 'Valign', 'Abbr', 'Column', 'Row', 'Top', 'Middle', 'Bottom',
+        'Baseline', 'Offset', 'Limit',
     );
 
     /**
