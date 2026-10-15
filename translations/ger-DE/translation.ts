@@ -1119,6 +1119,26 @@
         <source>The attributes of the table row.</source>
         <translation>Die Attribute der Tabellenzeile.</translation>
     </message>
+    <message>
+        <source>All cells of the table</source>
+        <translation>Alle Zellen der Tabelle</translation>
+    </message>
+    <message>
+        <source>Apply to</source>
+        <translation>Anwenden auf</translation>
+    </message>
+    <message>
+        <source>Cell</source>
+        <translation>Zelle</translation>
+    </message>
+    <message>
+        <source>Selected cells</source>
+        <translation>Ausgewählte Zellen</translation>
+    </message>
+    <message>
+        <source>The same type, width, alignment, class and custom attributes for every cell of the choice.</source>
+        <translation>Derselbe Typ, dieselbe Breite, Ausrichtung, Klasse und dieselben benutzerdefinierten Attribute für jede Zelle der Auswahl.</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

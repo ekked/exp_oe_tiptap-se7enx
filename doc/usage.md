@@ -50,6 +50,9 @@ site; the page says so in its status column.
   the path below the text (e.g. `paragraph` or `li`), or use the toolbar's **Tag properties** where the site has
   it. Where the cursor is inside several of them, choose the element in the dialog.
 - Classes and custom attributes of a table row: click `tr` in the path, or the toolbar's **Table row properties**.
+- The table cell dialog applies to the cell, its row, its column or all cells of the table (**Apply to**), and to the
+  selected cells when several are selected (Shift+click or drag across cells). A merged cell belongs to every row
+  and column it covers; the cell type changes only where you change it in the dialog.
 - "Disable editor" works the same: it turns either editor into the plain text field.
 
 ## What is different

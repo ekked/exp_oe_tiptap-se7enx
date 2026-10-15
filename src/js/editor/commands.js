@@ -254,7 +254,8 @@ export function createCommands() {
             title: 'Table cell properties', icon: 'cell_props', tableOnly: true,
             available: ( { editor } ) => hasCommand( editor, 'insertTable' ),
             run: ( ctx ) => ctx.dialogs.cellProperties( ctx ),
-            enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' )
+            enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' ) ||
+                                       !!editor.state.selection.$anchorCell
         },
         tag_props: {
             title: 'Tag properties', icon: 'tag_props',

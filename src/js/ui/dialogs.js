@@ -10,6 +10,7 @@
  */
 import { DOMSerializer as Serializer } from '@tiptap/pm/model';
 import { NodeSelection } from '@tiptap/pm/state';
+import { TableMap, CellSelection } from '@tiptap/pm/tables';
 import { h, clear } from './dom.js';
 import { openDialog, field, select } from './dialog.js';
 import { EzoeApi, PAGE_SIZE, parseCustomAttributes, serializeCustomAttributes, decodeHtml } from './ezoe-api.js';
@@ -609,9 +610,40 @@ function tableDialog( ctx ) {
     } );
 }
 
+/**
+ * The cells a change of the cell dialog applies to, like "Apply to" of ezoe's tag_table_cell.tpl (cell, row, column)
+ * plus the whole table and the selected cells (a cell selection): [ { pos, node } ], in document order.
+ * Rows and columns follow the table's grid (TableMap): a merged cell belongs to every row and column it covers.
+ */
+export function cellsToApply( state, cellPos, mode ) {
+    const doc = state.doc;
+    if ( mode === 'selection' && state.selection instanceof CellSelection ) {
+        const cells = [];
+        state.selection.forEachCell( ( node, pos ) => cells.push( { pos, node } ) );
+        return cells.sort( ( a, b ) => a.pos - b.pos );
+    }
+    const $cell = doc.resolve( cellPos );
+    const table = $cell.node( -1 ), tableStart = $cell.start( -1 );
+    if ( mode === 'cell' || !table || table.type.spec.tableRole !== 'table' )
+        return [ { pos: cellPos, node: doc.nodeAt( cellPos ) } ];
+    const map = TableMap.get( table );
+    const rect = map.findCell( cellPos - tableStart );
+    const area = mode === 'row' ? { left: 0, right: map.width, top: rect.top, bottom: rect.top + 1 }
+        : mode === 'column' ? { left: rect.left, right: rect.left + 1, top: 0, bottom: map.height }
+        : { left: 0, right: map.width, top: 0, bottom: map.height };
+    // every cell that covers a slot of the area, also a merged cell that starts outside it
+    const seen = new Set();
+    for ( let r = area.top; r < area.bottom; r++ ) {
+        for ( let c = area.left; c < area.right; c++ )
+            seen.add( map.map[r * map.width + c] );
+    }
+    return [ ...seen ].map( ( p ) => ( { pos: tableStart + p, node: doc.nodeAt( tableStart + p ) } ) ).sort( ( a, b ) => a.pos - b.pos );
+}
+
 function cellPropertiesDialog( ctx ) {
     const { editor, t, options } = ctx;
-    const existing = selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' );
+    const existing = selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' ) ||
+                     ( editor.state.selection instanceof CellSelection ? { node: editor.state.selection.$anchorCell.nodeAfter, pos: editor.state.selection.$anchorCell.pos } : null );
     if ( !existing )
         return;
     const el = dialect( ctx, existing.node );
@@ -625,22 +657,36 @@ function cellPropertiesDialog( ctx ) {
     const align = select( [ [ '', t( '-- Not set --' ) ], [ 'left', t( 'Left' ) ], [ 'center', t( 'Center' ) ], [ 'right', t( 'Right' ) ], [ 'justify', t( 'Justify' ) ] ], get( 'align' ) );
     const cls = select( classOptions( t, def.classes ), cleanClass( get( 'class' ) ) );
     const custom = attributeFields( t, def.attributes, parseCustomAttributes( get( 'customattributes' ) ) );
+    // "Apply to", as in ezoe's cell dialog, plus the whole table and a selection of several cells
+    const several = editor.state.selection instanceof CellSelection;
+    const scopes = ( several ? [ [ 'selection', t( 'Selected cells' ) ] ] : [] ).concat(
+        [ [ 'cell', t( 'Cell' ) ], [ 'row', t( 'Row' ) ], [ 'column', t( 'Column' ) ], [ 'table', t( 'All cells of the table' ) ] ] );
+    const scope = select( scopes, several ? 'selection' : 'cell' );
     open( ctx, {
         title: t( 'Table cell properties' ), width: 420,
         description: t( 'The attributes of the selected cell.' ),
         body: ( kind ? [ field( t( 'Cell type' ), kind ) ] : [] ).concat(
-            [ field( t( 'Width' ), width, t( 'Percentage with %, or a number for pixels' ) ), field( t( 'Alignment' ), align ), field( t( 'Class' ), cls ) ], custom.rows ),
+            [ field( t( 'Width' ), width, t( 'Percentage with %, or a number for pixels' ) ), field( t( 'Alignment' ), align ), field( t( 'Class' ), cls ) ], custom.rows,
+            [ field( t( 'Apply to' ), scope, t( 'The same type, width, alignment, class and custom attributes for every cell of the choice.' ) ) ] ),
         buttons: [
             { text: t( 'OK' ), primary: true, onClick: () => {
                 const newTag = kind ? kind.value : tag;
-                const type = newTag === tag ? existing.node.type : ( newTag === 'th' ? headerType : cellType ).type;
-                const cell = makeElement( newTag, {
-                    width: width.value.trim(), align: align.value, 'class': cls.value, customattributes: serializeCustomAttributes( custom.read() ),
-                    colspan: get( 'colspan' ), rowspan: get( 'rowspan' )
-                } );
-                const newAttrs = attrsFromElement( type, cell ) || {};
+                const values = {
+                    width: width.value.trim(), align: align.value, 'class': cls.value, customattributes: serializeCustomAttributes( custom.read() )
+                };
+                const cells = cellsToApply( editor.state, existing.pos, scope.value );
                 return editor.chain().focus().command( ( { tr } ) => {
-                    tr.setNodeMarkup( existing.pos, type, Object.assign( {}, existing.node.attrs, newAttrs ) );
+                    for ( const cell of cells ) {
+                        const before = dialect( ctx, cell.node );
+                        const own = ( a ) => ( before ? before.getAttribute( a ) || '' : '' );
+                        // the cell type changes only where it was changed in the dialog; each cell keeps its own span
+                        const ownTag = before ? before.tagName.toLowerCase() : tag;
+                        const cellTag = newTag === tag ? ownTag : newTag;
+                        const type = cellTag === ownTag ? cell.node.type : ( cellTag === 'th' ? headerType : cellType ).type;
+                        const changed = makeElement( cellTag, Object.assign( {}, values, { colspan: own( 'colspan' ), rowspan: own( 'rowspan' ) } ) );
+                        const attrs = withRemoved( type, before ? attrsFromElement( cell.node.type, before ) : {}, attrsFromElement( type, changed ) || {} );
+                        tr.setNodeMarkup( tr.mapping.map( cell.pos ), type, Object.assign( {}, cell.node.attrs, attrs ) );
+                    }
                     return true;
                 } ).run();
             } },

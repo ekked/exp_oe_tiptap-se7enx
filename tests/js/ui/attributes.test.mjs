@@ -241,3 +241,47 @@ test( 'a click on tr in the path opens the row dialog', () => {
     ok();
     assert.match( inst.getHTML(), /<tr class="muted"><td><p>a2<\/p>/ );
 } );
+
+test( 'cell_props applies to the cell, its row, its column, the whole table or the selected cells', async () => {
+    const { CellSelection } = await import( '@tiptap/pm/tables' );
+    const inst = X.init( textarea( TABLE ), TABLE_OPTIONS );
+    const run = ( text, scope, cls, kind ) => {
+        inst.editor.commands.setTextSelection( textPos( inst, text ) );
+        inst.runButton( 'cell_props' );
+        const s = fieldOf( 'Apply to' );
+        assert.deepEqual( Array.prototype.map.call( s.options, ( o ) => o.value ), [ 'cell', 'row', 'column', 'table' ] );
+        change( s, scope );
+        if ( kind )
+            change( fieldOf( 'Cell type' ), kind );
+        change( fieldOf( 'Class' ), cls );
+        ok();
+    };
+    run( 'b1', 'column', 'num' );
+    assert.match( inst.getHTML(), /<th class="num"><p>B<\/p><\/th><\/tr><tr><td><p>a1<\/p><\/td><td class="num"><p>b1<\/p><\/td><\/tr><tr><td><p>a2<\/p><\/td><td class="num"><p>b2<\/p>/ );
+    run( 'a2', 'row', 'num', 'th' );
+    assert.match( inst.getHTML(), /<tr><th class="num"><p>a2<\/p><\/th><th class="num"><p>b2<\/p><\/th><\/tr>/ );
+    run( 'a1', 'table', '' );
+    assert.doesNotMatch( inst.getHTML(), /class=/ );
+    // a cell selection: the choice starts with the selected cells
+    const cells = [];
+    inst.editor.state.doc.descendants( ( n, p ) => {
+        if ( n.type.spec.tableRole === 'cell' || n.type.spec.tableRole === 'header_cell' )
+            cells.push( p );
+    } );
+    inst.editor.view.dispatch( inst.editor.state.tr.setSelection( CellSelection.create( inst.editor.state.doc, cells[0], cells[1] ) ) );
+    inst.runButton( 'cell_props' );
+    assert.equal( fieldOf( 'Apply to' ).value, 'selection' );
+    change( fieldOf( 'Class' ), 'num' );
+    ok();
+    assert.match( inst.getHTML(), /^<table border="1"><tbody><tr><th class="num"><p>A<\/p><\/th><th class="num"><p>B<\/p><\/th><\/tr><tr><td><p>a1/ );
+} );
+
+test( 'cell_props keeps the span of every cell it changes', () => {
+    const inst = X.init( textarea( '<table><tbody><tr><td colspan="2"><p>wide</p></td></tr><tr><td><p>x</p></td><td><p>y</p></td></tr></tbody></table>' ), TABLE_OPTIONS );
+    inst.editor.commands.setTextSelection( textPos( inst, 'y' ) );
+    inst.runButton( 'cell_props' );
+    change( fieldOf( 'Apply to' ), 'column' );
+    change( fieldOf( 'Alignment' ), 'right' );
+    ok();
+    assert.equal( inst.getHTML(), '<table><tbody><tr><td align="right" colspan="2"><p>wide</p></td></tr><tr><td><p>x</p></td><td align="right"><p>y</p></td></tr></tbody></table>' );
+} );

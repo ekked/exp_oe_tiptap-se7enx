@@ -1119,6 +1119,26 @@
         <source>The attributes of the table row.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>All cells of the table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply to</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Selected cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The same type, width, alignment, class and custom attributes for every cell of the choice.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>
