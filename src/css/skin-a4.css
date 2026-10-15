@@ -526,6 +526,23 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
 .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source { width: 48rem; }
 /* the source: monospaced; :is() as the field rule above, which would win otherwise */
 .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])) { min-height: 22rem; font: var(--a4-text-xs, 12px)/1.6 var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); background: var(--a4-code-bg, #f6f7f9); color: var(--a4-code-ink, var(--a4-ink, #1f2430)); white-space: pre; }
+/* same weight as the rule above (its :is() counts as its heaviest part), one class more */
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])).exp-oe-source-wrapped { white-space: pre-wrap; overflow-wrap: anywhere; }
+.exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])):read-only { background: var(--a4-soft, #f6f7f9); }
+.exp-oe-skin-a4 .exp-oe-source-note { margin: 0 0 12px; color: var(--a4-muted, #5d6573); font-size: var(--a4-text-s, 13px); }
+.exp-oe-skin-a4 .exp-oe-source-warning {
+    margin: 0 0 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--a4-warn-line, #f3d19c);
+    border-radius: var(--exp-oe-a4-radius);
+    background: var(--a4-warn-bg, #fff3df);
+    color: var(--a4-ink, #1f2430);
+    font-size: var(--a4-text-s, 13px);
+}
+.exp-oe-skin-a4 .exp-oe-source-warning > p:first-child { margin: 0 0 6px; font-weight: 600; color: var(--a4-warn, #8a4b00); }
+.exp-oe-skin-a4 .exp-oe-source-warning > p:last-child { margin: 6px 0 0; color: var(--a4-muted, #5d6573); }
+.exp-oe-skin-a4 .exp-oe-source-warning ul { margin: 0; padding-left: 1.2em; max-height: 10rem; overflow: auto; font-family: var(--a4-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: var(--a4-text-xs, 12px); }
+.exp-oe-skin-a4 .exp-oe-source-warning[hidden] { display: none; }
 .exp-oe-skin-a4 .exp-oe-help-table:not(.exp-oe-help-keys) tbody th { width: 32%; font: 600 var(--a4-text-s, 13px)/1.5 var(--a4-font, system-ui, sans-serif); }
 .exp-oe-skin-a4 .exp-oe-help-table th > .exp-oe-icon { display: inline-block; margin-right: 8px; vertical-align: -3px; }
 .exp-oe-skin-a4 .exp-oe-help-table thead th { font: 600 var(--a4-text-xs, 12px)/1.6 var(--a4-font, system-ui, sans-serif); color: var(--a4-muted, #5d6573); }
@@ -545,6 +562,8 @@ html[data-a4-theme="dark"] .exp-oe-dialog-overlay.exp-oe-skin-a4 { color-scheme:
         border-width: 1px 0 0;
         border-radius: var(--exp-oe-a4-radius) var(--exp-oe-a4-radius) 0 0;
     }
+    .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source, .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-help { width: 100%; }
+    .exp-oe-skin-a4 .exp-oe-dialog.exp-oe-source :is(textarea.exp-oe-source-view, input:not([type="checkbox"]):not([type="radio"]):not([type="file"])) { min-height: 14rem; }
     .exp-oe-skin-a4 .exp-oe-dialog-title { padding: 16px 12px 4px 16px; }
     .exp-oe-skin-a4 .exp-oe-dialog-description { padding: 0 16px 4px; }
     .exp-oe-skin-a4 .exp-oe-dialog-panel { padding: 12px 16px 8px; }

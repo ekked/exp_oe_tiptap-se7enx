@@ -20,6 +20,7 @@ import {
 import { setBlockFormat } from '../editor/commands.js';
 import { generalTargets, preferredTarget, TAG_LABELS } from '../editor/tags.js';
 import { helpContent, SHORTCUTS } from './help.js';
+import { readSource, applySource } from '../editor/source.js';
 
 
 const EMBED_ID = /^eZ(Object|Node)_(\d+)$/;
@@ -933,7 +934,7 @@ function charmapDialog( ctx ) {
     } );
 }
 
-// ---------------------------------------------------------------- source (read only)
+// ---------------------------------------------------------------- source
 
 const BLOCK_TAGS = /^(p|h[1-6]|ul|ol|li|table|tbody|thead|tfoot|tr|td|th|pre|div)$/;
 
@@ -984,16 +985,50 @@ export function formatSource( html ) {
     return out.join( '\n' );
 }
 
+/** Indents (or with outdent, outdents) the lines of a textarea's selection by two spaces; no selection: inserts two */
+export function indentSource( area, outdent ) {
+    const value = area.value, start = area.selectionStart, end = area.selectionEnd;
+    if ( !outdent && start === end ) {
+        area.setRangeText( '  ', start, end, 'end' );
+        return;
+    }
+    const from = value.lastIndexOf( '\n', start - 1 ) + 1;
+    const to = end > start && value[end - 1] === '\n' ? end - 1 : end;
+    const lines = value.slice( from, to ).split( '\n' );
+    const changed = lines.map( ( l ) => ( outdent ? l.replace( /^ {1,2}/, '' ) : '  ' + l ) );
+    const first = changed[0].length - lines[0].length;
+    area.setRangeText( changed.join( '\n' ), from, to, 'preserve' );
+    const delta = changed.join( '\n' ).length - lines.join( '\n' ).length;
+    area.setSelectionRange( Math.max( from, start + first ), Math.max( from, end + delta ) );
+}
+
+/** The text of one change sourceChanges() found */
+function sourceChangeText( t, change ) {
+    if ( change.type === 'paragraph' )
+        return t( '%1 becomes a paragraph' ).replace( '%1', change.tag );
+    if ( change.type === 'attribute' )
+        return t( 'Attribute %1 of %2 is removed or changed' ).replace( '%1', change.attribute ).replace( '%2', change.tag );
+    if ( change.type === 'text' )
+        return t( 'Text is removed: %1' ).replace( '%1', '\u201e' + change.text + '\u201c' );
+    return t( '%1 is removed' ).replace( '%1', change.tag );
+}
+
 /**
- * The source of the text, read only: the HTML of ezoe's dialect that the form posts (eZOEInputParser turns it into
- * the stored ezxmltext), one block per line. A copy button puts it on the clipboard.
+ * The source of the text: the HTML of ezoe's dialect that the form posts (eZOEInputParser turns it into the stored
+ * ezxmltext), one block per line, with a copy button. Editable unless exp_oe_tiptap.ini [EditorSettings]
+ * SourceEditable=disabled: Apply cleans the HTML as pasted HTML (source.js), lists what the schema would drop and
+ * asks before it does, then puts the document into the editor as one step of Undo.
  */
 function sourceDialog( ctx ) {
     const { t } = ctx;
     const html = ctx.instance.getHTML();
-    const area = h( 'textarea', { class: 'exp-oe-source-view', readonly: true, rows: 18, spellcheck: 'false', wrap: 'off' } );
+    const editable = ctx.options.sourceEditable !== false && !ctx.schema.isFallback && ctx.instance.isEditable();
+    const area = h( 'textarea', {
+        class: 'exp-oe-source-view', readonly: !editable, rows: 18, spellcheck: 'false', wrap: 'off',
+        autocapitalize: 'off', autocomplete: 'off', 'data-exp-oe-tab': editable ? 'insert' : null
+    } );
     area.value = formatSource( html );
-    const status = h( 'div', { class: 'exp-oe-hint', role: 'status', 'aria-live': 'polite' } );
+    const status = h( 'div', { class: 'exp-oe-hint exp-oe-source-status', role: 'status', 'aria-live': 'polite' } );
     const copy = () => {
         const done = () => { status.textContent = t( 'Copied to the clipboard.' ); };
         if ( navigator.clipboard && navigator.clipboard.writeText )
@@ -1002,12 +1037,92 @@ function sourceDialog( ctx ) {
         status.textContent = t( 'Select the text and copy it with Ctrl+C.' );
         return false;
     };
-    const dialog = open( ctx, {
-        title: t( 'Source' ), width: 720, className: 'exp-oe-source',
-        description: t( 'The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.' ),
-        body: [ field( t( 'HTML' ), area, t( '%n characters' ).replace( '%n', html.length ) ), status ],
-        buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Close' ), primary: true } ]
-    } );
+    const note = h( 'p', { class: 'exp-oe-source-note', text: t( 'HTML of the editor; what is stored is ezxmltext, which the server makes of it when the form is stored.' ) } );
+    let dialog;
+    if ( !editable ) {
+        dialog = open( ctx, {
+            title: t( 'Source' ), width: 720, className: 'exp-oe-source',
+            description: t( 'The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.' ),
+            body: [ note, field( t( 'HTML' ), area, t( '%n characters' ).replace( '%n', html.length ) ), status ],
+            buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Close' ), primary: true } ]
+        } );
+    } else {
+        const keysHint = () => ( area.getAttribute( 'data-exp-oe-tab' ) === 'insert'
+            ? t( 'Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.' )
+            : t( 'Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.' ) ) + ' ' + t( '%n characters' ).replace( '%n', area.value.length );
+        const wrap = h( 'input', { type: 'checkbox', class: 'exp-oe-source-wrap', onchange: () => {
+            area.setAttribute( 'wrap', wrap.checked ? 'soft' : 'off' );
+            area.classList.toggle( 'exp-oe-source-wrapped', wrap.checked );
+        } } );
+        const list = h( 'ul', { class: 'exp-oe-source-changes' } );
+        const warning = h( 'div', { class: 'exp-oe-source-warning', role: 'alert', hidden: true }, [
+            h( 'p', { text: t( 'The editor cannot keep all of it:' ) } ), list,
+            h( 'p', { text: t( 'Apply anyway takes the text as listed; or change the source.' ) } )
+        ] );
+        let confirmed = false, discard = false;
+        const initial = area.value;
+        // unapplied changes: the first Cancel (or Escape, or ×) asks, the second one discards them
+        const cancelSource = () => {
+            if ( area.value === initial || discard )
+                return true;
+            discard = true;
+            status.textContent = t( 'The changes are not applied. Cancel again (or Escape) to discard them.' );
+            area.focus();
+            return false;
+        };
+        const primaryButton = () => dialog && dialog.element.querySelector( '.exp-oe-dialog-footer .exp-oe-primary' );
+        const reset = () => {
+            if ( !confirmed && warning.hidden )
+                return;
+            confirmed = false;
+            warning.hidden = true;
+            if ( primaryButton() )
+                primaryButton().textContent = t( 'Apply' );
+        };
+        const sourceField = field( t( 'HTML' ), area, keysHint() );
+        const hintEl = sourceField.querySelector( '.exp-oe-hint' );
+        area.addEventListener( 'input', () => {
+            reset();
+            discard = false;
+            hintEl.textContent = keysHint();
+        } );
+        area.addEventListener( 'keydown', ( e ) => {
+            if ( e.key === 'm' || e.key === 'M' ) {
+                if ( !e.ctrlKey || e.altKey || e.metaKey || e.shiftKey )
+                    return;
+                e.preventDefault();
+                area.setAttribute( 'data-exp-oe-tab', area.getAttribute( 'data-exp-oe-tab' ) === 'insert' ? 'move' : 'insert' );
+                hintEl.textContent = keysHint();
+                status.textContent = area.getAttribute( 'data-exp-oe-tab' ) === 'insert' ? t( 'Tab indents.' ) : t( 'Tab moves the focus.' );
+            } else if ( e.key === 'Tab' && !e.ctrlKey && !e.altKey && !e.metaKey && area.getAttribute( 'data-exp-oe-tab' ) === 'insert' ) {
+                e.preventDefault();
+                indentSource( area, e.shiftKey );
+                area.dispatchEvent( new Event( 'input' ) );
+            }
+        } );
+        const apply = () => {
+            const read = readSource( area.value, ctx.instance );
+            if ( read.changes.length && !confirmed && !read.same ) {
+                clear( list );
+                for ( const change of read.changes )
+                    list.appendChild( h( 'li', { text: sourceChangeText( t, change ) } ) );
+                warning.hidden = false;
+                confirmed = true;
+                primaryButton().textContent = t( 'Apply anyway' );
+                if ( warning.scrollIntoView )
+                    warning.scrollIntoView( { block: 'nearest' } );
+                return false;
+            }
+            applySource( ctx.instance, read );
+            return true;
+        };
+        dialog = open( ctx, {
+            title: t( 'Source' ), width: 720, className: 'exp-oe-source exp-oe-source-editable',
+            description: t( 'Apply puts the changed HTML into the editor; Undo takes it back.' ),
+            body: [ note, sourceField, field( t( 'Wrap lines' ), wrap ), warning, status ],
+            buttons: [ { text: t( 'Copy' ), onClick: copy }, { text: t( 'Cancel' ), cancel: true, onClick: cancelSource }, { text: t( 'Apply' ), primary: true, onClick: apply } ]
+        } );
+    }
     // the focus is in the field: from its start, not scrolled to its end
     if ( dialog && area.setSelectionRange ) {
         area.setSelectionRange( 0, 0 );

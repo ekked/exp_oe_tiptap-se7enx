@@ -1580,10 +1580,6 @@
         <translation>Den Text markieren und mit Strg+C kopieren.</translation>
     </message>
     <message>
-        <source>Show the source of the text, read only: the HTML the editor posts, which the server stores as ezxmltext.</source>
-        <translation>Den Quelltext anzeigen, nur lesend: das HTML, das der Editor sendet und das der Server als ezxmltext speichert.</translation>
-    </message>
-    <message>
         <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
         <translation>Das HTML, das der Editor sendet; der Server speichert es als ezxmltext. Nur lesend: Änderungen im Editor vornehmen.</translation>
     </message>
@@ -1594,6 +1590,74 @@
     <message>
         <source>Insert non-breaking space (Ctrl+Shift+Space)</source>
         <translation>Geschütztes Leerzeichen einfügen (Strg+Umschalt+Leertaste)</translation>
+    </message>
+    <message>
+        <source>%1 becomes a paragraph</source>
+        <translation>%1 wird zu einem Absatz</translation>
+    </message>
+    <message>
+        <source>%1 is removed</source>
+        <translation>%1 wird entfernt</translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation>Übernehmen</translation>
+    </message>
+    <message>
+        <source>Apply anyway</source>
+        <translation>Trotzdem übernehmen</translation>
+    </message>
+    <message>
+        <source>Apply anyway takes the text as listed; or change the source.</source>
+        <translation>„Trotzdem übernehmen“ übernimmt den Text wie aufgeführt; oder Sie ändern die Quelle.</translation>
+    </message>
+    <message>
+        <source>Attribute %1 of %2 is removed or changed</source>
+        <translation>Attribut %1 von %2 wird entfernt oder geändert</translation>
+    </message>
+    <message>
+        <source>HTML of the editor; what is stored is ezxmltext, which the server makes of it when the form is stored.</source>
+        <translation>HTML des Editors; gespeichert wird ezxmltext, das der Server beim Speichern des Formulars daraus erzeugt.</translation>
+    </message>
+    <message>
+        <source>Show the source of the text: the HTML of the editor, which the server stores as ezxmltext. Where the site allows it, change it there and apply it (Undo takes it back).</source>
+        <translation>Den Quelltext anzeigen: das HTML des Editors, das der Server als ezxmltext speichert. Wo die Site es erlaubt, dort ändern und übernehmen (Rückgängig nimmt es zurück).</translation>
+    </message>
+    <message>
+        <source>Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.</source>
+        <translation>Tab rückt ein, Umschalt+Tab rückt aus; mit Strg+M wechselt Tab zum nächsten Element. Esc bricht ab.</translation>
+    </message>
+    <message>
+        <source>Tab indents.</source>
+        <translation>Tab rückt ein.</translation>
+    </message>
+    <message>
+        <source>Tab moves the focus.</source>
+        <translation>Tab wechselt zum nächsten Element.</translation>
+    </message>
+    <message>
+        <source>Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.</source>
+        <translation>Tab wechselt zum nächsten Element; mit Strg+M rückt Tab wieder ein. Esc bricht ab.</translation>
+    </message>
+    <message>
+        <source>Text is removed: %1</source>
+        <translation>Text wird entfernt: %1</translation>
+    </message>
+    <message>
+        <source>Apply puts the changed HTML into the editor; Undo takes it back.</source>
+        <translation>„Übernehmen“ setzt das geänderte HTML in den Editor; Rückgängig nimmt es zurück.</translation>
+    </message>
+    <message>
+        <source>The editor cannot keep all of it:</source>
+        <translation>Der Editor kann nicht alles davon behalten:</translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation>Zeilen umbrechen</translation>
+    </message>
+    <message>
+        <source>The changes are not applied. Cancel again (or Escape) to discard them.</source>
+        <translation>Die Änderungen sind nicht übernommen. Noch einmal Abbrechen (oder Esc) verwirft sie.</translation>
     </message>
 </context>
 <context>

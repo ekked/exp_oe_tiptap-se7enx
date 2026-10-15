@@ -53,7 +53,7 @@ export const BUTTON_HELP = {
     pastetext: 'Paste as text: while it is on, everything is pasted without formatting. Ctrl+Shift+V does it for one paste.',
     search: 'Find a word or text (Ctrl+F).',
     replace: 'Find a word or text and replace it, one by one or all at once.',
-    code: 'Show the source of the text, read only: the HTML the editor posts, which the server stores as ezxmltext.',
+    code: 'Show the source of the text: the HTML of the editor, which the server stores as ezxmltext. Where the site allows it, change it there and apply it (Undo takes it back).',
     fullscreen: 'Edit this text in the whole browser window. Press again to go back.',
     help: 'Open this help (Alt+0).',
     disable: 'Turn the editor off and edit the text as plain HTML in a text field.',

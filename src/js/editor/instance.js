@@ -40,7 +40,7 @@ export function normalizeOptions( options ) {
         buttons: null, pathLocation: 'bottom', pathOpenDialog: false, toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
-        urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] }, contextMenu: true,
+        urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] }, contextMenu: true, sourceEditable: true,
         i18n: {}, locale: '', height: 0
     }, options || {} );
     o.urls = Object.assign( { root: '/', ezoe: '/ezoe/', ezjscore: '/ezjscore/', contentEdit: '/content/edit', switch: '' }, o.urls || {} );

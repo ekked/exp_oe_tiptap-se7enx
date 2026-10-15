@@ -81,8 +81,20 @@ site; the page says so in its status column.
 
 ## Source
 
-Where the site has the toolbar's **Source** button, it shows the text as the HTML the editor sends with the form
-(the server turns it into the stored XML), read only, with a **Copy** button. Changes are made in the editor.
+Where the site has the toolbar's **Source** button, it shows the text as the HTML of the editor, the HTML it sends
+with the form (the server turns it into the stored ezxmltext XML when the form is stored), one block per line, with a
+**Copy** button.
+
+Unless the site has made it read only (`SourceEditable=disabled`), you can change the HTML there:
+
+- **Tab** indents the line (or the selected lines), **Shift+Tab** outdents. **Ctrl+M** makes Tab move the focus out
+  of the field instead (and back); **Escape** cancels (with changes not yet applied, the first Escape or
+  **Cancel** asks, the second discards them). **Wrap lines** switches line wrapping on and off.
+- **Apply** puts the HTML into the editor. It is cleaned as pasted HTML: scripts, styles, frames, event handlers and
+  unsafe links go. If the editor cannot keep all of it (a `<span style>`, a `<div>` that becomes a paragraph, an
+  unknown attribute), the dialog lists what changes and **Apply anyway** takes it as listed; change the HTML and
+  Apply asks again. White space and the order of attributes are no change.
+- One **Undo** (Ctrl+Z) takes the whole change back. **Cancel** leaves the text as it was.
 
 ## Help
 

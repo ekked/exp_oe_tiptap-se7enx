@@ -38,6 +38,13 @@ MinHeight=300
 # enabled (default) or disabled. The browser's own menu stays at hand with Ctrl+right click or a second right click.
 ContextMenu=enabled
 
+# The source view (toolbar button code) shows the HTML of the editor; the server makes the stored ezxmltext of it
+# when the form is stored. enabled (default): the HTML can be changed there; Apply cleans it as pasted HTML, lists
+# what the editor cannot keep and asks first, and Undo takes it back. disabled: the source view is read only.
+# Left undefined here on purpose, like Skin: an extension's own settings are read after a siteaccess's, so a value
+# here would hide every siteaccess's choice. Set it per siteaccess or in settings/override/.
+#SourceEditable=enabled
+
 
 [AISettings]
 # The AI commands of the editor (improve, shorten, ...). Off by default. When enabled, only users with the

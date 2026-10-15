@@ -1580,10 +1580,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Show the source of the text, read only: the HTML the editor posts, which the server stores as ezxmltext.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1593,6 +1589,74 @@
     </message>
     <message>
         <source>Insert non-breaking space (Ctrl+Shift+Space)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 becomes a paragraph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 is removed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply anyway</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply anyway takes the text as listed; or change the source.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Attribute %1 of %2 is removed or changed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTML of the editor; what is stored is ezxmltext, which the server makes of it when the form is stored.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the source of the text: the HTML of the editor, which the server stores as ezxmltext. Where the site allows it, change it there and apply it (Undo takes it back).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab indents, Shift+Tab outdents; Ctrl+M makes Tab move the focus. Escape cancels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab indents.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab moves the focus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Tab moves the focus; Ctrl+M makes it indent again. Escape cancels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Text is removed: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply puts the changed HTML into the editor; Undo takes it back.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The editor cannot keep all of it:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wrap lines</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The changes are not applied. Cancel again (or Escape) to discard them.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

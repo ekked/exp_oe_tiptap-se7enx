@@ -73,17 +73,39 @@ function sanitizeEditorHTML( root ) {
     for ( const el of elements( root ) ) {
         if ( !el.parentNode )
             continue;
-        if ( /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|FRAME|META|LINK|BASE|FORM)$/.test( el.nodeName ) ) {
+        if ( /^(SCRIPT|STYLE|IFRAME|OBJECT|EMBED|FRAME|FRAMESET|META|LINK|BASE|FORM|SVG|MATH|TEMPLATE|NOSCRIPT|APPLET)$/i.test( el.nodeName ) ) {
             el.parentNode.removeChild( el );
             continue;
         }
         for ( const a of Array.prototype.slice.call( el.attributes ) ) {
-            if ( /^on/i.test( a.name ) || ( /^(src|action|formaction|xlink:href)$/i.test( a.name ) && /^\s*(javascript|vbscript|data):/i.test( a.value.replace( /[\u0000-\u0020]+/g, '' ) ) ) )
+            if ( /^on/i.test( a.name ) || /^(srcdoc|formaction|action)$/i.test( a.name ) ||
+                 ( /^(src|xlink:href|poster|background|dynsrc|lowsrc)$/i.test( a.name ) && /^(javascript|vbscript|data):/i.test( a.value.replace( /[\u0000-\u0020\u007f-\u009f]+/g, '' ) ) ) ||
+                 ( a.name.toLowerCase() === 'href' && el.nodeName !== 'A' && !safeHref( a.value, true ) ) )
                 el.removeAttribute( a.name );
         }
         if ( el.nodeName === 'A' && el.hasAttribute( 'href' ) && !safeHref( el.getAttribute( 'href' ), true ) )
             unwrap( el );
     }
+}
+
+/** A document of its own that runs nothing and loads nothing: what is parsed there is never part of the page */
+export function inertDocument() {
+    return document.implementation.createHTMLDocument( '' );
+}
+
+/**
+ * The HTML typed in the source view, cleaned as pasted HTML of this editor: scripts, styles, frames, SVG and MathML
+ * go with their content, event handlers and script or data addresses go, an unsafe link becomes its text.
+ *
+ * @param {string}   html
+ * @param {Document} [doc] the inert document to parse it in
+ * @return {string}
+ */
+export function sanitizeSourceHTML( html, doc ) {
+    const box = ( doc || inertDocument() ).createElement( 'div' );
+    box.innerHTML = String( html || '' );
+    sanitizeEditorHTML( box );
+    return box.innerHTML;
 }
 
 function styleOf( el ) {
@@ -242,7 +264,7 @@ export function cleanPastedHTML( html ) {
     if ( !html )
         return html;
     // an inert document: nothing pasted is ever part of the page (an image would load, an onerror run)
-    const doc = document.implementation.createHTMLDocument( '' );
+    const doc = inertDocument();
     if ( isEditorHTML( html ) ) {
         doc.body.innerHTML = String( html );
         sanitizeEditorHTML( doc.body );
