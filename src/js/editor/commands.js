@@ -278,6 +278,16 @@ export function createCommands() {
             },
             active: ( ctx ) => !!ctx.instance.pasteAsText
         },
+        search: {
+            title: 'Find (Ctrl+F)', icon: 'search',
+            available: () => true,
+            run: ( ctx ) => ctx.instance.searchBar.open( false )
+        },
+        replace: {
+            title: 'Find and replace', icon: 'replace',
+            available: () => true,
+            run: ( ctx ) => ctx.instance.searchBar.open( true )
+        },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',
             available: () => true,

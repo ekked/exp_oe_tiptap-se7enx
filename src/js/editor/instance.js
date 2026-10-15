@@ -14,6 +14,8 @@ import { selectedAncestor } from './schema-utils.js';
 import { Toolbar } from '../ui/toolbar.js';
 import { FloatingMenus } from '../ui/floating-menus.js';
 import { ContextMenu } from '../ui/context-menu.js';
+import { SearchBar } from '../ui/search-bar.js';
+import { SearchExtension } from './search.js';
 import { StatusBar } from '../ui/statusbar.js';
 import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
@@ -76,6 +78,19 @@ function tinyMCEKeys( instance ) {
                 instance.runButton( 'help' );
                 return true;
             };
+            // find and replace (the search bar): Ctrl+F opens it, F3 / Shift+F3 move through the matches, Escape closes it
+            keys['Mod-f'] = () => {
+                instance.searchBar.open( false );
+                return true;
+            };
+            keys.F3 = () => instance.searchBar.isOpen() && ( instance.searchBar.go( 1 ), true );
+            keys['Shift-F3'] = () => instance.searchBar.isOpen() && ( instance.searchBar.go( -1 ), true );
+            keys.Escape = () => {
+                if ( !instance.searchBar.isOpen() )
+                    return false;
+                instance.searchBar.close( false );
+                return true;
+            };
             keys['Alt-F10'] = () => {
                 const first = instance.toolbar && instance.toolbar.element.querySelector( 'button:not([disabled]), select' );
                 if ( first )
@@ -120,7 +135,7 @@ export class ExpOETiptapInstance {
 
         // the editor
         this.pasteAsText = false;
-        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ), pasteExtension( this ) ],
+        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ), pasteExtension( this ), SearchExtension ],
                                       o.customTagControls ? [ customTagControls( this ) ] : [] );
         const content = this.schema.load( textarea.value, getSchema( extensions ) );
         const mount = h( 'div', { class: 'exp-oe-mount' } );
@@ -172,13 +187,14 @@ export class ExpOETiptapInstance {
         // the a4 skin works like Tiptap's own editors: a bubble menu over selected text and a "+" on empty lines
         this.floating = ( o.floatingMenus === undefined ? o.skin === 'a4' : !!o.floatingMenus ) ? new FloatingMenus( this.ctx, this.commands, resolved ) : null;
         this.statusbar = o.pathLocation === 'none' ? null : new StatusBar( this.ctx );
+        this.searchBar = new SearchBar( this.ctx );
 
         const parts = [];
         if ( this.statusbar && o.pathLocation === 'top' )
             parts.push( this.statusbar.element );
         if ( o.toolbarLocation !== 'bottom' )
             parts.push( this.toolbar.element );
-        parts.push( this.ai.element, this.contentArea );
+        parts.push( this.searchBar.element, this.ai.element, this.contentArea );
         if ( o.toolbarLocation === 'bottom' )
             parts.push( this.toolbar.element );
         if ( this.statusbar && o.pathLocation !== 'top' )
@@ -247,6 +263,8 @@ export class ExpOETiptapInstance {
             this.floating.update( this.editor.isFocused );
         if ( this.statusbar )
             this.statusbar.update();
+        if ( this.searchBar && this.searchBar.isOpen() )
+            this.searchBar.refresh();
     }
 
     statusInfo() {

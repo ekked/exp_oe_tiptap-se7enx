@@ -116,6 +116,8 @@
 .exp-oe-icon.mce_cell_props { background-position: -600px -20px; }
 .exp-oe-icon.mce_row_props { background-position: -780px -20px; }
 .exp-oe-icon.mce_pastetext { background-position: -360px -20px; }
+.exp-oe-icon.mce_search { background-position: -520px -20px; }
+.exp-oe-icon.mce_replace { background-position: -500px -20px; }
 .exp-oe-icon.mce_delete_table { background-position: -620px -20px; }
 .exp-oe-icon.mce_delete_col { background-position: -640px -20px; }
 .exp-oe-icon.mce_delete_row { background-position: -660px -20px; }
@@ -252,6 +254,26 @@
 }
 .exp-oe-fullscreen .exp-oe-content-area { flex: 1 1 auto; height: auto !important; }
 html.exp-oe-has-fullscreen, html.exp-oe-has-fullscreen body { overflow: hidden; }
+
+/* ---------- find and replace bar (ui/search-bar.js), grey like the toolbar; matches in the text */
+.exp-oe-searchbar { padding: 3px 4px; border-bottom: 1px solid #ccc; background: #f0f0ee; font: 11px Tahoma, Verdana, Arial, sans-serif; }
+.exp-oe-searchbar[hidden] { display: none; }
+.exp-oe-search-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 1px 0; }
+.exp-oe-search-label { min-width: 6em; }
+.exp-oe-search-find, .exp-oe-search-replace { flex: 1 1 12em; min-width: 8em; height: 20px; padding: 0 3px; border: 1px solid #b1b1b1; font: inherit; }
+.exp-oe-search-find[aria-invalid="true"] { background: #ffe0e0; }
+.exp-oe-search-button { height: 22px; padding: 0 8px; border: 1px solid #b1b1b1; background: #fff; font: inherit; cursor: pointer; }
+.exp-oe-search-button[disabled] { opacity: .5; cursor: default; }
+.exp-oe-search-icon-button { width: 24px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+.exp-oe-search-case { display: inline-flex; align-items: center; gap: 3px; white-space: nowrap; }
+.exp-oe-search-status { min-width: 6em; color: #444; }
+.exp-oe-search-close { margin-left: auto; }
+.exp-oe-icon.mce_search_prev, .exp-oe-icon.mce_search_next, .exp-oe-icon.mce_close { width: 16px; height: 16px; background: none; font: bold 11px/16px Tahoma, Verdana, sans-serif; color: #24477a; text-align: center; }
+.exp-oe-icon.mce_search_prev::before { content: "\25B2"; }
+.exp-oe-icon.mce_search_next::before { content: "\25BC"; }
+.exp-oe-icon.mce_close::before { content: "\00D7"; font-size: 15px; }
+.exp-oe-content .exp-oe-search-match { background: #ffef9e; }
+.exp-oe-content .exp-oe-search-current { background: #ffb64d; outline: 1px solid #c77700; }
 
 /* ---------- context menu (ui/context-menu.js), in the look of TinyMCE 3's o2k7 menus */
 .exp-oe-tiptap .exp-oe-context-menu {

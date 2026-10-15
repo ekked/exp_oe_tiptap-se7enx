@@ -1175,6 +1175,58 @@
         <source>Literal text properties</source>
         <translation>Eigenschaften des Literal-Texts</translation>
     </message>
+    <message>
+        <source>%1 of %2</source>
+        <translation>%1 von %2</translation>
+    </message>
+    <message>
+        <source>%n replaced</source>
+        <translation>%n ersetzt</translation>
+    </message>
+    <message>
+        <source>Find</source>
+        <translation>Suchen</translation>
+    </message>
+    <message>
+        <source>Find (Ctrl+F)</source>
+        <translation>Suchen (Strg+F)</translation>
+    </message>
+    <message>
+        <source>Find and replace</source>
+        <translation>Suchen und ersetzen</translation>
+    </message>
+    <message>
+        <source>Match case</source>
+        <translation>Groß-/Kleinschreibung beachten</translation>
+    </message>
+    <message>
+        <source>Next / previous match</source>
+        <translation>Nächster / vorheriger Treffer</translation>
+    </message>
+    <message>
+        <source>Next match (Enter)</source>
+        <translation>Nächster Treffer (Eingabe)</translation>
+    </message>
+    <message>
+        <source>No matches</source>
+        <translation>Keine Treffer</translation>
+    </message>
+    <message>
+        <source>Previous match (Shift+Enter)</source>
+        <translation>Vorheriger Treffer (Umschalt+Eingabe)</translation>
+    </message>
+    <message>
+        <source>Replace</source>
+        <translation>Ersetzen</translation>
+    </message>
+    <message>
+        <source>Replace all</source>
+        <translation>Alle ersetzen</translation>
+    </message>
+    <message>
+        <source>Replace with</source>
+        <translation>Ersetzen durch</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

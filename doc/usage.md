@@ -68,6 +68,11 @@ site; the page says so in its status column.
   properties, insert and delete rows and columns, merge and split cells, and the tag properties. The arrow keys move
   through it, Enter runs a command, Escape closes it. For the browser's own menu (spelling suggestions, copy as ...)
   hold Ctrl while right-clicking, or right-click a second time.
+- **Find and replace**: Ctrl+F in the text (or the toolbar's search buttons, where the site has them) opens a bar
+  under the toolbar with the selected word. The matches are marked, the number is shown; Enter and Shift+Enter (or
+  F3 and Shift+F3) go to the next and previous one, **Match case** distinguishes upper and lower case. **Replace**
+  replaces the marked match, **Replace all** every one at once (one Undo takes it back). Escape closes the bar. Ctrl+F
+  outside the text is the browser's search as always.
 - **Paste as text**: Ctrl+Shift+V pastes only the text, once; the toolbar's **Paste as text** (where the site has it)
   switches it on until you switch it off. A blank line starts a new paragraph, a single line break stays a line
   break.

@@ -36,6 +36,7 @@ ICONS = {
     'ai': 'lucide/sparkles', 'switch': 'lucide/arrow-left-right', 'plus': 'lucide/plus',
     'tag_props': 'lucide/tag', 'row_props': 'lucide/table-properties',
     'pastetext': 'lucide/clipboard-type',
+    'search': 'lucide/search', 'replace': 'lucide/replace', 'search_prev': 'lucide/chevron-up', 'search_next': 'lucide/chevron-down',
 }
 
 def svg_uri(path):

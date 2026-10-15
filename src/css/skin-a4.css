@@ -196,6 +196,52 @@
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button { width: auto; justify-content: flex-start; gap: 8px; padding: 0 10px 0 8px; }
 .exp-oe-tiptap .exp-oe-plus-menu .exp-oe-button::after { content: attr(aria-label); font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif); white-space: nowrap; }
 
+/* find and replace bar: a row of admin4 fields under the toolbar; the matches in admin4's accent */
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-searchbar {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--exp-oe-border);
+    background: var(--exp-oe-bar);
+    color: var(--exp-oe-text);
+    font: var(--a4-text-s, 13px) var(--a4-font, system-ui, sans-serif);
+}
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-row { gap: 6px; padding: 2px 0; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-label { min-width: 7.5em; font-weight: 600; }
+.exp-oe-tiptap.exp-oe-skin-a4 :is(.exp-oe-search-find, .exp-oe-search-replace) {
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid var(--a4-field-line, #8f96a3);
+    border-radius: var(--a4-radius-s, 9px);
+    background: var(--a4-field, #fff);
+    color: var(--exp-oe-text);
+}
+.exp-oe-tiptap.exp-oe-skin-a4 :is(.exp-oe-search-find, .exp-oe-search-replace):focus-visible { outline: 3px solid var(--a4-ring, rgba(242, 106, 33, .55)); outline-offset: 0; border-color: var(--a4-accent, #f26a21); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-find[aria-invalid="true"] { border-color: var(--a4-bad, #b91c1c); background: var(--a4-bad-bg, #fdecec); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-button {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--a4-line-strong, var(--exp-oe-border));
+    border-radius: var(--a4-radius-s, 9px);
+    background: var(--a4-card, #fff);
+    color: var(--exp-oe-text);
+    font: inherit;
+    font-weight: 600;
+}
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-button:hover:not([disabled]) { border-color: var(--a4-accent, #f26a21); color: var(--a4-accent-text, #c2410c); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-button:focus-visible { outline: 3px solid var(--a4-ring, rgba(242, 106, 33, .55)); outline-offset: 2px; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-icon-button { width: 32px; padding: 0; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-close { border-color: transparent; background: none; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-case input { width: 18px; height: 18px; margin: 0; accent-color: var(--a4-accent-strong, #c2410c); }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-status { color: var(--exp-oe-muted); font-variant-numeric: tabular-nums; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-match { background: var(--a4-warn-bg, #fff3c4); color: inherit; border-radius: 2px; }
+.exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-current { background: var(--a4-accent-soft, rgba(242, 106, 33, .28)); outline: 2px solid var(--a4-accent, #f26a21); }
+@media (max-width: 40rem) {
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-search-label { min-width: 100%; }
+}
+@media (forced-colors: active) {
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-match { background: Mark; color: MarkText; forced-color-adjust: none; }
+    .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-content .exp-oe-search-current { background: Highlight; color: HighlightText; }
+}
+
 /* context menu (ui/context-menu.js): a card like the floating menus, the label beside the icon */
 .exp-oe-tiptap.exp-oe-skin-a4 .exp-oe-context-menu {
     min-width: 220px;
