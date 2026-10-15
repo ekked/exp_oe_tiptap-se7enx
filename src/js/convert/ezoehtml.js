@@ -81,7 +81,7 @@ export function trimTrailingParagraphs( root ) {
     return root;
 }
 
-const TABLE_CONTAINER = /^(td|th|div)$/i;
+const TABLE_CONTAINER = /^(td|th|div|li)$/i;
 
 /** A block embed as the editor writes it (<div id="eZObject_1" ... class="ezoeItemNonEditable ...">) */
 function isBlockEmbed( node ) {
@@ -89,7 +89,7 @@ function isBlockEmbed( node ) {
 }
 
 /**
- * Writes every table of the document (and of a table cell or a block custom tag) in a paragraph of its own,
+ * Writes every table of the document (and of a table cell, a list item or a block custom tag) in a paragraph of its own,
  * <p><table>...</table></p>, as eZOEXMLInput::inputXML() writes it and TinyMCE posts it. eZOEInputParser puts blocks
  * that follow each other without a <p> into one ezxml paragraph: two tables in a row, or a table after a list, were
  * stored as one paragraph instead of two. prepareFromEzoe() takes the paragraph out again when the text is loaded.
@@ -106,8 +106,9 @@ export function wrapTables( root ) {
         if ( parent !== root && !( isElement( parent ) && TABLE_CONTAINER.test( parent.nodeName ) ) )
             return;
         let first = table;
-        if ( isElement( first.previousSibling, 'br' ) ) {
-            first = first.previousSibling;
+        const br = first.previousSibling;
+        if ( isElement( br, 'br' ) && isBlockEmbed( br.previousSibling ) ) {
+            first = br;
             while ( isBlockEmbed( first.previousSibling ) )
                 first = first.previousSibling;
         }

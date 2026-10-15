@@ -5,7 +5,7 @@
  * "Strg+Umschalt+V"), and every key binding of the editor uses Tiptap's "Mod-", which is Cmd on a Mac and Ctrl
  * elsewhere. On a Mac the texts would tell the user to press Ctrl+F, which types into the text there. formatKeys()
  * writes every shortcut of a text the way the platform does: on a Mac with the symbols of its menus in their order
- * (⌃⌥⇧⌘, "⇧⌘V"), elsewhere unchanged but for the names of the modifier keys in the user's language.
+ * (⌃⌥⇧⌘, "⇧⌘V", a word key after a thin space: "⇧⌘ Space"), elsewhere unchanged but for the names of the modifier keys in the user's language.
  *
  * "Ctrl" in a text means the key the binding's "Mod-" stands for. Where a text means the Control key itself (Ctrl+M
  * in the source view's field, Ctrl with a right click for the browser's own menu), formatKeys() is called with
@@ -53,7 +53,8 @@ export function formatKeys( text, options = {} ) {
             return before + list.map( ( m ) => name[m] ).join( '+' ) + '+' + key;
         }
         const symbols = MAC_ORDER.filter( ( m ) => list.indexOf( m ) !== -1 ).map( ( m ) => MAC_SYMBOL[m] ).join( '' );
-        return before + symbols + ( key.length === 1 ? key.toUpperCase() : key );
+        // a letter or F-key follows the symbols directly (⇧⌘V, ⇧F3); a word is set off by a thin space (⌃ right click)
+        return before + symbols + ( key.length === 1 ? key.toUpperCase() : /^F\d+$/.test( key ) ? key : '\u2009' + key );
     } );
 }
 

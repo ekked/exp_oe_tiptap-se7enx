@@ -71,15 +71,15 @@ test( 'formatKeys on a Mac: symbols in the order of the menus, Ctrl is Cmd unles
     assert.equal( mac( 'Ctrl+1 ... Ctrl+6' ), '⌘1 ... ⌘6' );
     assert.equal( mac( 'Help (Alt+0)' ), 'Help (⌥0)' );
     assert.equal( mac( 'Alt+Shift+E' ), '⌥⇧E' );
-    assert.equal( mac( 'Ctrl+Shift+Space' ), '⇧⌘Space' );
+    assert.equal( mac( 'Ctrl+Shift+Space' ), '⇧⌘\u2009Space' );
     assert.equal( mac( 'F3 / Shift+F3' ), 'F3 / ⇧F3' );
     assert.equal( mac( 'Copy it with Ctrl+c.' ), 'Copy it with ⌘C.' );
     // German texts
     assert.equal( mac( 'Als Text einfügen (Strg+Umschalt+V)' ), 'Als Text einfügen (⇧⌘V)' );
-    assert.equal( mac( 'Umschalt+Eingabe' ), '⇧Eingabe' );
+    assert.equal( mac( 'Umschalt+Eingabe' ), '⇧\u2009Eingabe' );
     // the Control key itself
     assert.equal( mac( 'Ctrl+M makes Tab move the focus.', { control: true } ), '⌃M makes Tab move the focus.' );
-    assert.equal( mac( 'Strg+Rechtsklick', { control: true } ), '⌃Rechtsklick' );
+    assert.equal( mac( 'Strg+Rechtsklick', { control: true } ), '⌃\u2009Rechtsklick' );
     // no shortcut, nothing changes
     assert.equal( mac( 'C++ and 1+1, Alt text' ), 'C++ and 1+1, Alt text' );
 } );
@@ -98,8 +98,9 @@ test( 'the translator formats every text it translates; t.keys only formats', ()
     assert.equal( pc( 'Undo (Ctrl+Z)' ), 'Undo (Strg+Z)', 'an untranslated text gets the translated modifier names' );
     assert.equal( mac( 'Use Ctrl+M.', null, { control: true } ), 'Use ⌃M.' );
     assert.equal( mac.keys( 'Ctrl+K' ), '⌘K' );
+    assert.equal( mac( 'Please fill in: %s', { '%s': 'Shift+Click' } ), 'Please fill in: Shift+Click', 'a replacement value is not a shortcut of the text' );
     assert.equal( K.shortcutLabel( 'Alt+Shift+Up / Down', pc ), 'Alt+Umschalt+Nach oben / Nach unten' );
-    assert.equal( K.shortcutLabel( 'Ctrl+Shift+Space', mac ), '⇧⌘Leertaste' );
+    assert.equal( K.shortcutLabel( 'Ctrl+Shift+Space', mac ), '⇧⌘\u2009Leertaste' );
     assert.equal( K.shortcutLabel( 'Escape', pc ), 'Esc' );
 } );
 
@@ -110,13 +111,13 @@ test( 'on a Mac: tooltips, the help\'s keyboard table and tips, the custom tag c
     inst.editor.commands.setTextSelection( 2 );
     const control = ( cls ) => inst.contentArea.querySelector( '.exp-oe-custom-tag-controls .exp-oe-custom-tag-' + cls ).getAttribute( 'title' );
     assert.equal( control( 'edit' ), 'Edit the custom tag (\u2325\u21E7E)' );
-    assert.equal( control( 'up' ), 'Move the custom tag up (\u2325\u21E7Up)' );
+    assert.equal( control( 'up' ), 'Move the custom tag up (\u2325\u21E7\u2009Up)' );
     const title = ( name ) => inst.toolbar.element.querySelector( '[data-exp-oe-button="' + name + '"]' ).getAttribute( 'title' );
     assert.equal( title( 'bold' ), 'Bold (⌘B)' );
     assert.equal( title( 'undo' ), 'Undo (⌘Z)' );
     assert.equal( title( 'pastetext' ), 'Paste as text (⇧⌘V)' );
     assert.equal( title( 'search' ), 'Find (⌘F)' );
-    assert.equal( title( 'nonbreaking' ), 'Insert non-breaking space (⇧⌘Space)' );
+    assert.equal( title( 'nonbreaking' ), 'Insert non-breaking space (⇧⌘\u2009Space)' );
     assert.equal( title( 'help' ), 'Help (⌥0)' );
 
     inst.runButton( 'help' );
@@ -127,7 +128,7 @@ test( 'on a Mac: tooltips, the help\'s keyboard table and tips, the custom tag c
     assert.ok( !keys.some( ( k ) => /Ctrl|Shift\+|Alt\+/.test( k ) ), keys.join( ' | ' ) );
     assert.ok( !/On a Mac/.test( dialog.textContent ), 'no hint to translate the keys in the head any more' );
     const tips = dialog.textContent;
-    assert.match( tips, /⌃right click for the browser's own menu/, 'the context menu tip names the Control key' );
+    assert.match( tips, /⌃\u2009right click for the browser's own menu/, 'the context menu tip names the Control key' );
     assert.match( tips, /⇧⌘V pastes the text only/ );
 } );
 

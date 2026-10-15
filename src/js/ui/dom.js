@@ -54,12 +54,13 @@ export function translator( i18n, platform ) {
     const names = { Ctrl: lookup( 'Ctrl' ), Shift: lookup( 'Shift' ), Alt: lookup( 'Alt' ) };
     const keys = ( text, options ) => formatKeys( text, { mac, names, control: !!( options && options.control ) } );
     const t = ( text, replacements, options ) => {
-        let s = lookup( text );
+        // the shortcuts of the text itself; replacement values (names, server messages) are left as they are
+        let s = keys( lookup( text ), options );
         if ( replacements ) {
             for ( const [ k, v ] of Object.entries( replacements ) )
                 s = s.split( k ).join( String( v ) );
         }
-        return keys( s, options );
+        return s;
     };
     t.keys = keys;
     t.mac = mac;

@@ -70,6 +70,11 @@ function inventory( root ) {
     const add = ( map, key ) => map.set( key, ( map.get( key ) || 0 ) + 1 );
     for ( const el of Array.prototype.slice.call( root.querySelectorAll( '*' ) ) ) {
         const tag = el.nodeName.toLowerCase();
+        // an empty paragraph (<p></p>, <p><br></p>) the editor leaves out at the end or around a table is no loss
+        if ( tag === 'p' && !el.attributes.length && !el.textContent.trim() && !el.querySelector( ':not(br)' ) )
+            continue;
+        if ( tag === 'br' && el.parentNode && el.parentNode.nodeName === 'P' && el.parentNode.childNodes.length === 1 && !el.parentNode.attributes.length )
+            continue;
         const name = ALIAS[tag] || tag;
         add( tags, name );
         if ( !names.has( name ) )

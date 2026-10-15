@@ -91,6 +91,13 @@ test( 'a table after the line of block embeds stays in the paragraph of that lin
     assert.equal( S.toEditorHTML( S.fromEditorHTML( asBrowser( inputXML( html ) ), { document } ), { document } ), html );
 } );
 
+test( 'a table in a list item is posted in a paragraph of its own; a <br> without embeds before a table stays out of it', () => {
+    const li = '<ul><li><p>item</p><p>' + TABLE + '</p></li></ul>';
+    assert.equal( S.toEditorHTML( S.fromEditorHTML( asBrowser( inputXML( li ) ), { document } ), { document } ), li );
+    const out = S.toEditorHTML( S.fromEditorHTML( '<p>a</p><br>' + TABLE, { document } ), { document } );
+    assert.ok( out.includes( '<br><p><table' ), out );
+} );
+
 test( 'the editor: the field gets no empty paragraphs when the text is changed, and the same ones on every switch', () => {
     const form = document.createElement( 'form' );
     document.body.appendChild( form );

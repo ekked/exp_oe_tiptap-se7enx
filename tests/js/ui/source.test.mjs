@@ -159,6 +159,15 @@ test( 'no warning when Apply would change nothing, even if the typed HTML has so
     assert.equal( inst.dirty, false );
 } );
 
+test( 'no warning for empty paragraphs the editor leaves out (at the end, around a table)', () => {
+    const inst = editor( '<p>a</p>' );
+    const s = openSource( inst );
+    s.type( '<p>a</p><p></p><p><table><tbody><tr><td><p>c</p></td></tr></tbody></table></p><p><br></p>' );
+    s.apply();
+    assert.equal( isOpen(), false, 'applied without asking' );
+    assert.equal( inst.getHTML(), '<p>a</p><p><table><tbody><tr><td><p>c</p></td></tr></tbody></table></p>' );
+} );
+
 test( 'Apply without a change changes nothing: every fixture stays byte for byte, without a warning', () => {
     for ( const file of readdirSync( fixtures ).filter( ( f ) => f.endsWith( '.html' ) ) ) {
         const original = readFileSync( resolve( fixtures, file ), 'utf8' ).trim();
