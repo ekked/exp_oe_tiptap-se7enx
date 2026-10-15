@@ -69,7 +69,8 @@ const patterns = [
     /\btitle:\s*'((?:[^'\\]|\\.)+)'/g,                 // button titles
     /\[\s*'[\w.+\/ ,-]*',\s*'((?:[^'\\]|\\.)+)'\s*\]/g, // [ value, 'label' ] lists (formats, languages, shortcuts)
     /\[\s*'((?:[^'\\]|\\.)+)',\s*\(\)\s*=>/g,          // [ 'label', () => ... ] action buttons
-    /^\s{4}\w+:\s*'((?:[^'\\]|\\.)+)',?$/gm            // COMMAND_LABELS entries
+    /^\s{4}\w+:\s*'((?:[^'\\]|\\.)+)',?$/gm,           // COMMAND_LABELS entries
+    /\b(?:mark|align|list|table)Button\(\s*'[^']*',\s*'((?:[^'\\]|\\.)+)'/g // titles given to the button factories
 ];
 for ( const dir of [ 'src/js/editor', 'src/js/ui', 'src/js/ai' ] ) {
     for ( const file of readdirSync( resolve( root, dir ) ).filter( ( f ) => f.endsWith( '.js' ) && f !== 'fallback-schema.js' ) ) {

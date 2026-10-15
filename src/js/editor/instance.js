@@ -12,6 +12,7 @@ import { schema as defaultSchema } from './schema-bridge.js';
 import { createCommands, resolveButtons, setBlockFormat } from './commands.js';
 import { selectedAncestor } from './schema-utils.js';
 import { Toolbar } from '../ui/toolbar.js';
+import { FloatingMenus } from '../ui/floating-menus.js';
 import { StatusBar } from '../ui/statusbar.js';
 import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
@@ -32,7 +33,7 @@ export const DEFAULT_BUTTONS = [
 export function normalizeOptions( options ) {
     const o = Object.assign( {
         attributeId: 0, contentObjectId: 0, version: 0, language: '', rows: 10,
-        buttons: null, pathLocation: 'bottom', toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', contentCss: [],
+        buttons: null, pathLocation: 'bottom', toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
         urls: {}, formToken: '', switchButtonName: '', disableButtonName: '', ai: { enabled: false, commands: [] },
@@ -107,8 +108,11 @@ export class ExpOETiptapInstance {
             class: 'exp-oe-tiptap exp-oe-skin-' + ( o.skin || 'o2k7' ) + ( o.skinVariant ? ' exp-oe-skin-' + o.skin + '-' + o.skinVariant : '' ),
             'data-attribute-id': o.attributeId || null
         } );
-        this.wrapper.style.setProperty( '--exp-oe-icons', 'url("' + o.urls.ezoeDesign + 'javascript/themes/ez/img/icons.png")' );
-        this.wrapper.style.setProperty( '--exp-oe-button-bg', 'url("' + o.urls.ezoeDesign + 'stylesheets/skins/o2k7/img/button_bg.png")' );
+        // the o2k7 look draws ezoe's sprite; the a4 skin has its own icons (skin-a4.css) and loads no o2k7 image
+        if ( o.skin !== 'a4' ) {
+            this.wrapper.style.setProperty( '--exp-oe-icons', 'url("' + o.urls.ezoeDesign + 'javascript/themes/ez/img/icons.png")' );
+            this.wrapper.style.setProperty( '--exp-oe-button-bg', 'url("' + o.urls.ezoeDesign + 'stylesheets/skins/o2k7/img/button_bg.png")' );
+        }
         const height = o.height || Math.max( 240, ( parseInt( o.rows, 10 ) || 10 ) * 24 );
         this.contentArea.style.height = height + 'px';
 
@@ -137,8 +141,17 @@ export class ExpOETiptapInstance {
                 this.sync();
             },
             onTransaction: () => this.updateUI(),
-            onFocus: () => this.wrapper.classList.add( 'exp-oe-focus' ),
-            onBlur: () => this.wrapper.classList.remove( 'exp-oe-focus' )
+            onFocus: () => {
+                this.wrapper.classList.add( 'exp-oe-focus' );
+                if ( this.floating )
+                    this.floating.update( true );
+            },
+            onBlur: () => {
+                this.wrapper.classList.remove( 'exp-oe-focus' );
+                // a click into a floating menu blurs the editor: let the focus land first
+                if ( this.floating )
+                    setTimeout( () => this.floating && this.floating.update( this.editor.isFocused ), 0 );
+            }
         } );
 
         // toolbar, AI panel, status bar
@@ -151,7 +164,10 @@ export class ExpOETiptapInstance {
         const names = o.buttons.slice();
         if ( o.ai.enabled && names.indexOf( 'ai' ) === -1 )
             names.push( '|', 'ai' );
-        this.toolbar = new Toolbar( this.ctx, this.commands, resolveButtons( names, this.commands, this.ctx ) );
+        const resolved = resolveButtons( names, this.commands, this.ctx );
+        this.toolbar = new Toolbar( this.ctx, this.commands, resolved );
+        // the a4 skin works like Tiptap's own editors: a bubble menu over selected text and a "+" on empty lines
+        this.floating = ( o.floatingMenus === undefined ? o.skin === 'a4' : !!o.floatingMenus ) ? new FloatingMenus( this.ctx, this.commands, resolved ) : null;
         this.statusbar = o.pathLocation === 'none' ? null : new StatusBar( this.ctx );
 
         const parts = [];
@@ -165,6 +181,10 @@ export class ExpOETiptapInstance {
         if ( this.statusbar && o.pathLocation !== 'top' )
             parts.push( this.statusbar.element );
         parts.forEach( ( p ) => this.wrapper.appendChild( p ) );
+        if ( this.floating ) {
+            this.contentArea.appendChild( this.floating.element );
+            this.floating.attach( ( target, type, fn, capture ) => this.listen( target, type, fn, capture ) );
+        }
         if ( this.schema.isFallback )
             this.wrapper.appendChild( h( 'div', { class: 'exp-oe-warning', role: 'note', text: t( 'Fallback schema: ezoe attributes, embeds and custom tags are not kept. Do not save.' ) } ) );
 
@@ -214,6 +234,8 @@ export class ExpOETiptapInstance {
     updateUI() {
         if ( this.toolbar )
             this.toolbar.update();
+        if ( this.floating && this.editor )
+            this.floating.update( this.editor.isFocused );
         if ( this.statusbar )
             this.statusbar.update();
     }

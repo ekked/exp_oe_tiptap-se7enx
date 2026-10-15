@@ -16,6 +16,20 @@
                 <version>3.31.4</version>
             </uses>
             <uses>
+                <name>Tiptap UI Components (icons)</name>
+                <license>MIT License</license>
+                <copyright>Copyright (c) 2025 Tiptap</copyright>
+                <info_url>https://github.com/ueberdosis/tiptap-ui-components</info_url>
+                <version>799929b</version>
+            </uses>
+            <uses>
+                <name>Lucide (icons)</name>
+                <license>ISC License</license>
+                <copyright>Copyright (c) Lucide Contributors 2022</copyright>
+                <info_url>https://lucide.dev/</info_url>
+                <version>0.468.0</version>
+            </uses>
+            <uses>
                 <name>ProseMirror</name>
                 <license>MIT License</license>
                 <copyright>Copyright (C) 2015-2025 by Marijn Haverbeke and others</copyright>

@@ -159,6 +159,17 @@ test( 'formatting is not split around a link inside it', () => {
     assertSameHTML( roundtrip( html ), html );
 } );
 
+test( 'a <br> between blocks stays a bare <br> (the <line> after block embeds), one in a paragraph a hard break', () => {
+    const embed = '<div id="eZObject_1" title="Object" alt="medium" view="embed" inline="false" class="ezoeItemNonEditable ezoeItemContentTypeObjects">ezembed</div>';
+    const html = embed + embed + '<br><table width="100%" border="0" class="default"><tbody><tr><td><p>Cell</p></td></tr></tbody></table>';
+    const out = roundtrip( html );
+    assert.ok( out.includes( embed + '<br><table' ), 'bare <br> kept between the embeds and the table: ' + out );
+    assert.ok( !out.includes( '<p><br></p><table' ), 'no empty paragraph instead of the <br>' );
+    assertSameHTML( roundtrip( '<p>one<br>two</p>' ), '<p>one<br>two</p>', 'a <br> in a paragraph is a hard break' );
+    assertSameHTML( roundtrip( '<table width="100%" border="0" class="default"><tbody><tr><td><p>a<br>b</p></td></tr></tbody></table>' ),
+        '<table width="100%" border="0" class="default"><tbody><tr><td><p>a<br>b</p></td></tr></tbody></table>', 'in a cell paragraph too' );
+} );
+
 test( 'customattributes helpers', () => {
     assert.deepEqual( S.parseCustomAttributes( 'a|1attribute_separationb|x|y' ), { a: '1', b: 'x|y' } );
     assert.equal( S.serializeCustomAttributes( { a: '1', b: 'x|y' } ), 'a|1attribute_separationb|x|y' );

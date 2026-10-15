@@ -32,6 +32,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Align center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align full</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Align right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Alignment</source>
         <translation type="unfinished"></translation>
     </message>
@@ -53,6 +69,10 @@
     </message>
     <message>
         <source>Bold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bold (Ctrl+B)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -112,6 +132,18 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Delete column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Delete table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Edit the custom tag</source>
         <translation type="unfinished"></translation>
     </message>
@@ -120,11 +152,39 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Insert column after</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert column before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert row after</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert row before</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Italic (Ctrl+I)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Merge table cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Move the custom tag down</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move the custom tag up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ordered list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -596,6 +656,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Split merged table cells</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Store draft</source>
         <translation type="unfinished"></translation>
     </message>
@@ -796,6 +860,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Underline (Ctrl+U)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Undo</source>
         <translation type="unfinished"></translation>
     </message>
@@ -813,6 +881,10 @@
     </message>
     <message>
         <source>Unlink</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unordered list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -861,6 +933,10 @@
     </message>
     <message>
         <source>whole document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Formatting</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
