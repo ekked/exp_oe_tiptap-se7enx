@@ -60,6 +60,7 @@ function expOETiptapStart( id, options )
      $image_sizes      = ezini( 'AliasSettings', 'AliasList', 'image.ini' )
      $view_modes       = ezini( 'embed', 'AvailableViewModes', 'content.ini' )|merge( ezini( 'embed-inline', 'AvailableViewModes', 'content.ini' ) )|unique
      $cur_locale       = fetch( 'content', 'locale' )
+     $text_locale      = fetch( 'content', 'locale', hash( 'locale_code', $attribute.language_code ) )
      $editor_id        = concat( $attribute_base, '_data_text_', $attribute.id )
      $switch_name      = ''
      $disable_name     = ''}
@@ -104,6 +105,8 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     contentObjectId: {$attribute.contentobject_id},
     version: {$attribute.version},
     language: {json_encode( $attribute.language_code )},
+    // the language tag of the text (BCP 47, e.g. en-GB) from its locale file, for the lang attribute of the text
+    contentLanguage: {json_encode( $text_locale.http_locale_code )},
     rows: {$editorRow},
     minHeight: {$exp_oe.min_height},
     // exp_oe_tiptap.ini [EditorSettings] ContextMenu
@@ -155,5 +158,5 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     locale: {json_encode( $cur_locale.http_locale_code )}
 {rdelim} );
 </script>
-{undef $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $editor_id $switch_name $disable_name}
+{undef $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $text_locale $editor_id $switch_name $disable_name}
 {/default}

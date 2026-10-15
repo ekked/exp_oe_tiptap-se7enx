@@ -319,3 +319,13 @@ test( 'the status bar keeps a space after "Path:", and "Editing with" gives way 
     // ezoe 6.0.15 names the engine in use in its switch (div.ezoe-engine-switch); an older ezoe has only buttons
     assert.match( text, /\.ezoe-engine-switch ~ \.exp-oe-switch-current \{ display: none; \}/ );
 } );
+
+test( 'the text carries the BCP 47 tag of its language as lang, never the locale code\'s first part', () => {
+    const tagged = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { language: 'ger-DE', contentLanguage: 'de-DE' } ) );
+    assert.equal( tagged.editor.view.dom.getAttribute( 'lang' ), 'de-DE' );
+    // no tag (an older template) or a locale code: no lang, the page's language applies
+    const untagged = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { language: 'eng-GB' } ) );
+    assert.equal( untagged.editor.view.dom.hasAttribute( 'lang' ), false );
+    const wrong = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { contentLanguage: 'eng_GB"' } ) );
+    assert.equal( wrong.editor.view.dom.hasAttribute( 'lang' ), false );
+} );

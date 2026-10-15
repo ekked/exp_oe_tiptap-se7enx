@@ -33,10 +33,24 @@ export const DEFAULT_BUTTONS = [
     'fullscreen', 'help', '|', 'disable'
 ];
 
+/**
+ * The lang attribute of the text: the BCP 47 tag of the text's language (options.contentLanguage, e.g. en-GB, from
+ * the locale file's [HTTP] ContentLanguage), so screen readers and spell checkers read it in its language. Until
+ * 0.1.3 it was the first part of the Exponential locale code (eng of eng-GB), which is no language tag. Without a
+ * tag of the BCP 47 form the attribute is left out and the page's language applies.
+ *
+ * @param {string} tag
+ * @returns {object} { lang } or {}
+ */
+export function contentLanguageAttribute( tag ) {
+    const value = String( tag || '' ).trim();
+    return /^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i.test( value ) ? { lang: value } : {};
+}
+
 /** Every key of the options contract (doc/plan.md section 5) with its default */
 export function normalizeOptions( options ) {
     const o = Object.assign( {
-        attributeId: 0, contentObjectId: 0, version: 0, language: '', rows: 10,
+        attributeId: 0, contentObjectId: 0, version: 0, language: '', contentLanguage: '', rows: 10,
         buttons: null, pathLocation: 'bottom', pathOpenDialog: false, toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
@@ -153,7 +167,7 @@ export class ExpOETiptapInstance {
                     'aria-multiline': 'true',
                     'aria-label': t( 'Rich text editor' ),
                     spellcheck: 'true',
-                    lang: o.language ? String( o.language ).split( '-' )[0] : ''
+                    ...contentLanguageAttribute( o.contentLanguage )
                 }
             },
             onUpdate: () => {
