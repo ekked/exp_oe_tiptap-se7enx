@@ -94,8 +94,9 @@ function isBlockEmbed( node ) {
  * that follow each other without a <p> into one ezxml paragraph: two tables in a row, or a table after a list, were
  * stored as one paragraph instead of two. prepareFromEzoe() takes the paragraph out again when the text is loaded.
  *
- * A table after a bare <br> (the <line> of block embeds, see BlockBreak in schema/nodes.js) shares the paragraph of
- * that line, as eZOEXMLInput wrote it: the embeds and the <br> go into the same <p>.
+ * A table after a bare <br> of a line of block embeds (the <line>, see BlockBreak in schema/nodes.js) is left as it
+ * is, without a <p>: eZOEInputParser already puts the embeds, the <br> and the table into one ezxml paragraph, and a
+ * block embed written inside a <p> would keep its "ezembed" placeholder as the text of the stored <embed>.
  *
  * @param {Element} root
  * @returns {Element} root
@@ -105,17 +106,11 @@ export function wrapTables( root ) {
         const parent = table.parentNode;
         if ( parent !== root && !( isElement( parent ) && TABLE_CONTAINER.test( parent.nodeName ) ) )
             return;
-        let first = table;
-        const br = first.previousSibling;
-        if ( isElement( br, 'br' ) && isBlockEmbed( br.previousSibling ) ) {
-            first = br;
-            while ( isBlockEmbed( first.previousSibling ) )
-                first = first.previousSibling;
-        }
+        const br = table.previousSibling;
+        if ( isElement( br, 'br' ) && isBlockEmbed( br.previousSibling ) )
+            return;
         const p = table.ownerDocument.createElement( 'p' );
-        parent.insertBefore( p, first );
-        while ( p.nextSibling !== table )
-            p.appendChild( p.nextSibling );
+        parent.insertBefore( p, table );
         p.appendChild( table );
     } );
     return root;

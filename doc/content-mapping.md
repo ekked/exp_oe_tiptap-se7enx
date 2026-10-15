@@ -83,8 +83,9 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   (`trimTrailingParagraphs()`: `validateInput()` and the parser drop them, so they are never stored).
 - A table is written in a paragraph of its own, `<p><table>...</table></p>`, as `inputXML()` writes it
   (`wrapTables()`): the parser puts blocks that follow each other without a `<p>` into one ezxml paragraph, so two
-  tables in a row would be stored as one paragraph. A table after the `<br>` of a line of block embeds goes into the
-  paragraph of that line.
+  tables in a row would be stored as one paragraph. A table after the `<br>` of a line of block embeds stays without a
+  `<p>`: the parser already stores the line and the table as one paragraph, and a block embed inside a `<p>` would
+  keep its `ezembed` placeholder as the text of the stored `<embed>`.
 - A list item with one paragraph and no attributes is written without the `<p>`.
 - The preview inside a `<div>`/`<span>` embed becomes the text `ezembed` (ezembed plugin, issue 18264).
 - The `ezoeAlign<align>` helper class is removed from image embeds (EZP-22487).

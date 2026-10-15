@@ -85,10 +85,17 @@ test( 'a fragment (a dialog\'s HTML) keeps its empty last paragraph', () => {
     assert.deepEqual( topLevelTypes( S.fromEditorHTML( '<p>a</p><p><br></p>', { document, fragment: true } ) ), [ 'paragraph', 'paragraph(empty)' ] );
 } );
 
-test( 'a table after the line of block embeds stays in the paragraph of that line', () => {
+test( 'a table after the line of block embeds is posted without a <p>, so no embed is written inside a paragraph', () => {
     const embed = '<div id="eZObject_1" title="Object" alt="medium" view="embed" inline="false" class="ezoeItemNonEditable ezoeItemContentTypeObjects">ezembed</div>';
-    const html = '<p>' + embed + embed + '<br>' + TABLE + '</p><p>After.</p>';
-    assert.equal( S.toEditorHTML( S.fromEditorHTML( asBrowser( inputXML( html ) ), { document } ), { document } ), html );
+    // inputXML() writes the line and the table in one <p>; eZOEInputParser stores the same paragraph from the
+    // unwrapped form, but would keep "ezembed" as the text of an <embed> written inside a <p>
+    const stored = '<p>' + embed + embed + '<br>' + TABLE + '</p><p>After.</p>';
+    const posted = embed + embed + '<br>' + TABLE + '<p>After.</p>';
+    let html = asBrowser( inputXML( stored ) );
+    for ( let pass = 0; pass < 3; pass++ ) {
+        html = S.toEditorHTML( S.fromEditorHTML( html, { document } ), { document } );
+        assert.equal( html, posted, 'pass ' + ( pass + 1 ) );
+    }
 } );
 
 test( 'a table in a list item is posted in a paragraph of its own; a <br> without embeds before a table stays out of it', () => {
