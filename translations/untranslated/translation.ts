@@ -1111,6 +1111,14 @@
         <source>This tag has no classes or custom attributes in content.ini.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Table row properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The attributes of the table row.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

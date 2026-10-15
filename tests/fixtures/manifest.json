@@ -661,6 +661,15 @@
                 "custom-attributes",
                 "style-map"
             ]
+        },
+        {
+            "name": "s066-row-attributes",
+            "source": "synthetic",
+            "features": [
+                "table-row-attributes",
+                "class",
+                "custom-attributes"
+            ]
         }
     ]
 }

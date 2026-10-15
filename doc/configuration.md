@@ -94,6 +94,7 @@ noted.
 | Button | Function | Also reachable |
 | --- | --- | --- |
 | `tag_props` | Tag properties: class and custom attributes of the paragraph, header, list, list item, strong or emphasize at the cursor (ezoe's `tag_general.tpl`, `tag_header.tpl`), from content.ini `[<tag>] AvailableClasses[]`, `ClassDescription[]`, `CustomAttributes[]` and ezoe_attributes.ini. Inside several of them the dialog lists them, innermost first. | a click on the tag in the status bar path (`TagPathOpenDialog=enabled`) |
+| `row_props` | Table row properties: class and custom attributes of the row at the cursor (content.ini `[tr]`), like ezoe's row dialog. TinyMCE 3's name and icon. | a click on `tr` in the status bar path |
 
 ## Preferences
 

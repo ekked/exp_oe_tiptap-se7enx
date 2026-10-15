@@ -18,7 +18,7 @@ const PATH_DIALOGS = {
     link: 'link', anchor: 'anchor', table: 'table', td: 'cell_props', th: 'cell_props', custom: 'custom',
     embed: 'object', 'embed-inline': 'object', literal: 'literal',
     paragraph: 'tag_props', header: 'tag_props', ul: 'tag_props', ol: 'tag_props', li: 'tag_props', strong: 'tag_props',
-    emphasize: 'tag_props'
+    emphasize: 'tag_props', tr: 'row_props'
 };
 
 function firstTag( type ) {

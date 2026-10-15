@@ -193,3 +193,51 @@ test( 'the style of mapped custom attributes is made like eZOEXMLInput does, oth
     assert.equal( styleWithCustomAttributes( '', { border_color: '#f00' }, map ), 'border-color: #f00;' );
     assert.equal( styleWithCustomAttributes( 'width: 3px', {}, map ), '' );
 } );
+
+// ---------------------------------------------------------------- table rows and cells
+
+const TABLE_OPTIONS = Object.assign( {}, OPTIONS, {
+    buttons: [ 'bold', '|', 'table', 'row_props', 'cell_props', '|', 'tag_props' ],
+    tableDefinitions: {
+        table: { classes: {}, attributes: [] },
+        tr: { classes: { highlight: 'Highlight', muted: 'Muted' }, attributes: [ attr( 'role' ) ] },
+        td: { classes: { num: 'Number' }, attributes: [ attr( 'valign' ) ] },
+        th: { classes: { num: 'Number' }, attributes: [ attr( 'scope' ) ] }
+    }
+} );
+const TABLE = '<table border="1"><tbody><tr><th><p>A</p></th><th><p>B</p></th></tr><tr><td><p>a1</p></td><td><p>b1</p></td></tr><tr><td><p>a2</p></td><td><p>b2</p></td></tr></tbody></table>';
+
+test( 'row_props: class and custom attributes of the row at the cursor (content.ini [tr]), disabled outside a table', () => {
+    const inst = X.init( textarea( '<p>before</p>' + TABLE ), TABLE_OPTIONS );
+    inst.editor.commands.setTextSelection( textPos( inst, 'before' ) );
+    inst.updateUI();
+    assert.equal( inst.toolbar.controls.row_props.disabled, true );
+    inst.editor.commands.setTextSelection( textPos( inst, 'b1' ) );
+    inst.updateUI();
+    assert.equal( inst.toolbar.controls.row_props.disabled, false );
+    inst.runButton( 'row_props' );
+    assert.deepEqual( Array.prototype.map.call( fieldOf( 'Class' ).options, ( o ) => o.value ), [ '', 'highlight', 'muted' ] );
+    change( fieldOf( 'Class' ), 'highlight' );
+    fieldOf( 'Role' ).value = 'data';
+    ok();
+    assert.match( inst.getHTML(), /<tr customattributes="role\|data" class="highlight"><td><p>a1<\/p><\/td><td><p>b1<\/p><\/td><\/tr>/ );
+    // removed again
+    inst.runButton( 'row_props' );
+    assert.equal( fieldOf( 'Class' ).value, 'highlight' );
+    change( fieldOf( 'Class' ), '' );
+    fieldOf( 'Role' ).value = '';
+    ok();
+    assert.match( inst.getHTML(), /<tr><td><p>a1<\/p><\/td>/ );
+} );
+
+test( 'a click on tr in the path opens the row dialog', () => {
+    const inst = X.init( textarea( TABLE ), TABLE_OPTIONS );
+    inst.editor.commands.setTextSelection( textPos( inst, 'a2' ) );
+    inst.updateUI();
+    const tr = Array.prototype.find.call( inst.statusbar.element.querySelectorAll( '.exp-oe-path-item' ), ( a ) => a.textContent === 'tr' );
+    tr.click();
+    assert.match( dialog().querySelector( '.exp-oe-dialog-heading' ).textContent, /row/ );
+    change( fieldOf( 'Class' ), 'muted' );
+    ok();
+    assert.match( inst.getHTML(), /<tr class="muted"><td><p>a2<\/p>/ );
+} );

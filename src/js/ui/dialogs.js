@@ -1,6 +1,6 @@
 /**
  * The ezoe dialogs for Tiptap: link, anchor, embed (image/object/file with search, browse, bookmarks
- * and upload), custom tag, table, table cell, literal, tag properties (class and custom attributes of paragraphs,
+ * and upload), custom tag, table, table row, table cell, literal, tag properties (class and custom attributes of paragraphs,
  * headings, lists and strong / emphasize), special characters and help.
  *
  * They call ezoe's own server side (ezoe-api.js) and produce the ezoe HTML dialect, exactly the
@@ -649,6 +649,36 @@ function cellPropertiesDialog( ctx ) {
     } );
 }
 
+/**
+ * The class and custom attributes of a table row (content.ini [tr]), like ezoe's row dialog. target: a status bar
+ * path item ({ node, pos } of the row).
+ */
+function rowPropertiesDialog( ctx, target ) {
+    const { t, options } = ctx;
+    const row = target && target.node && target.node.type.spec.tableRole === 'row' ? target
+        : selectedAncestor( ctx.editor, ( n ) => n.type.spec.tableRole === 'row' );
+    if ( !row )
+        return;
+    const def = ( options.tableDefinitions || {} ).tr || {};
+    const el = dialect( ctx, row.node );
+    const value = cleanClass( el && el.getAttribute( 'class' ) );
+    const cls = select( classOptionsWith( t, def.classes, value ), value );
+    cls.value = value;
+    const custom = attributeFields( t, def.attributes, parseCustomAttributes( el && el.getAttribute( 'customattributes' ) ) );
+    open( ctx, {
+        title: t( 'Table row properties' ), width: 420,
+        description: t( 'The attributes of the table row.' ),
+        body: [ field( t( 'Class' ), cls ) ].concat( custom.rows ),
+        buttons: [
+            { text: t( 'OK' ), primary: true, onClick: () => {
+                const values = custom.read();
+                return !el || applyAttrs( ctx, { node: row.node, pos: row.pos }, elementAttrs( ctx, row.node.type, el, cls.value, values ) );
+            } },
+            { text: t( 'Cancel' ), cancel: true }
+        ]
+    } );
+}
+
 // ---------------------------------------------------------------- literal
 
 /**
@@ -882,6 +912,7 @@ export function createDialogs() {
         customTag: customTagDialog,
         table: tableDialog,
         cellProperties: cellPropertiesDialog,
+        rowProperties: rowPropertiesDialog,
         literal: literalDialog,
         general: generalDialog,
         charmap: charmapDialog,

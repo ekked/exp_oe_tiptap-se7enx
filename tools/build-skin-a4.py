@@ -34,7 +34,7 @@ ICONS = {
     'merge_cells': 'lucide/table-cells-merge', 'split_cells': 'lucide/table-cells-split',
     'fullscreen': 'lucide/maximize', 'help': 'lucide/circle-help', 'store': 'lucide/save', 'publish': 'lucide/send',
     'ai': 'lucide/sparkles', 'switch': 'lucide/arrow-left-right', 'plus': 'lucide/plus',
-    'tag_props': 'lucide/tag',
+    'tag_props': 'lucide/tag', 'row_props': 'lucide/table-properties',
 }
 
 def svg_uri(path):

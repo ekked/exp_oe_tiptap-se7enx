@@ -1111,6 +1111,14 @@
         <source>This tag has no classes or custom attributes in content.ini.</source>
         <translation>Für dieses Tag sind in content.ini keine Klassen oder benutzerdefinierten Attribute eingerichtet.</translation>
     </message>
+    <message>
+        <source>Table row properties</source>
+        <translation>Eigenschaften der Tabellenzeile</translation>
+    </message>
+    <message>
+        <source>The attributes of the table row.</source>
+        <translation>Die Attribute der Tabellenzeile.</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

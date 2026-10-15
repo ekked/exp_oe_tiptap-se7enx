@@ -262,6 +262,12 @@ export function createCommands() {
             run: ( ctx, anchor, target ) => ctx.dialogs.general( ctx, target ),
             enabled: ( { editor } ) => generalTargets( editor ).length > 0
         },
+        row_props: {
+            title: 'Table row properties', icon: 'row_props', tableOnly: true,
+            available: ( { editor } ) => hasCommand( editor, 'insertTable' ),
+            run: ( ctx, anchor, target ) => ctx.dialogs.rowProperties( ctx, target ),
+            enabled: ( { editor } ) => !!selectedAncestor( editor, ( n ) => n.type.spec.tableRole === 'row' )
+        },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',
             available: () => true,
