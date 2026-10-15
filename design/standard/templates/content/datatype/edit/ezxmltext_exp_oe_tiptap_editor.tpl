@@ -63,7 +63,7 @@ function expOETiptapStart( id, options )
      $editor_id        = concat( $attribute_base, '_data_text_', $attribute.id )
      $switch_name      = ''
      $disable_name     = ''}
-{* The look of Tiptap: exp_oe_tiptap.ini [EditorSettings] Skin (a4 = admin4's look with Bootstrap Icons), else ezoe's
+{* The look of Tiptap: exp_oe_tiptap.ini [EditorSettings] Skin (a4 = admin4's look with Tiptap's own icons), else ezoe's
    Skin (o2k7, TinyMCE 3's look). The editor content CSS keeps ezoe's skin. *}
 {def $tiptap_skin = $skin}
 {if and( ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' ), ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )|ne( '' ) )}

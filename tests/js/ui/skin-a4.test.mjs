@@ -1,6 +1,6 @@
 /**
  * The a4 skin (node --test, happy-dom): its stylesheet uses no image of ezoe's o2k7 skin, every toolbar icon of the
- * o2k7 look has an icon (Tiptap's own, Lucide where Tiptap has none) with its licence shipped, the editor loads no sprite with Skin=a4, and the floating menus (bubble over a
+ * o2k7 look has an icon (Tiptap's own, Lucide where Tiptap has none) with its license shipped, the editor loads no sprite with Skin=a4, and the floating menus (bubble over a
  * selection, "+" on an empty line) run the toolbar's commands with the toolbar's names.
  *
  * @license GPL-2.0-or-later
@@ -62,7 +62,7 @@ test( 'every toolbar icon of the o2k7 look has an icon in the a4 skin', () => {
     assert.ok( a4.has( 'plus' ), 'the "+" of the insert menu' );
 } );
 
-test( 'the icon sources and their licences are shipped; the marks use Tiptap\'s own icons', () => {
+test( 'the icon sources and their licenses are shipped; the marks use Tiptap\'s own icons', () => {
     for ( const f of [ 'src/icons/NOTICE', 'src/icons/tiptap/LICENSE', 'src/icons/lucide/LICENSE', 'tools/build-skin-a4.py' ] )
         assert.ok( readFileSync( resolve( root, f ), 'utf8' ).length > 100, f );
     assert.match( css( 'src/icons/tiptap/LICENSE' ), /MIT License[\s\S]*Tiptap/ );

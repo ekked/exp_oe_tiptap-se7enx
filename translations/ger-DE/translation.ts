@@ -672,7 +672,7 @@
         <translation>Tiefgestellt</translation>
     </message>
     <message>
-        <source>Summarise</source>
+        <source>Summarize</source>
         <translation>Zusammenfassen</translation>
     </message>
     <message>

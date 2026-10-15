@@ -672,7 +672,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Summarise</source>
+        <source>Summarize</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

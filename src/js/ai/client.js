@@ -24,7 +24,7 @@ export const COMMAND_LABELS = {
     extend: 'Make longer',
     fix_spelling: 'Fix spelling and grammar',
     translate: 'Translate',
-    summarise: 'Summarise',
+    summarise: 'Summarize',
     continue: 'Continue writing'
 };
 

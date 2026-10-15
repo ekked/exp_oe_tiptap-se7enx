@@ -263,7 +263,7 @@ class expOETiptapEditor
         'Toggle fullscreen mode', 'Store draft (Ctrl+S)', 'Send for publishing', 'Discard draft', 'Help (Alt+0)',
         'Undo (Ctrl+Z)', 'Redo (Ctrl+Y)',
         'AI', 'AI assistant', 'Accept', 'Reject', 'Improve writing', 'Make shorter', 'Make longer', 'Fix spelling and grammar',
-        'Translate', 'Summarise', 'Continue writing',
+        'Translate', 'Summarize', 'Continue writing',
     );
 
     /**
