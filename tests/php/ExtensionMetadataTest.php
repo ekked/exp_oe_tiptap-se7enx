@@ -39,7 +39,7 @@ final class ExtensionMetadataTest extends TestCase
     {
         $version = exp_oe_tiptapInfo::info()['Version'];
         $this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+(\.\d+)?$/', $version );
-        $this->assertSame( '0.1.2', $version );
+        $this->assertSame( '0.1.3', $version );
     }
 
     public function testLicenceAndWebsite()
