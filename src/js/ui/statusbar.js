@@ -1,7 +1,7 @@
 /**
  * Status bar like ezoe's: "Path: paragraph » strong" with the ezxml tag names (and the friendly
- * names of ezoe.ini [EditorSettings] XmlTagNameAlias), a click on a path item selects it, and the
- * resize handle at the right that changes the editor height.
+ * names of ezoe.ini [EditorSettings] XmlTagNameAlias), a click on a path item selects it (and opens its dialog with
+ * TagPathOpenDialog), and the resize handle at the right that changes the editor height.
  */
 import { h, clear } from './dom.js';
 import { NodeSelection, TextSelection } from '@tiptap/pm/state';
@@ -11,6 +11,12 @@ const TAG_TO_XML = {
     u: 'custom', sub: 'custom', sup: 'custom', h1: 'header', h2: 'header', h3: 'header', h4: 'header',
     h5: 'header', h6: 'header', table: 'table', th: 'th', td: 'td', tr: 'tr', ul: 'ul', ol: 'ol', li: 'li',
     a: 'link'
+};
+
+/** The dialog a click on a path item opens (options.pathOpenDialog): ezxml name => button */
+const PATH_DIALOGS = {
+    link: 'link', anchor: 'anchor', table: 'table', td: 'cell_props', th: 'cell_props', custom: 'custom',
+    embed: 'object', 'embed-inline': 'object', literal: 'literal'
 };
 
 function firstTag( type ) {
@@ -82,6 +88,8 @@ export class StatusBar {
                 onclick: ( e ) => {
                     e.preventDefault();
                     this.select( item );
+                    if ( this.ctx.options.pathOpenDialog )
+                        this.openDialog( xml );
                 }
             } );
             if ( i )
@@ -107,6 +115,17 @@ export class StatusBar {
             tr.setSelection( NodeSelection.create( tr.doc, pos ) );
         editor.view.dispatch( tr );
         editor.view.focus();
+    }
+
+    /**
+     * ezoe.ini [EditorSettings] TagPathOpenDialog: a click on a path item also opens the dialog of that tag, for the
+     * tags the editor has a dialog for.
+     */
+    openDialog( xml ) {
+        const button = PATH_DIALOGS[xml], instance = this.ctx.instance;
+        const def = button && instance && instance.commands[button];
+        if ( def && ( !def.available || def.available( this.ctx ) ) )
+            instance.runButton( button );
     }
 
     startResize( e ) {

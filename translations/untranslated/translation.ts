@@ -939,6 +939,146 @@
         <source>Formatting</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>A name links can point to with #name.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Address and attributes of the link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cell type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a character to insert it at the cursor.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Convert to paragraph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Header cell</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert link</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Leave empty to remove the link.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Search, browse or upload the content to embed, then choose how it is shown.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Size and attributes of the new table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Special characters</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Starts with a letter; then letters, digits, -, _, : and . only.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Table properties</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The attributes of the literal text.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The attributes of the selected cell.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The attributes of the table.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The tag and its attributes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Turns the paragraph into literal text, shown as it is typed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Summary (WAI)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Caption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Scope</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Valign</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Abbr</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Row</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Top</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Middle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bottom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Baseline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Offset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Limit</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>
