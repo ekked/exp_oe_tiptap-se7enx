@@ -1,49 +1,57 @@
 #!/usr/bin/env python3
-"""Writes src/css/skin-a4.css: the toolbar icons of the a4 skin as Bootstrap Icons (MIT), embedded as data URIs.
+"""Writes src/css/skin-a4-icons.css: the icons of the a4 skin, embedded as data URIs (no request, no CDN).
 
-    python3 tools/build-skin-a4.py <bootstrap-icons package dir>
+    python3 tools/build-skin-a4.py
 
-The map below names the Bootstrap Icon of every toolbar button (the mce_<name> classes of the o2k7 look).
+Sources, shipped in the package with their licences:
+  src/icons/tiptap/  Tiptap's own editor icons (Tiptap UI Components, MIT, LICENSE beside them), taken from
+                     github.com/ueberdosis/tiptap-ui-components apps/web/src/components/tiptap-icons (799929b)
+  src/icons/lucide/  Lucide icons (ISC, LICENSE beside them), lucide-static 0.468.0, for the functions Tiptap has
+                     no icon for; Tiptap's icons are drawn in Lucide's style (24px grid, 2px lines)
 """
-import sys, os, re, urllib.parse
+import os, re, urllib.parse
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ICONS = {
-    'bold': 'type-bold', 'italic': 'type-italic', 'underline': 'type-underline',
-    'sub': 'subscript', 'sup': 'superscript', 'removeformat': 'eraser',
-    'justifyleft': 'text-left', 'justifycenter': 'text-center', 'justifyright': 'text-right', 'justifyfull': 'justify',
-    'bullist': 'list-ul', 'numlist': 'list-ol', 'indent': 'text-indent-left', 'outdent': 'text-indent-right',
-    'undo': 'arrow-counterclockwise', 'redo': 'arrow-clockwise',
-    'link': 'link-45deg', 'unlink': 'scissors', 'anchor': 'bookmark',
-    'image': 'image', 'object': 'box', 'file': 'paperclip', 'charmap': 'alphabet',
-    'custom': 'braces', 'literal': 'code', 'pagebreak': 'file-break',
-    'table': 'table', 'cell_props': 'sliders', 'delete_table': 'x-square',
-    'delete_col': 'dash-square-dotted', 'delete_row': 'dash-square',
-    'col_before': 'arrow-bar-left', 'col_after': 'arrow-bar-right',
-    'row_before': 'arrow-bar-up', 'row_after': 'arrow-bar-down',
-    'merge_cells': 'union', 'split_cells': 'exclude',
-    'fullscreen': 'arrows-fullscreen', 'help': 'question-circle',
-    'disable': 'x-circle', 'discard': 'trash', 'store': 'floppy', 'publish': 'send',
-    'ai': 'stars', 'switch': 'arrow-left-right', 'plus': 'plus-lg',
+    # Tiptap's own icons
+    'bold': 'tiptap/bold-icon', 'italic': 'tiptap/italic-icon', 'underline': 'tiptap/underline-icon',
+    'sub': 'tiptap/subscript-icon', 'sup': 'tiptap/superscript-icon',
+    'justifyleft': 'tiptap/align-left-icon', 'justifycenter': 'tiptap/align-center-icon',
+    'justifyright': 'tiptap/align-right-icon', 'justifyfull': 'tiptap/align-justify-icon',
+    'bullist': 'tiptap/list-icon', 'numlist': 'tiptap/list-ordered-icon',
+    'undo': 'tiptap/undo2-icon', 'redo': 'tiptap/redo2-icon',
+    'link': 'tiptap/link-icon', 'image': 'tiptap/image-plus-icon', 'literal': 'tiptap/code-block-icon',
+    'disable': 'tiptap/ban-icon', 'discard': 'tiptap/trash-icon',
+    # Lucide, the style Tiptap's icons follow, where Tiptap has none
+    'removeformat': 'lucide/remove-formatting', 'indent': 'lucide/indent-increase', 'outdent': 'lucide/indent-decrease',
+    'unlink': 'lucide/unlink', 'anchor': 'lucide/anchor', 'object': 'lucide/box', 'file': 'lucide/paperclip',
+    'charmap': 'lucide/omega', 'custom': 'lucide/braces', 'pagebreak': 'lucide/separator-horizontal',
+    'table': 'lucide/table', 'cell_props': 'lucide/settings-2', 'delete_table': 'lucide/grid-2x2-x',
+    'delete_col': 'lucide/columns-3', 'delete_row': 'lucide/rows-3',
+    'col_before': 'lucide/between-vertical-start', 'col_after': 'lucide/between-vertical-end',
+    'row_before': 'lucide/between-horizontal-start', 'row_after': 'lucide/between-horizontal-end',
+    'merge_cells': 'lucide/table-cells-merge', 'split_cells': 'lucide/table-cells-split',
+    'fullscreen': 'lucide/maximize', 'help': 'lucide/circle-help', 'store': 'lucide/save', 'publish': 'lucide/send',
+    'ai': 'lucide/sparkles', 'switch': 'lucide/arrow-left-right', 'plus': 'lucide/plus',
 }
 
 def svg_uri(path):
-    svg = open(path, encoding='utf-8').read()
-    svg = re.sub(r'\s*class="[^"]*"', '', svg)
-    svg = re.sub(r'\s+', ' ', svg).strip()
-    return 'url("data:image/svg+xml,' + urllib.parse.quote(svg, safe=' =:/"\'<>') .replace('"', "'") + '")'
+    svg = open(path, encoding='utf-8').read().strip()
+    svg = re.sub(r'\s+', ' ', svg).replace('"', "'")
+    return 'url("data:image/svg+xml,' + urllib.parse.quote(svg, safe=" =:/'<>.,-") + '")'
 
-def main(pkg):
-    icons = os.path.join(pkg, 'icons')
-    version = re.search(r'"version":\s*"([^"]+)"', open(os.path.join(pkg, 'package.json')).read()).group(1)
+def main():
     out = ['/*',
-           ' * exp_oe_tiptap skin "a4" (skin-a4.css): the icons of the toolbar and the floating menus, Bootstrap Icons',
-           ' * drawn in the text colour through CSS masks. No image of ezoe\'s o2k7 skin.',
-           ' * Generated by tools/build-skin-a4.py from Bootstrap Icons %s (MIT License, Copyright (c) 2019-2024 The' % version,
-           ' * Bootstrap Authors, https://icons.getbootstrap.com/). Do not edit the icon rules by hand.',
+           ' * exp_oe_tiptap skin "a4" (skin-a4.css): the icons of the toolbar and the floating menus, drawn in the',
+           ' * text colour through CSS masks. Tiptap\'s own editor icons (Tiptap UI Components, MIT, Copyright (c) 2025',
+           ' * Tiptap) and, where Tiptap has none, Lucide icons in the same style (ISC, Copyright (c) Lucide Contributors);',
+           ' * the SVGs and both licences are in src/icons/. No image of ezoe\'s o2k7 skin.',
+           ' * Generated by tools/build-skin-a4.py. Do not edit by hand.',
            ' */', '']
     for name in sorted(ICONS):
-        out.append('.exp-oe-skin-a4 .exp-oe-icon.mce_%s { --exp-oe-a4-icon: %s; }' % (name, svg_uri(os.path.join(icons, ICONS[name] + '.svg'))))
-    open('src/css/skin-a4-icons.css', 'w').write('\n'.join(out) + '\n')
+        out.append('.exp-oe-skin-a4 .exp-oe-icon.mce_%s { --exp-oe-a4-icon: %s; }' % (name, svg_uri(os.path.join(ROOT, 'src/icons', ICONS[name] + '.svg'))))
+    open(os.path.join(ROOT, 'src/css/skin-a4-icons.css'), 'w').write('\n'.join(out) + '\n')
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main()

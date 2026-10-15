@@ -1,6 +1,6 @@
 /**
  * The a4 skin (node --test, happy-dom): its stylesheet uses no image of ezoe's o2k7 skin, every toolbar icon of the
- * o2k7 look has a Bootstrap Icon, the editor loads no sprite with Skin=a4, and the floating menus (bubble over a
+ * o2k7 look has an icon (Tiptap's own, Lucide where Tiptap has none) with its licence shipped, the editor loads no sprite with Skin=a4, and the floating menus (bubble over a
  * selection, "+" on an empty line) run the toolbar's commands with the toolbar's names.
  *
  * @license GPL-2.0-or-later
@@ -54,12 +54,22 @@ test( 'the a4 stylesheets reference no image of the o2k7 skin', () => {
     }
 } );
 
-test( 'every toolbar icon of the o2k7 look has a Bootstrap Icon in the a4 skin', () => {
+test( 'every toolbar icon of the o2k7 look has an icon in the a4 skin', () => {
     const o2k7 = new Set( [ ...css( 'src/css/exp_oe_tiptap.css' ).matchAll( /\.exp-oe-icon\.mce_(\w+)/g ) ].map( ( m ) => m[1] ) );
     const a4 = new Set( [ ...css( 'src/css/skin-a4-icons.css' ).matchAll( /\.exp-oe-icon\.mce_(\w+) \{ --exp-oe-a4-icon: url\("data:image\/svg\+xml,/g ) ].map( ( m ) => m[1] ) );
     const missing = [ ...o2k7 ].filter( ( n ) => !a4.has( n ) );
     assert.deepEqual( missing, [] );
     assert.ok( a4.has( 'plus' ), 'the "+" of the insert menu' );
+} );
+
+test( 'the icon sources and their licences are shipped; the marks use Tiptap\'s own icons', () => {
+    for ( const f of [ 'src/icons/NOTICE', 'src/icons/tiptap/LICENSE', 'src/icons/lucide/LICENSE', 'tools/build-skin-a4.py' ] )
+        assert.ok( readFileSync( resolve( root, f ), 'utf8' ).length > 100, f );
+    assert.match( css( 'src/icons/tiptap/LICENSE' ), /MIT License[\s\S]*Tiptap/ );
+    assert.match( css( 'src/icons/lucide/LICENSE' ), /ISC License/ );
+    const tool = css( 'tools/build-skin-a4.py' );
+    for ( const name of [ 'bold', 'italic', 'underline', 'link', 'bullist', 'numlist', 'undo', 'redo' ] )
+        assert.match( tool, new RegExp( "'" + name + "': 'tiptap/" ), name + ' uses Tiptap\'s icon' );
 } );
 
 test( 'with Skin=a4 the editor sets no sprite and has the a4 class; o2k7 keeps its sprite', () => {

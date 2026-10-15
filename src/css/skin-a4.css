@@ -3,8 +3,8 @@
  * buttons with thin separators, the paragraph/heading list as a dropdown, a bubble menu over selected text and a
  * "+" on empty lines (ui/floating-menus.js), roomy content typography in the manner of Tiptap's demos, one focus
  * ring around the whole editor. Colours, radius, fonts and the ring come from admin4's --a4-* tokens (light and
- * dark follow admin4), with neutral values where they are missing. Icons: Bootstrap Icons as CSS masks in the text
- * colour (skin-a4-icons.css); no image of ezoe's o2k7 skin is used.
+ * dark follow admin4), with neutral values where they are missing. Icons: Tiptap's own editor icons (Lucide where
+ * Tiptap has none) as CSS masks in the text colour (skin-a4-icons.css, sources and licences in src/icons/); no image of ezoe's o2k7 skin is used.
  * Selected with exp_oe_tiptap.ini [EditorSettings] Skin=a4; o2k7 stays the default.
  */
 @import "./skin-a4-icons.css";

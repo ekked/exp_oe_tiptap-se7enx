@@ -7,7 +7,7 @@
 
 [EditorSettings]
 # The look of the editor. Empty: ezoe's Skin (ezoe.ini [EditorSettings] Skin, o2k7 - TinyMCE 3's look with ezoe's
-# icons). a4: a Tiptap editor in admin4's look - flat toolbar with Bootstrap Icons, bubble menu over selected
+# icons). a4: a Tiptap editor in admin4's look - flat toolbar with Tiptap's icons, bubble menu over selected
 # text, "+" on empty lines, colours from admin4's tokens (light and dark). Set it per siteaccess.
 Skin=
 # Which editor a user gets is ezoe's choice since 0.1.1: Tiptap is the engine "tiptap" of ezoe's registry

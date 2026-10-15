@@ -16,11 +16,18 @@
                 <version>3.31.4</version>
             </uses>
             <uses>
-                <name>Bootstrap Icons</name>
+                <name>Tiptap UI Components (icons)</name>
                 <license>MIT License</license>
-                <copyright>Copyright (c) 2019-2024 The Bootstrap Authors</copyright>
-                <info_url>https://icons.getbootstrap.com/</info_url>
-                <version>1.13.1</version>
+                <copyright>Copyright (c) 2025 Tiptap</copyright>
+                <info_url>https://github.com/ueberdosis/tiptap-ui-components</info_url>
+                <version>799929b</version>
+            </uses>
+            <uses>
+                <name>Lucide (icons)</name>
+                <license>ISC License</license>
+                <copyright>Copyright (c) Lucide Contributors 2022</copyright>
+                <info_url>https://lucide.dev/</info_url>
+                <version>0.468.0</version>
             </uses>
             <uses>
                 <name>ProseMirror</name>
