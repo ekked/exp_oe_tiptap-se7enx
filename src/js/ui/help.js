@@ -34,6 +34,7 @@ export const BUTTON_HELP = {
     custom: 'Insert a custom tag, or edit the one at the cursor: select text first to put it into the tag, choose the tag and fill in its attributes.',
     literal: 'Literal text: shown exactly as it is typed, for code or preformatted text.',
     charmap: 'Insert a special character.',
+    nonbreaking: 'Insert a non-breaking space: the words on both sides stay on one line (Ctrl+Shift+Space).',
     pagebreak: 'Insert a page break (the custom tag "pagebreak").',
     table: 'Insert a table, or edit the table at the cursor: width, border, class and custom attributes.',
     delete_table: 'Delete the table at the cursor.',
@@ -94,7 +95,7 @@ export const SHORTCUTS = [
     [ 'Ctrl+B', 'Bold' ], [ 'Ctrl+I', 'Italic' ], [ 'Ctrl+U', 'Underline' ], [ 'Ctrl+Z', 'Undo' ], [ 'Ctrl+Y / Ctrl+Shift+Z', 'Redo' ],
     [ 'Ctrl+1 ... Ctrl+6', 'Heading 1 to 6' ], [ 'Ctrl+7', 'Paragraph' ], [ 'Ctrl+8, Ctrl+9', 'Literal text' ], [ 'Ctrl+K', 'Insert/edit link' ],
     [ 'Ctrl+S', 'Store draft' ], [ 'Ctrl+Shift+V', 'Paste as text' ], [ 'Ctrl+F', 'Find and replace' ], [ 'F3 / Shift+F3', 'Next / previous match' ],
-    [ 'Shift+Enter', 'Line break' ], [ 'Tab / Shift+Tab', 'Indent / outdent list item, next / previous table cell' ],
+    [ 'Shift+Enter', 'Line break' ], [ 'Ctrl+Shift+Space', 'Non-breaking space' ], [ 'Tab / Shift+Tab', 'Indent / outdent list item, next / previous table cell' ],
     [ 'Alt+0', 'Help' ], [ 'Alt+F10', 'Move to the toolbar' ], [ 'Shift+F10', 'Context menu' ], [ 'Escape', 'Close a menu, the search bar or a dialog' ]
 ];
 

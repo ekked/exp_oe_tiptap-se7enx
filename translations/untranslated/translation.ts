@@ -1587,6 +1587,14 @@
         <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Insert a non-breaking space: the words on both sides stay on one line (Ctrl+Shift+Space).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Insert non-breaking space (Ctrl+Shift+Space)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

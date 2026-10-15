@@ -1587,6 +1587,14 @@
         <source>The HTML the editor posts; the server stores it as ezxmltext. Read only: change the text in the editor.</source>
         <translation>Das HTML, das der Editor sendet; der Server speichert es als ezxmltext. Nur lesend: Änderungen im Editor vornehmen.</translation>
     </message>
+    <message>
+        <source>Insert a non-breaking space: the words on both sides stay on one line (Ctrl+Shift+Space).</source>
+        <translation>Ein geschütztes Leerzeichen einfügen: Die Wörter davor und danach bleiben in einer Zeile (Strg+Umschalt+Leertaste).</translation>
+    </message>
+    <message>
+        <source>Insert non-breaking space (Ctrl+Shift+Space)</source>
+        <translation>Geschütztes Leerzeichen einfügen (Strg+Umschalt+Leertaste)</translation>
+    </message>
 </context>
 <context>
     <name>design/standard/ezoe</name>

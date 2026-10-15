@@ -9,7 +9,7 @@
 import { Editor, Extension, getSchema } from '@tiptap/core';
 import { UndoRedo, Dropcursor, Gapcursor } from '@tiptap/extensions';
 import { schema as defaultSchema } from './schema-bridge.js';
-import { createCommands, resolveButtons, setBlockFormat } from './commands.js';
+import { createCommands, resolveButtons, setBlockFormat, insertNonBreakingSpace } from './commands.js';
 import { selectedAncestor } from './schema-utils.js';
 import { Toolbar } from '../ui/toolbar.js';
 import { FloatingMenus } from '../ui/floating-menus.js';
@@ -91,6 +91,8 @@ function tinyMCEKeys( instance ) {
                 instance.searchBar.close( false );
                 return true;
             };
+            // a non-breaking space, as TinyMCE's nonbreaking plugin (Ctrl+Shift+Space, on a Mac Cmd+Shift+Space too)
+            keys['Mod-Shift-Space'] = keys['Ctrl-Shift-Space'] = () => insertNonBreakingSpace( this.editor );
             keys['Alt-F10'] = () => {
                 const first = instance.toolbar && instance.toolbar.element.querySelector( 'button:not([disabled]), select' );
                 if ( first )

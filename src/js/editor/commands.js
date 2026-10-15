@@ -110,6 +110,16 @@ export function literalHasProperties( options ) {
     return Object.keys( def.classes || {} ).length > 0 || ( def.attributes || [] ).length > 0;
 }
 
+/** Inserts a non-breaking space at the cursor (ezxmltext keeps it as the character U+00A0) */
+export function insertNonBreakingSpace( editor ) {
+    return editor.chain().focus().command( ( { tr, state } ) => {
+        if ( !state.selection.$from.parent.inlineContent )
+            return false;
+        tr.insertText( '\u00a0', state.selection.from, state.selection.to );
+        return true;
+    } ).run();
+}
+
 /** Converts the current textblock to the format of <tag> (formatselect) */
 export function setBlockFormat( editor, tag ) {
     const found = nodeForTag( editor, tag );
@@ -292,6 +302,11 @@ export function createCommands() {
             title: 'Source', icon: 'code',
             available: () => true,
             run: ( ctx ) => ctx.dialogs.source( ctx )
+        },
+        nonbreaking: {
+            title: 'Insert non-breaking space (Ctrl+Shift+Space)', icon: 'nonbreaking',
+            available: () => true,
+            run: ( { editor } ) => insertNonBreakingSpace( editor )
         },
         removeformat: {
             title: 'Remove formatting', icon: 'removeformat',

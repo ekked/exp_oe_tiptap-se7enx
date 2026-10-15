@@ -37,7 +37,7 @@ ICONS = {
     'tag_props': 'lucide/tag', 'row_props': 'lucide/table-properties',
     'pastetext': 'lucide/clipboard-type',
     'search': 'lucide/search', 'replace': 'lucide/replace', 'search_prev': 'lucide/chevron-up', 'search_next': 'lucide/chevron-down',
-    'code': 'lucide/code-xml',
+    'code': 'lucide/code-xml', 'nonbreaking': 'lucide/space',
 }
 
 def svg_uri(path):

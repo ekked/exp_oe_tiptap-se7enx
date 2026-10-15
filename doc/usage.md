@@ -63,6 +63,8 @@ site; the page says so in its status column.
   (Word's bulleted and numbered paragraphs become real lists), tables, links, bold, italic, underline, sub- and
   superscript. Fonts, colours, Word's comments, header and footer, bookmarks and images of the clipboard are left out;
   the text of everything else stays. Text copied inside the editor keeps everything (embeds, custom tags, classes).
+- **Non-breaking space**: Ctrl+Shift+Space (or the toolbar button where the site has it) keeps two words on one
+  line, e.g. a number and its unit.
 - **Context menu**: a right click into the text, the context menu key or Shift+F10 shows the commands for what is
   at the cursor: edit or remove a link, edit an anchor, an embedded object or a custom tag, the table, row and cell
   properties, insert and delete rows and columns, merge and split cells, and the tag properties. The arrow keys move
