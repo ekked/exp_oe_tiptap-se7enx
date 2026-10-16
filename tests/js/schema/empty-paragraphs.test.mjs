@@ -98,6 +98,24 @@ test( 'a table after the line of block embeds is posted without a <p>, so no emb
     }
 } );
 
+test( 'block embeds in the cells of a table posted in a <p> lose the "ezembed" placeholder, so it never becomes the text of the <embed>', () => {
+    const embed = text => '<div id="eZObject_1" title="Object" alt="medium" view="embed" inline="false" align="center" class="ezoeItemNonEditable ezoeItemContentTypeObjects">' + text + '</div>';
+    // eZOEInputParser keeps "ezembed" as the text of the stored <embed> when the embed is the first thing in a cell of
+    // a table inside a <p>; an empty <div> becomes the same <embed> without text
+    const table = text => '<table width="100%" border="0" class="default"><tbody><tr><td width="49%">' + embed( text ) +
+        '</td><td><p>Some neutral text.</p></td><td width="49%">' + embed( text ) + '</td></tr></tbody></table>';
+    const posted = '<p>' + table( '' ) + '</p><p>After.</p>';
+    let html = '<p>' + table( '<div class="object-center">Preview</div>' ) + '</p><p>After.</p>';
+    for ( let pass = 0; pass < 3; pass++ ) {
+        html = S.toEditorHTML( S.fromEditorHTML( html, { document } ), { document } );
+        assert.equal( html, posted, 'pass ' + ( pass + 1 ) );
+    }
+    // the preview is kept for display (save: false), and an embed outside a table keeps its placeholder
+    const shown = S.toEditorHTML( S.fromEditorHTML( '<p>' + table( '<div class="object-center">Preview</div>' ) + '</p>', { document } ), { document, save: false } );
+    assert.ok( shown.includes( '>Preview</div></div>' ), shown );
+    assert.ok( S.toEditorHTML( S.fromEditorHTML( embed( 'x' ) + '<p>After.</p>', { document } ), { document } ).includes( '>ezembed</div>' ) );
+} );
+
 test( 'a table in a list item is posted in a paragraph of its own; a <br> without embeds before a table stays out of it', () => {
     const li = '<ul><li><p>item</p><p>' + TABLE + '</p></li></ul>';
     assert.equal( S.toEditorHTML( S.fromEditorHTML( asBrowser( inputXML( li ) ), { document } ), { document } ), li );
