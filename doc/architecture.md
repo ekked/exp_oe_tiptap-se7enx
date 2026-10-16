@@ -88,8 +88,12 @@ ezoe's `ezxmltext_ezoe.tpl` asks the input handler for `engine` (`expOEEditor::i
 includes the engine's template; for `tiptap` that is `ezxmltext_exp_oe_tiptap_editor.tpl`. It loads the bundle once
 per page, prints the textarea ezoe would print, the "Disable editor" button ezoe would print, ezoe's switch buttons
 (`ezxmltext_ezoe_engine_switch.tpl`) with the label "Editing with Tiptap" (hidden by `exp_oe_tiptap.css` next to
-ezoe's one-group switch of Exponential 6.0.15, `div.ezoe-engine-switch`, which names the engine in use), and calls
-`window.ExpOETiptap.init( textarea, options )`. The options (from INI and the engine config, the same data ezoe's
+ezoe's one-group switch of Exponential 6.0.15, `div.ezoe-engine-switch`, which names the engine in use), and the
+editor's options as JSON (`<script type="application/json" data-exp-oe-options-for="<textarea id>">`).
+`javascript/exp_oe_tiptap/exp_oe_tiptap_start.js`, loaded once per page with `defer`, parses each block and calls
+`window.ExpOETiptap.init( textarea, options )`; the page carries no inline script, so it runs under a Content
+Security Policy without `'unsafe-inline'` in `script-src` (Tiptap's core still adds one `<style>` element, so
+`style-src` needs `'unsafe-inline'` where the editor is used). The options (from INI and the engine config, the same data ezoe's
 TinyMCE 8 template uses) are listed in [plan.md](plan.md#5-contract-between-the-agents); the toolbar's switch item
 clicks the switch button to the site's TinyMCE (`switchButtonName`).
 

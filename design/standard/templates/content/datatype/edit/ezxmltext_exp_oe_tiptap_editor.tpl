@@ -2,8 +2,11 @@
    included by ezoe's ezxmltext_ezoe.tpl when the user's engine is tiptap. Its settings are the engine's config
    ($input_handler.engine.config, expOETiptapEditor::editorInfo()).
    The textarea holds the ezoe editor HTML ($input_handler.input_xml) and is posted back under the same name, so
-   eZOEInputParser turns it into ezxml exactly as for TinyMCE. window.ExpOETiptap.init( textarea, options ) (the
-   built bundle) replaces the textarea with the editor and writes the editor's HTML back into it before every submit.
+   eZOEInputParser turns it into ezxml exactly as for TinyMCE. The options of the editor follow the textarea as JSON
+   (<script type="application/json" data-exp-oe-options-for="<textarea id>">); javascript/exp_oe_tiptap/
+   exp_oe_tiptap_start.js (loaded once, with defer) calls window.ExpOETiptap.init( textarea, options ) (the built
+   bundle), which replaces the textarea with the editor and writes the editor's HTML back into it before every
+   submit. No inline script: the page runs under a Content Security Policy without 'unsafe-inline'.
    Below it come ezoe's "Disable editor" and ezoe's engine switch buttons, the same as under TinyMCE.
    The options are described in doc/plan.md section 5. *}
 {default attribute_base='ContentObjectAttribute'
@@ -25,32 +28,8 @@
 <script src="{concat( 'javascript/', $exp_oe_script )|ezdesign( 'no' )}" charset="utf-8"></script>
     {/foreach}
 {/if}
-<script type="text/javascript">
-{literal}
-// Starts Tiptap on one textarea once the bundle is there (it may be loaded at the end of the page with ezjscore).
-function expOETiptapStart( id, options )
-{
-    var start = function()
-    {
-        var textarea = document.getElementById( id );
-        if ( !textarea )
-            return;
-        if ( !window.ExpOETiptap || typeof window.ExpOETiptap.init !== 'function' )
-        {
-            // The plain textarea stays usable: it holds the editor HTML and is posted as it is
-            if ( window.console )
-                window.console.error( 'exp_oe_tiptap: the editor bundle is not loaded, editing ' + id + ' as plain text' );
-            return;
-        }
-        window.ExpOETiptap.init( textarea, options );
-    };
-    if ( window.ExpOETiptap || document.readyState !== 'loading' )
-        start();
-    else
-        document.addEventListener( 'DOMContentLoaded', start );
-}
-{/literal}
-</script>
+{* starts every editor of the page from its options block, once the page is parsed *}
+<script src="{'javascript/exp_oe_tiptap/exp_oe_tiptap_start.js'|ezdesign( 'no' )}" charset="utf-8" defer></script>
 {/run-once}
 
 {def $content_css_list = array()
@@ -99,66 +78,71 @@ function expOETiptapStart( id, options )
     <span class="exp-oe-switch-current">{'Editing with %editor'|i18n( 'extension/exp_oe_tiptap',, hash( '%editor', $exp_oe.label ) )|wash}</span>
 </div>
 
-<script type="text/javascript">
-expOETiptapStart( '{$editor_id}', {ldelim}
-    attributeId: {$attribute.id},
-    contentObjectId: {$attribute.contentobject_id},
-    version: {$attribute.version},
-    language: {json_encode( $attribute.language_code )},
-    // the language tag of the text (BCP 47, e.g. en-GB) from its locale file, for the lang attribute of the text
-    contentLanguage: {json_encode( $text_locale.http_locale_code )},
-    // 'rtl' for a text in a right-to-left content language (the locale file's TextDirection): dir="rtl" on the text
-    contentDirection: {json_encode( first_set( $text_locale.text_direction, 'ltr' ) )},
-    rows: {$editorRow},
-    minHeight: {$exp_oe.min_height},
-    // exp_oe_tiptap.ini [EditorSettings] ContextMenu
-    contextMenu: {cond( $exp_oe.context_menu, 'true', 'false' )},
-    // exp_oe_tiptap.ini [EditorSettings] SourceEditable
-    sourceEditable: {cond( $exp_oe.source_editable, 'true', 'false' )},
-    buttons: {json_encode( $layout_settings['buttons'] )},
-    pathLocation: {json_encode( $layout_settings['path_location'] )},
-    // ezoe.ini [EditorSettings] TagPathOpenDialog: a click on a tag of the path opens its dialog
-    pathOpenDialog: {cond( ezini( 'EditorSettings', 'TagPathOpenDialog', 'ezoe.ini' )|eq( 'enabled' ), 'true', 'false' )},
-    toolbarLocation: {json_encode( $layout_settings['toolbar_location'] )},
-    skin: {json_encode( $tiptap_skin )},
-    contentCss: {json_encode( ezcssfiles( $content_css_list, 3, true() ) )},
-    xmlTagAlias: {$input_handler.json_xml_tag_alias},
-    customTags: {json_encode( $input_handler.custom_tag_definitions )},
-    // ezoe.ini [EditorSettings] CustomTagControls: the bar on the focused custom tag, its shortcuts and the labels
-    customTagControls: {cond( $input_handler.custom_tag_controls_enabled, 'true', 'false' )},
-    literal: {json_encode( $input_handler.literal_definition )},
-    tableDefinitions: {json_encode( $input_handler.table_definitions )},
-    generalDefinitions: {json_encode( $input_handler.general_definitions )},
-    embedDefinitions: {json_encode( $input_handler.embed_definitions )},
-    linkClasses: {json_encode( $link_classes )},
-    linkViewModes: {json_encode( ezini( 'link', 'AvailableViewModes', 'content.ini' ) )},
-    customAttributeStyleMap: {json_encode( ezini( 'EditorSettings', 'CustomAttributeStyleMap', 'ezoe.ini',,true() ) )},
-    imageSizes: {json_encode( $image_sizes )},
-    viewModes: {json_encode( $view_modes )},
-    defaultSize: {json_encode( ezini( 'ImageSettings', 'DefaultEmbedAlias', 'content.ini' ) )},
-    uploadExtensions: {json_encode( $exp_oe.upload_extensions )},
-    uploadFromUrl: {json_encode( $exp_oe.upload_from_url )},
-    urls: {ldelim}
-        root: {'/'|ezroot},
-        ezoe: {'/ezoe/'|ezurl},
-        ezjscore: {'/ezjscore/'|ezurl},
-        contentEdit: {'/content/edit'|ezurl},
-        'switch': {'/ezoe/engine'|ezurl}
+{* The options of this editor, as JSON (doc/plan.md section 5): contentLanguage is the language tag of the text (BCP 47,
+   e.g. en-GB) from its locale file, for the lang attribute of the text; contentDirection 'rtl' for a text in a
+   right-to-left content language (the locale file's TextDirection); contextMenu and sourceEditable are
+   exp_oe_tiptap.ini [EditorSettings] ContextMenu and SourceEditable; pathOpenDialog is ezoe.ini [EditorSettings]
+   TagPathOpenDialog (a click on a tag of the path opens its dialog); customTagControls is ezoe.ini [EditorSettings]
+   CustomTagControls (the bar on the focused custom tag, its shortcuts and the labels); formToken is ezformtoken's
+   placeholder (its output filter puts the token in); i18n maps English texts
+   to their translation (context extension/exp_oe_tiptap), texts missing there stay English. Every value from the
+   installation goes through json_encode; the block is printed with < and > as \u003c and \u003e (in JSON they occur
+   only inside strings), because json_encode leaves "<!--" as it is and "<!--<script>" in a value would make the
+   browser read past this block's </script> and skip the scripts after it. *}
+{set-block variable=$exp_oe_options_json}
+{ldelim}
+    "attributeId": {$attribute.id|int},
+    "contentObjectId": {$attribute.contentobject_id|int},
+    "version": {$attribute.version|int},
+    "language": {json_encode( $attribute.language_code )},
+    "contentLanguage": {json_encode( $text_locale.http_locale_code )},
+    "contentDirection": {json_encode( first_set( $text_locale.text_direction, 'ltr' ) )},
+    "rows": {$editorRow|int},
+    "minHeight": {$exp_oe.min_height|int},
+    "contextMenu": {cond( $exp_oe.context_menu, 'true', 'false' )},
+    "sourceEditable": {cond( $exp_oe.source_editable, 'true', 'false' )},
+    "buttons": {json_encode( $layout_settings['buttons'] )},
+    "pathLocation": {json_encode( $layout_settings['path_location'] )},
+    "pathOpenDialog": {cond( ezini( 'EditorSettings', 'TagPathOpenDialog', 'ezoe.ini' )|eq( 'enabled' ), 'true', 'false' )},
+    "toolbarLocation": {json_encode( $layout_settings['toolbar_location'] )},
+    "skin": {json_encode( $tiptap_skin )},
+    "contentCss": {json_encode( ezcssfiles( $content_css_list, 3, true() ) )},
+    "xmlTagAlias": {$input_handler.json_xml_tag_alias},
+    "customTags": {json_encode( $input_handler.custom_tag_definitions )},
+    "customTagControls": {cond( $input_handler.custom_tag_controls_enabled, 'true', 'false' )},
+    "literal": {json_encode( $input_handler.literal_definition )},
+    "tableDefinitions": {json_encode( $input_handler.table_definitions )},
+    "generalDefinitions": {json_encode( $input_handler.general_definitions )},
+    "embedDefinitions": {json_encode( $input_handler.embed_definitions )},
+    "linkClasses": {json_encode( $link_classes )},
+    "linkViewModes": {json_encode( ezini( 'link', 'AvailableViewModes', 'content.ini' ) )},
+    "customAttributeStyleMap": {json_encode( ezini( 'EditorSettings', 'CustomAttributeStyleMap', 'ezoe.ini',,true() ) )},
+    "imageSizes": {json_encode( $image_sizes )},
+    "viewModes": {json_encode( $view_modes )},
+    "defaultSize": {json_encode( ezini( 'ImageSettings', 'DefaultEmbedAlias', 'content.ini' ) )},
+    "uploadExtensions": {json_encode( $exp_oe.upload_extensions )},
+    "uploadFromUrl": {json_encode( $exp_oe.upload_from_url )},
+    "urls": {ldelim}
+        "root": {json_encode( '/'|ezroot( 'no' ) )},
+        "ezoe": {json_encode( '/ezoe/'|ezurl( 'no' ) )},
+        "ezjscore": {json_encode( '/ezjscore/'|ezurl( 'no' ) )},
+        "contentEdit": {json_encode( '/content/edit'|ezurl( 'no' ) )},
+        "switch": {json_encode( '/ezoe/engine'|ezurl( 'no' ) )}
     {rdelim},
-    formToken: "@$ezxFormToken@",
-    switchButtonName: {json_encode( $switch_name )},
-    disableButtonName: {json_encode( $disable_name )},
-    ai: {ldelim}
-        enabled: {cond( $exp_oe.ai_enabled, 'true', 'false' )},
-        commands: {json_encode( cond( $exp_oe.ai_enabled, $exp_oe.ai_commands, array() ) )},
-        call: 'expoetiptap::ai'
+    "formToken": "@$ezxFormToken@",
+    "switchButtonName": {json_encode( $switch_name )},
+    "disableButtonName": {json_encode( $disable_name )},
+    "ai": {ldelim}
+        "enabled": {cond( $exp_oe.ai_enabled, 'true', 'false' )},
+        "commands": {json_encode( cond( $exp_oe.ai_enabled, $exp_oe.ai_commands, array() ) )},
+        "call": "expoetiptap::ai"
     {rdelim},
-    // English text => translation (context extension/exp_oe_tiptap); texts missing here stay English
-    i18n: {json_encode( $exp_oe.i18n )},
-    editorLabel: {json_encode( $exp_oe.label )},
-    otherEditorLabel: {json_encode( $exp_oe.other_label )},
-    locale: {json_encode( $cur_locale.http_locale_code )}
-{rdelim} );
-</script>
-{undef $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $text_locale $editor_id $switch_name $disable_name}
+    "i18n": {json_encode( $exp_oe.i18n )},
+    "editorLabel": {json_encode( $exp_oe.label )},
+    "otherEditorLabel": {json_encode( $exp_oe.other_label )},
+    "locale": {json_encode( $cur_locale.http_locale_code )}
+{rdelim}
+{/set-block}
+<script type="application/json" data-exp-oe-options-for="{$editor_id|wash}">{$exp_oe_options_json|explode( '<' )|implode( '\u003c' )|explode( '>' )|implode( '\u003e' )}</script>
+{undef $exp_oe_options_json $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $text_locale $editor_id $switch_name $disable_name}
 {/default}
