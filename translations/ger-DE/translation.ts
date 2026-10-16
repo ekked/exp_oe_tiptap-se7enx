@@ -820,6 +820,14 @@
         <translation>Der Editor für Ihren Benutzer wurde gespeichert.</translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation>Sie haben keinen Zugriff auf Exponential Intelligence.</translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation>Sie dürfen das Modell des KI-Assistenten nicht verwenden.</translation>
+    </message>
+    <message>
         <source>You are not allowed to edit this content.</source>
         <translation>Sie dürfen diesen Inhalt nicht bearbeiten.</translation>
     </message>

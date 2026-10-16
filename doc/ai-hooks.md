@@ -265,6 +265,10 @@ ExpaiModel=
   the model expai uses for the current user (the user's allowed choice, else expai's site default). An `ExpaiModel`
   expai does not know is a configuration error. Keys, endpoints and time limits are expai's; `Endpoint`, `ApiKey`,
   `Timeout` and `Temperature` of this extension do not apply.
+- **Permissions of expai:** the user needs expai's policy `expai/write` on top of `exp_oe_tiptap/ai`, and expai must
+  allow the model to the user (`expAiConfig::mayUseModel()`: the site default; with `AllowUserModelChoice` the models of
+  `ProvidersWithoutPolicy[]` and of the providers `expai/model_use` allows). This holds for `ExpaiModel` as for the
+  effective model: an `ExpaiModel` other than expai's site default needs model choice on and the user allowed to use it.
 - **Master switch and veto:** expai's `[AISettings] Enabled` and `DisabledSiteAccesses[]` are checked first, then the
   veto hook of expai (`[RequestVeto]` rules and the `expai/request/veto` listeners) with the purpose `tiptap:<command>`.
 - **Data policy:** the editor sends the edited field (`contentObjectId`, `version`, `attributeId`, `languageCode`). The

@@ -820,6 +820,14 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>You are not allowed to edit this content.</source>
         <translation type="unfinished"></translation>
     </message>

@@ -13,6 +13,10 @@
  *
  *  - model: [AISettings] ExpaiModel (an expai model alias, or a model id expai knows); empty: the model expai uses for
  *    the current user (the user's allowed choice, else the site default).
+ *  - expai's permissions: the user needs expai's policy expai/write (as for every request of expai's panel and field
+ *    actions; exp_oe_tiptap/ai alone does not spend expai's models), and may use the model only when expai allows it
+ *    to the user (expAiConfig::mayUseModel(): the site default, and with model choice on the models of
+ *    ProvidersWithoutPolicy[] and of the providers expai/model_use allows), for ExpaiModel as for the effective model.
  *  - expai's master switch ([AISettings] Enabled, DisabledSiteAccesses[] of expai.ini) is checked first, and expai's
  *    veto hook, limits and usage log apply to every request (expAiUsageRecorder, action tiptap:<command>).
  *  - expai's data policy decides for the content object of the edited field whether its text may go to the model's
@@ -102,7 +106,11 @@ class expOETiptapAIExpaiProvider implements expOETiptapAIProvider
             $off = expAiGate::switchedOff( $config );
             if ( $off !== '' )
                 throw new expAiException( $off, 'expai master switch' );
+            if ( !$this->hasExpaiPolicy() )
+                throw new expOETiptapAIException( 'You do not have access to Exponential Intelligence.', 'no policy expai/write' );
             $alias = $this->alias();
+            if ( !$this->mayUseModel( $config, $alias ) )
+                throw new expOETiptapAIException( 'You may not use the model of the AI assistant.', 'expai does not allow the model ' . preg_replace( '/[^\w.:-]/', '', $alias ) . ' to this user' );
             if ( class_exists( 'expAiWebBudget' ) )
                 expAiWebBudget::assertFits( $alias, 'field', $config );
             $provider = $this->providerFor( $config, $alias );
@@ -229,6 +237,24 @@ class expOETiptapAIExpaiProvider implements expOETiptapAIProvider
         if ( !$this->config )
             $this->config = expAiConfig::instance();
         return $this->config;
+    }
+
+    /** @return bool the current user has expai's policy expai/write (it has no limitations; any access counts) */
+    protected function hasExpaiPolicy()
+    {
+        if ( class_exists( 'expAiServerFunctions' ) && method_exists( 'expAiServerFunctions', 'hasPolicy' ) )
+            return (bool) expAiServerFunctions::hasPolicy( 'write' );
+        $user = eZUser::currentUser();
+        if ( !$user instanceof eZUser || !$user->isRegistered() )
+            return false;
+        $access = $user->hasAccessTo( 'expai', 'write' );
+        return isset( $access['accessWord'] ) && $access['accessWord'] !== 'no';
+    }
+
+    /** @return bool expai lets the current user use the model (expai/model_use, ProvidersWithoutPolicy[], model choice) */
+    protected function mayUseModel( expAiConfig $config, $alias )
+    {
+        return (bool) $config->mayUseModel( $alias );
     }
 
     /** @return string the model expai uses for the current user (the user's allowed choice, else the site default) */

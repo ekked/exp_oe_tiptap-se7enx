@@ -225,6 +225,48 @@ final class AIExpaiProviderTest extends TestCase
         $this->assertStringContainsString( 'provider=expai', implode( "\n", $this->logged ) );
     }
 
+    public function testWithoutExpaisPolicyNothingIsSent()
+    {
+        $provider = $this->provider( $this->config(), array(), $this->article() );
+        $provider->expaiPolicy = false;
+        $e = $this->refused( static function () use ( $provider ) { $provider->complete( 's', 'u', array( 'maxTokens' => 100 ) ); }, '/do not have access to Exponential Intelligence/' );
+        $this->assertStringContainsString( 'expai/write', $e->getLogDetail() );
+        $this->assertNull( $provider->recorded );
+        $this->assertSame( array(), AIExpaiProviderTestModel::$requests );
+    }
+
+    public function testOnlyModelsExpaiAllowsTheUser()
+    {
+        // a configured ExpaiModel the user may not use under expai's rules
+        $provider = $this->provider( $this->config(), array( 'ExpaiModel' => 'fake.large' ), $this->article() );
+        $provider->allowedModels = array( 'fake.small' );
+        $e = $this->refused( static function () use ( $provider ) { $provider->complete( 's', 'u', array( 'maxTokens' => 100 ) ); }, '/may not use the model/' );
+        $this->assertStringContainsString( 'fake.large', $e->getLogDetail() );
+        // the effective model is checked as well
+        $default = $this->provider( $this->config(), array(), $this->article() );
+        $default->allowedModels = array();
+        $this->refused( static function () use ( $default ) { $default->complete( 's', 'u', array( 'maxTokens' => 100 ) ); }, '/may not use the model/' );
+        $this->assertSame( array(), AIExpaiProviderTestModel::$requests );
+        // an allowed one goes out
+        AIExpaiProviderTestModel::$answers[] = array( 'content' => array( array( 'type' => 'text', 'text' => 'ok' ) ) );
+        $allowed = $this->provider( $this->config(), array( 'ExpaiModel' => 'fake.large' ), $this->article() );
+        $allowed->allowedModels = array( 'fake.small', 'fake.large' );
+        $this->assertSame( 'ok', $allowed->complete( 's', 'u', array( 'maxTokens' => 100 ) ) );
+    }
+
+    public function testTheRealProviderChecksExpaisPermissions()
+    {
+        $source = (string) file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/ai/expoetiptapaiexpaiprovider.php' );
+        $this->assertStringContainsString( "expAiServerFunctions::hasPolicy( 'write' )", $source );
+        $this->assertStringContainsString( '$config->mayUseModel( $alias )', $source );
+        $policy = strpos( $source, '$this->hasExpaiPolicy()' );
+        $model = strpos( $source, '$this->mayUseModel( $config, $alias )' );
+        $send = strpos( $source, '$recorder->send(' );
+        $this->assertNotFalse( $policy );
+        $this->assertLessThan( $send, $policy );
+        $this->assertLessThan( $send, $model );
+    }
+
     public function testTheRealProviderWrapsInExpaisUsageRecorder()
     {
         $source = (string) file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/ai/expoetiptapaiexpaiprovider.php' );
@@ -272,6 +314,22 @@ class AIExpaiProviderTestProvider extends expOETiptapAIExpaiProvider
     protected function contentObject()
     {
         return $this->object;
+    }
+
+    /** @var bool the user has expai/write */
+    public $expaiPolicy = true;
+
+    /** @var string[]|null the aliases expai allows the user (null: every model) */
+    public $allowedModels = null;
+
+    protected function hasExpaiPolicy()
+    {
+        return $this->expaiPolicy;
+    }
+
+    protected function mayUseModel( expAiConfig $config, $alias )
+    {
+        return $this->allowedModels === null || in_array( $alias, $this->allowedModels, true );
     }
 
     protected function mainNodeID( $object )
