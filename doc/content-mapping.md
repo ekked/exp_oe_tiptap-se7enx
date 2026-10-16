@@ -103,7 +103,7 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   pair therefore name the same target. The 22 alpha fixtures whose content was later brought into ezoe's dialect
   on alpha (lists, embeds and headers moved where ezoe keeps them, see below) were taken again from the repaired
   content, from the same objects, attributes and languages, so their names and manifest entries did not change.
-  The 16 `s*` fixtures are synthetic and cover what alpha's
+  The 18 `s*` fixtures are synthetic and cover what alpha's
   content does not use: anchors, literals, tables with th/colspan/rowspan/width/custom attributes, every kind of
   embed, block and inline custom tags, links to objects and nodes with target/title/id/view, classes and custom
   attributes of paragraphs, headers, lists, list items, strong and emphasize (`s065`, with a custom attribute of

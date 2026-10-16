@@ -103,6 +103,9 @@ npm test               # the schema and round-trip tests
 
 Commit the built files. Browsers reload them by themselves (the URL carries their file time).
 
+To **verify the bundle** of a checkout (that it is what `src/` builds), run `npm ci && npm run build` and check that
+`git status --short design/` lists nothing; see [doc/maintenance.md](doc/maintenance.md#verifying-the-bundle).
+
 ## 7. Enabling the AI commands (optional)
 
 1. Choose a provider ([doc/ai-hooks.md](doc/ai-hooks.md)). Content you send leaves your server unless the

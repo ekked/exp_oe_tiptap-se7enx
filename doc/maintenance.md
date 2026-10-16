@@ -18,6 +18,26 @@ files with `ezjscore-packer`).
 
 `node_modules/` stays inside the extension and is git-ignored.
 
+## Verifying the bundle
+
+The committed bundle must be what the committed source builds, so nobody ships code that is not in `src/`. The build
+is reproducible: esbuild's version is pinned in `package-lock.json`, and the output carries no time stamp, path or
+source map. To check a checkout:
+
+```bash
+cd extension/exp_oe_tiptap
+npm ci
+npm run build
+git status --short design/      # nothing: the bundle, the stylesheet and strings.json are byte-identical
+```
+
+Any line `M design/...` means the committed files and the source differ: either the source changed without a
+rebuild (commit the new build with it), or the build was made with other package versions (run `npm ci`, never
+`npm install`, before building). `npm run build:dev` writes a readable bundle with a source map; never commit it.
+Checked for 0.1.5 with Node.js 26.0.0, npm 11.16.0 and esbuild 0.28.2: the rebuilt
+`exp_oe_tiptap.js` (516745 bytes), `exp_oe_tiptap.css` (83238 bytes) and `strings.json` were byte-identical to the
+committed files (also after a change in `src/js/ai/`, rebuilt and committed together with it).
+
 ## Upgrading Tiptap
 
 1. Read Tiptap's changelog for every version between the pinned one and the target.
