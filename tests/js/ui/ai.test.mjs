@@ -64,6 +64,40 @@ test( 'client posts command, text, token and locale to expoetiptap::ai', async (
     assert.equal( calls[0].body.get( 'locale' ), 'de-DE' );
 } );
 
+test( 'client posts the edited field when it is known, and nothing that is not a positive number', async () => {
+    const calls = [];
+    const c = new AI.AIClient( { formToken: 'T', contentObjectId: 57, version: '3', attributeId: 812, languageCode: 'ger-DE' },
+        fakeFetch( { content: { text: 'x' } }, calls ) );
+    await c.run( { command: 'improve', text: 'Good.' } );
+    assert.equal( calls[0].body.get( 'contentObjectId' ), '57' );
+    assert.equal( calls[0].body.get( 'version' ), '3' );
+    assert.equal( calls[0].body.get( 'attributeId' ), '812' );
+    assert.equal( calls[0].body.get( 'languageCode' ), 'ger-DE' );
+    const d = new AI.AIClient( { contentObjectId: 'x', version: 0, attributeId: -4 }, fakeFetch( { content: { text: 'x' } }, calls ) );
+    await d.run( { command: 'improve', text: 'Good.' } );
+    for ( const name of [ 'contentObjectId', 'version', 'attributeId', 'languageCode' ] )
+        assert.equal( calls[1].body.has( name ), false, name );
+} );
+
+test( 'the panel passes the field of the editor options to the client', async () => {
+    const calls = [];
+    const t = document.createElement( 'textarea' );
+    t.name = 'ContentObjectAttribute_data_text_812';
+    t.value = '<p>Hello world</p>';
+    form.appendChild( t );
+    const inst = new M.ExpOETiptapInstance( t, {
+        buttons: [ 'bold' ], formToken: 'TOKEN', locale: 'en-GB', urls: { ezjscore: '/site/ezjscore/' },
+        attributeId: 812, contentObjectId: 57, version: 3, language: 'eng-GB',
+        ai: { enabled: true, commands: [ 'improve' ] }
+    }, { fetch: fakeFetch( { content: { text: 'Hello world', command: 'improve' } }, calls ) } );
+    await inst.ai.start( 'improve' );
+    await tick();
+    assert.equal( calls[0].body.get( 'contentObjectId' ), '57' );
+    assert.equal( calls[0].body.get( 'version' ), '3' );
+    assert.equal( calls[0].body.get( 'attributeId' ), '812' );
+    assert.equal( calls[0].body.get( 'languageCode' ), 'eng-GB' );
+} );
+
 test( 'client reports server errors, empty input and too long input', async () => {
     const calls = [];
     const c = new AI.AIClient( { maxInputLength: 10 }, fakeFetch( { error_text: 'AI is disabled', content: null }, calls ) );

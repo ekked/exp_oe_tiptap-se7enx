@@ -820,6 +820,22 @@
         <translation>Der Editor für Ihren Benutzer wurde gespeichert.</translation>
     </message>
     <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation>Sie dürfen diesen Inhalt nicht bearbeiten.</translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation>Das Feld gehört nicht zu diesem Inhalt.</translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation>Der Inhalt dieses Feldes wurde nicht gefunden.</translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation>Dieser Text kann nicht gesendet werden: Die Datenrichtlinie muss wissen, zu welchem Inhalt er gehört.</translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation>Das Formular-Token fehlt oder ist falsch: Laden Sie die Seite neu und versuchen Sie es erneut.</translation>
     </message>

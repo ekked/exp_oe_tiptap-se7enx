@@ -35,9 +35,10 @@ Read by the server function `expoetiptap::ai`; see [ai-hooks.md](ai-hooks.md) fo
 | Setting | Default | Meaning |
 | --- | --- | --- |
 | `Enabled` | `false` | `true` offers the AI commands to users with the policy `exp_oe_tiptap/ai`. |
-| `Provider` | `openai-compatible` | `openai-compatible` (OpenAI chat completions API: OpenAI, Azure OpenAI, Mistral, Ollama, vLLM ...), `anthropic` (Anthropic Messages API), `tiptap-cloud` (Tiptap's hosted service). |
+| `Provider` | `openai-compatible` | `openai-compatible` (OpenAI chat completions API: OpenAI, Azure OpenAI, Mistral, Ollama, vLLM ...), `anthropic` (Anthropic Messages API), `expai` (the models and rules of the extension expai, see [ai-hooks.md](ai-hooks.md#through-expai)), `custom` (`ProviderClass`), `tiptap-cloud` (Tiptap's hosted service). |
 | `Endpoint` | empty | The provider's API URL: https; plain http only to a loopback host (`127.0.0.0/8`, `::1`, `localhost`). |
 | `Model` | empty | The model name the provider expects. |
+| `ExpaiModel` | empty | `Provider=expai` only: the expai model; empty: the model expai uses for the user. |
 | `ApiKey` | empty | The API key. **Only in settings/override.** Never sent to the browser. |
 | `Timeout` | `30` | Seconds to wait for the provider. |
 | `MaxInputLength` | `20000` | Longest text in characters a command may send. |

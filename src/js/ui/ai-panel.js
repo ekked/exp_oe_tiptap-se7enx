@@ -63,7 +63,12 @@ export class AIPanel {
             formToken: ctx.options.formToken,
             call: ai.call || 'expoetiptap::ai',
             locale: ctx.options.locale,
-            maxInputLength: ai.maxInputLength || 20000
+            maxInputLength: ai.maxInputLength || 20000,
+            // the edited field: the server checks the access, a provider such as expai applies its data policy
+            contentObjectId: ctx.options.contentObjectId,
+            version: ctx.options.version,
+            attributeId: ctx.options.attributeId,
+            languageCode: ctx.options.language
         }, fetchImpl );
         this.menu = null;
         this.pending = null;

@@ -32,6 +32,9 @@ class expOETiptapAIService
     /** @var expOETiptapAIPrompts */
     protected $prompts;
 
+    /** @var array what the request is about (object_id, attribute_id, version, language), for providers that use it */
+    protected $requestContext = array();
+
     /**
      * @param array $settings [AISettings] values plus 'CommandPrompts' => array( id => prompt )
      * @param expOETiptapAIProvider|null $provider null to create it from the settings when needed
@@ -42,7 +45,7 @@ class expOETiptapAIService
         $this->settings = array_merge( array(
             'Enabled' => 'false', 'Provider' => 'openai-compatible', 'ProviderClass' => '', 'Endpoint' => '', 'Model' => '',
             'ApiKey' => '', 'Timeout' => 30, 'MaxInputLength' => 20000, 'MaxOutputTokens' => 2000, 'Temperature' => '',
-            'Commands' => array_keys( expOETiptapAIPrompts::$builtin ), 'CommandPrompts' => array(),
+            'Commands' => array_keys( expOETiptapAIPrompts::$builtin ), 'CommandPrompts' => array(), 'ExpaiModel' => '',
         ), $settings );
         $this->provider = $provider;
         $this->logger = $logger;
@@ -124,6 +127,17 @@ class expOETiptapAIService
     }
 
     /**
+     * What the request is about: the content object, attribute, version and language of the edited field, checked by
+     * the caller. A provider with a method setRequestContext() (expOETiptapAIExpaiProvider) receives it with the command.
+     *
+     * @param array $context object_id, attribute_id, version (int), language (string)
+     */
+    public function setRequestContext( array $context )
+    {
+        $this->requestContext = $context;
+    }
+
+    /**
      * Runs a command. Call checkRequest() first.
      *
      * @param string $command
@@ -162,6 +176,8 @@ class expOETiptapAIService
         try
         {
             $provider = $this->provider();
+            if ( method_exists( $provider, 'setRequestContext' ) )
+                $provider->setRequestContext( array( 'command' => $command ) + $this->requestContext );
             $model = $provider->modelName();
             $answer = expOETiptapAIPrompts::clean( $provider->complete( $system, $user, array( 'maxTokens' => $maxTokens, 'temperature' => $temperature ) ) );
         }
@@ -207,6 +223,11 @@ class expOETiptapAIService
                 return $this->provider = new expOETiptapAIOpenAIProvider( $this->settings );
             case 'anthropic':
                 return $this->provider = new expOETiptapAIAnthropicProvider( $this->settings );
+            case 'expai':
+                // Exponential Intelligence: its models, keys, master switch, veto hook, data policy, limits and usage log
+                if ( !expOETiptapAIExpaiProvider::available() )
+                    throw new expOETiptapAIException( 'The AI assistant is not configured correctly.', 'Provider=expai, but the extension expai is not active or not installed' );
+                return $this->provider = new expOETiptapAIExpaiProvider( $this->settings );
             case 'custom':
                 $class = (string) $this->settings['ProviderClass'];
                 if ( $class === '' || !preg_match( '/^[A-Za-z_][A-Za-z0-9_\\\\]*$/', $class ) || !class_exists( $class ) ||

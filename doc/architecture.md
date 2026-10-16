@@ -126,7 +126,8 @@ empty to the site default.
 The bundle calls `ezjscore/call/expoetiptap::ai` with the command and the selected text, as a small markup with
 placeholders for every item that is not text (`src/js/ai/structure.js`), checks the answer and rebuilds the content
 with the original items; the server function checks
-`[AISettings] Enabled`, the policy `exp_oe_tiptap/ai` and the form token, calls the configured provider and returns
+`[AISettings] Enabled`, the policy `exp_oe_tiptap/ai`, the form token and, when the request names it, the edit access
+to the edited field, calls the configured provider (or, with `Provider=expai`, expai with its rules) and returns
 the suggestion. The key stays on the server. Details: [ai-hooks.md](ai-hooks.md).
 
 ## What stays ezoe's

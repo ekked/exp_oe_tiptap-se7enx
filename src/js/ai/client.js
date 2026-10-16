@@ -13,6 +13,9 @@
  *   strict         1 for the second, stricter try after an answer that lost placeholders
  *   language       target language for translate (e.g. "de" or "German")
  *   locale         the editor's locale, the language to answer in for the other commands
+ *   contentObjectId, version, attributeId, languageCode
+ *                  the edited field, when known: the server checks that the user may edit it, and a provider that
+ *                  needs the content (Provider=expai: data policy, usage log) gets it
  * Response (ezjscore JSON): { error_text, content: { text, command, model } }
  */
 
@@ -50,7 +53,8 @@ function failure( text, replacements ) {
 
 export class AIClient {
     /**
-     * @param {Object} options { ezjscoreUrl, formToken, call ('expoetiptap::ai'), locale, maxInputLength }
+     * @param {Object} options { ezjscoreUrl, formToken, call ('expoetiptap::ai'), locale, maxInputLength,
+     *                          contentObjectId, version, attributeId, languageCode }
      * @param {Function} fetchImpl injectable fetch for tests
      */
     constructor( options, fetchImpl ) {
@@ -93,6 +97,12 @@ export class AIClient {
             body.append( 'strict', '1' );
         if ( o.locale )
             body.append( 'locale', o.locale );
+        for ( const name of [ 'contentObjectId', 'version', 'attributeId' ] ) {
+            if ( Number.isInteger( Number( o[name] ) ) && Number( o[name] ) > 0 )
+                body.append( name, String( Number( o[name] ) ) );
+        }
+        if ( o.languageCode )
+            body.append( 'languageCode', String( o.languageCode ) );
         const url = String( o.ezjscoreUrl || '/ezjscore/' ).replace( /\/?$/, '/' ) + 'call';
         return this.fetch( url, {
             method: 'POST',

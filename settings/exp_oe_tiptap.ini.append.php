@@ -55,6 +55,10 @@ Enabled=false
 # openai-compatible: any endpoint speaking the OpenAI chat completions API (OpenAI, Azure OpenAI, Mistral,
 #                    self-hosted servers such as Ollama or vLLM)
 # anthropic:         the Anthropic Messages API
+# expai:             Exponential Intelligence (the extension expai, which must be active): its models and keys, its
+#                    master switch, veto hook, data policy, limits and usage log; Endpoint, ApiKey, Timeout and
+#                    Temperature below do not apply
+# custom:            a class of your own named in ProviderClass (implements expOETiptapAIProvider)
 # tiptap-cloud:      Tiptap's hosted AI service (needs a Tiptap account; check its terms first)
 Provider=openai-compatible
 
@@ -65,6 +69,10 @@ Endpoint=
 
 # The model name the provider expects.
 Model=
+
+# Provider=expai only: the expai model (its alias, or a model id expai knows). Empty: the model expai uses for the
+# current user (the user's allowed choice, else expai's site default).
+ExpaiModel=
 
 # The API key. Put it ONLY in settings/override/exp_oe_tiptap.ini.append.php, never in a committed file.
 # It is never sent to the browser.

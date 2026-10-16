@@ -820,6 +820,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation type="unfinished"></translation>
     </message>
