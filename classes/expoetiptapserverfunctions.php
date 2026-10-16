@@ -21,9 +21,10 @@
  * else the session token of this extension the editor template renders (expOETiptapEditor::expectedToken()). The API
  * key never leaves the server.
  *
- * When the request names the edited field (contentObjectId, version, attributeId), the user must be allowed to edit
- * that object and the attribute must belong to it; the provider then knows the content (expai's data policy and usage
- * log use it, Provider=expai).
+ * When the request names the edited field (contentObjectId, version, attributeId, languageCode), it must be a draft
+ * of the current user that the user may edit (expOETiptapAIRequestContext, the check of the edit form); the provider
+ * then knows the content. With Provider=expai and expai's data policy active, the policy decides on the object of the
+ * edited field, so a request without it is refused here already. Refused requests are logged (no text, no token).
  */
 class expOETiptapServerFunctions extends ezjscServerFunctions
 {
@@ -34,16 +35,25 @@ class expOETiptapServerFunctions extends ezjscServerFunctions
      */
     public static function ai( $args )
     {
+        $service = expOETiptapAIService::fromINI();
         try
         {
-            $service = expOETiptapAIService::fromINI();
-            $service->checkRequest(
-                isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '',
-                self::givenToken(),
-                expOETiptapEditor::expectedToken(),
-                self::hasPolicy()
-            );
-            $service->setRequestContext( self::contentContext( self::requestIds( $_POST ) ) );
+            try
+            {
+                $service->checkRequest(
+                    isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '',
+                    self::givenToken(),
+                    expOETiptapEditor::expectedToken(),
+                    self::hasPolicy()
+                );
+                $requireObject = $service->providerName() === 'expai' && expOETiptapAIExpaiProvider::dataPolicyActive();
+                $service->setRequestContext( ( new expOETiptapAIRequestContext() )->check( self::requestIds( $_POST ), $requireObject ) );
+            }
+            catch ( expOETiptapAIException $e )
+            {
+                $service->logRefusal( $e->getLogDetail() );
+                throw $e;
+            }
             $post = static function ( $name )
             {
                 return isset( $_POST[$name] ) && is_string( $_POST[$name] ) ? $_POST[$name] : '';
@@ -68,44 +78,14 @@ class expOETiptapServerFunctions extends ezjscServerFunctions
     }
 
     /**
-     * The ids of the edited field in a request, as numbers (0 when missing or not a positive number).
+     * The ids of the edited field in a request (expOETiptapAIRequestContext::requestIds()).
      *
      * @param array $post
-     * @return array object_id, version, attribute_id (int), language (string, '' when missing or not a language code)
+     * @return array object_id, version, attribute_id, language
      */
     public static function requestIds( array $post )
     {
-        $id = static function ( $name ) use ( $post )
-        {
-            return isset( $post[$name] ) && is_string( $post[$name] ) && preg_match( '/^[1-9][0-9]{0,9}$/', $post[$name] ) ? (int) $post[$name] : 0;
-        };
-        $language = isset( $post['languageCode'] ) && is_string( $post['languageCode'] ) && preg_match( '/^[a-z]{2,3}-[A-Z]{2}$/', $post['languageCode'] )
-                  ? $post['languageCode'] : '';
-        return array( 'object_id' => $id( 'contentObjectId' ), 'version' => $id( 'version' ), 'attribute_id' => $id( 'attributeId' ), 'language' => $language );
-    }
-
-    /**
-     * Checks the edited field the request names: the user may edit the object, and the attribute (when named) is one
-     * of its attributes in that version.
-     *
-     * @param array $ids requestIds()
-     * @return array the ids for the provider; empty when the request names no object
-     * @throws expOETiptapAIException
-     */
-    protected static function contentContext( array $ids )
-    {
-        if ( $ids['object_id'] <= 0 )
-            return array();
-        $object = eZContentObject::fetch( $ids['object_id'] );
-        if ( !$object instanceof eZContentObject || !$object->canEdit( false, false, false, $ids['language'] !== '' ? $ids['language'] : false ) )
-            throw new expOETiptapAIException( 'You are not allowed to edit this content.', 'no edit access to the object of the request' );
-        if ( $ids['attribute_id'] > 0 )
-        {
-            $attribute = $ids['version'] > 0 ? eZContentObjectAttribute::fetch( $ids['attribute_id'], $ids['version'] ) : null;
-            if ( !$attribute instanceof eZContentObjectAttribute || (int) $attribute->attribute( 'contentobject_id' ) !== $ids['object_id'] )
-                throw new expOETiptapAIException( 'The field does not belong to this content.', 'attribute and object of the request do not match' );
-        }
-        return $ids;
+        return expOETiptapAIRequestContext::requestIds( $post );
     }
 
     /** @return bool the current user has the policy exp_oe_tiptap/ai (any limitation counts as yes) */

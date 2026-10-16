@@ -202,6 +202,7 @@ The class checks access itself; no `Functions[]`/ezjscore policy is needed on to
 | The command's instruction, the target language, the editor's locale | the provider | with the text |
 | The API key | the provider, as a header | with every call; never to the browser, never into a log |
 | Command, provider, model, input and output length, duration, technical reason | `var/log/exp_oe_tiptap_ai.log` and the debug output | only when a call fails |
+| Provider and technical reason of a refused request (switched off, no policy, form token, no access to the field) | the same log | when a request is refused |
 
 Not sent: the HTML, attributes, link URLs, object and node ids, image sources and sizes, custom attributes, the
 content of embedded objects, tables, literals and custom tags, the user's name or any other field of the form.
@@ -225,7 +226,7 @@ compatible endpoint keeps everything on the own infrastructure.
 - Provider errors reach the editor as fixed, translated-ready messages ("did not answer in time", "busy or over
   its limit", ...). The provider's own error text is never passed on (it may echo the request or the key).
 - Endpoints must be https without credentials (plain http only to `127.0.0.0/8`, `::1` and `localhost`, so neither the
-  text nor the key ever travels unencrypted over a network); redirects are not followed; the answer is limited to 2 MB;
+  text nor the key ever travels unencrypted over a network; requests to a loopback host never use a proxy); redirects are not followed; the answer is limited to 2 MB;
   only http and https protocols are allowed for curl.
 
 ## Adding a command
@@ -272,16 +273,20 @@ ExpaiModel=
 - **Master switch and veto:** expai's `[AISettings] Enabled` and `DisabledSiteAccesses[]` are checked first, then the
   veto hook of expai (`[RequestVeto]` rules and the `expai/request/veto` listeners) with the purpose `tiptap:<command>`.
 - **Data policy:** the editor sends the edited field (`contentObjectId`, `version`, `attributeId`, `languageCode`). The
-  server function checks that the user may edit that object and that the attribute belongs to it, and expai's data
-  policy (`[DataPolicy]` of expai.ini) decides whether the object's text may go to the model's provider. A request
-  without an object is refused while a data policy is configured (it cannot decide).
+  server function checks it as the edit form does (`expOETiptapAIRequestContext`): the version is a draft of the
+  current user, the user may edit the object in that language (`eZContentObject::editAccess()`, including the
+  `content/edit/access` listeners), the attribute belongs to the object, and the language is one of the site (an
+  invalid one is refused, not ignored). expai's data policy (`[DataPolicy]` of expai.ini) then decides on **the object
+  of the edited field** whether the text may go to the model's provider: the policy relies on that object, so while a
+  data policy is configured a request without it is refused already in the server function.
 - **Limits and usage log:** the request runs through `expAiUsageRecorder`: `[Limits]` of expai apply, and every
   request is a row of expai's usage log with the action `tiptap:<command>` (`tiptap:improve`, `tiptap:translate` ...)
   and the main node of the object.
 - **Request and answer:** the system prompt and the user message of this extension become expai's request (the
   Anthropic Messages shape: `system`, one user message, `max_tokens` = `MaxOutputTokens`); the text blocks of the answer
   are joined and the reasoning of reasoning models is removed (`expAiText::stripReasoning()`). The checks of the
-  answer (placeholders, links) are the same as with every other provider.
+  answer (placeholders, links) are the same as with every other provider. An answer cut off at the token limit
+  (`stop_reason` `max_tokens`) is refused with a message instead of replacing the text with half of it.
 - **Errors:** expai's messages (switched off, refused, over a limit, kept away by the data policy) reach the editor in
   expai's wording; the log line gets the class, the status and a short, cleaned detail.
 

@@ -436,7 +436,9 @@ class expOETiptapEditor
         if ( $session !== null )
             $token = isset( $session[self::SESSION_TOKEN] ) ? $session[self::SESSION_TOKEN] : null;
         else
-            $token = eZSession::get( self::SESSION_TOKEN, '' );
+            // issetkey() starts the session first: a token of the session is never missed (and overwritten) only
+            // because the session had not been started yet
+            $token = eZSession::issetkey( self::SESSION_TOKEN, true ) ? eZSession::get( self::SESSION_TOKEN ) : null;
         if ( is_string( $token ) && preg_match( '/^[0-9a-f]{64}$/', $token ) )
             return $token;
         if ( !$create )

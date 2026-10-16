@@ -254,17 +254,62 @@ final class AIExpaiProviderTest extends TestCase
         $this->assertSame( 'ok', $allowed->complete( 's', 'u', array( 'maxTokens' => 100 ) ) );
     }
 
-    public function testTheRealProviderChecksExpaisPermissions()
+    /**
+     * The real checks of expai's permissions (hasExpaiPolicy(), mayUseModel() with expAiConfig::mayUseModel()), with
+     * only the current user replaced: expai/write decides, and without model choice only expai's site default may be
+     * used, also when ExpaiModel names another model.
+     */
+    public function testTheRealPermissionChecksOfExpai()
     {
-        $source = (string) file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/ai/expoetiptapaiexpaiprovider.php' );
-        $this->assertStringContainsString( "expAiServerFunctions::hasPolicy( 'write' )", $source );
-        $this->assertStringContainsString( '$config->mayUseModel( $alias )', $source );
-        $policy = strpos( $source, '$this->hasExpaiPolicy()' );
-        $model = strpos( $source, '$this->mayUseModel( $config, $alias )' );
-        $send = strpos( $source, '$recorder->send(' );
-        $this->assertNotFalse( $policy );
-        $this->assertLessThan( $send, $policy );
-        $this->assertLessThan( $send, $model );
+        $send = function ( $provider )
+        {
+            return $provider->complete( 's', 'u', array( 'maxTokens' => 100 ) );
+        };
+        $wired = function ( $access, $registered = true, array $settings = array() )
+        {
+            $provider = new AIExpaiProviderTestWired( $settings + array( 'ExpaiModel' => '' ), $this->config() );
+            $provider->user = new AIExpaiProviderTestUser( $access, $registered );
+            return $provider;
+        };
+
+        foreach ( array( array( 'no', true ), array( 'yes', false ) ) as list( $word, $registered ) )
+        {
+            $provider = $wired( $word, $registered );
+            $this->refused( static function () use ( $send, $provider ) { $send( $provider ); }, '/do not have access to Exponential Intelligence/' );
+            // an anonymous user is refused before the policy is asked
+            $this->assertSame( $registered ? array( 'expai/write' ) : array(), $provider->user->asked );
+        }
+        $provider = $wired( 'no' );
+        $provider->user = null;
+        $this->refused( static function () use ( $send, $provider ) { $send( $provider ); }, '/do not have access/' );
+
+        // model choice is off in this config: another model than the site default is not the user's to use
+        $other = $wired( 'yes', true, array( 'ExpaiModel' => 'fake.large' ) );
+        $e = $this->refused( static function () use ( $send, $other ) { $send( $other ); }, '/may not use the model/' );
+        $this->assertStringContainsString( 'fake.large', $e->getLogDetail() );
+        $this->assertSame( array(), AIExpaiProviderTestModel::$requests );
+
+        // expai/write limited (any limitation counts) and the site default: sent
+        AIExpaiProviderTestModel::$answers[] = array( 'content' => array( array( 'type' => 'text', 'text' => 'allowed' ) ) );
+        $this->assertSame( 'allowed', $send( $wired( 'limited' ) ) );
+        AIExpaiProviderTestModel::$answers[] = array( 'content' => array( array( 'type' => 'text', 'text' => 'default' ) ) );
+        $this->assertSame( 'default', $send( $wired( 'yes', true, array( 'ExpaiModel' => 'fake.small' ) ) ) );
+        $this->assertCount( 2, AIExpaiProviderTestModel::$requests );
+    }
+
+    public function testACutOffAnswerIsNotUsed()
+    {
+        AIExpaiProviderTestModel::$answers[] = array( 'content' => array( array( 'type' => 'text', 'text' => 'Half of the' ) ), 'stop_reason' => 'max_tokens' );
+        $provider = $this->provider( $this->config() );
+        $e = $this->refused( static function () use ( $provider ) { $provider->complete( 's', 'u', array( 'maxTokens' => 100 ) ); }, '/cut off at the token limit/' );
+        $this->assertStringContainsString( 'max_tokens', $e->getLogDetail() );
+    }
+
+    public function testDataPolicyActive()
+    {
+        $this->assertFalse( expOETiptapAIExpaiProvider::dataPolicyActive( $this->config() ) );
+        $this->assertTrue( expOETiptapAIExpaiProvider::dataPolicyActive( $this->config( array( 'DataPolicy' => array( 'ClassRegions' => array( 'article' => 'eu' ) ) ) ) ) );
+        $this->assertTrue( expOETiptapAIExpaiProvider::dataPolicyActive( $this->config( array( 'DataPolicy' => array( 'ZeroRetention' => 'enabled' ) ) ) ) );
     }
 
     public function testTheRealProviderWrapsInExpaisUsageRecorder()
@@ -379,6 +424,67 @@ class AIExpaiProviderTestModel implements expAiProvider
     }
 }
 
+}
+
+/** The provider with expai's real permission checks; only the user, the object and the usage log are replaced */
+class AIExpaiProviderTestWired extends expOETiptapAIExpaiProvider
+{
+    /** @var eZUser|null */
+    public $user = null;
+
+    public $recorded = null;
+
+    protected function isAvailable()
+    {
+        return true;
+    }
+
+    protected function currentUser()
+    {
+        return $this->user;
+    }
+
+    protected function effectiveAlias( expAiConfig $config )
+    {
+        return $config->model();
+    }
+
+    protected function contentObject()
+    {
+        return null;
+    }
+
+    protected function recorder( expAiProvider $provider, array $context )
+    {
+        $this->recorded = $context;
+        return $provider;
+    }
+}
+
+/** A user without a database: hasAccessTo() answers the given access word */
+class AIExpaiProviderTestUser extends eZUser
+{
+    public $asked = array();
+    private $word;
+    private $registered;
+
+    public function __construct( $word, $registered = true )
+    {
+        parent::__construct( array( 'contentobject_id' => 77, 'login' => 'editor' ) );
+        $this->word = $word;
+        $this->registered = $registered;
+    }
+
+    public function hasAccessTo( $module, $function = false )
+    {
+        $this->asked[] = $module . '/' . $function;
+        return array( 'accessWord' => $this->word, 'policies' => array() );
+    }
+
+    public function isRegistered()
+    {
+        return $this->registered;
+    }
 }
 
 /** expai.ini in memory (what expAiConfig and expAiProviderRegistry read of eZINI) */

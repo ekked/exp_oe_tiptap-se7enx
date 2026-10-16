@@ -828,6 +828,18 @@
         <translation>Sie dürfen das Modell des KI-Assistenten nicht verwenden.</translation>
     </message>
     <message>
+        <source>The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.</source>
+        <translation>Die Antwort wurde an der Token-Grenze abgeschnitten. Wählen Sie weniger Text aus oder bitten Sie die Administration, die Grenze zu erhöhen.</translation>
+    </message>
+    <message>
+        <source>The language of the field is not valid.</source>
+        <translation>Die Sprache des Feldes ist ungültig.</translation>
+    </message>
+    <message>
+        <source>This is not a draft of yours.</source>
+        <translation>Dies ist kein Entwurf von Ihnen.</translation>
+    </message>
+    <message>
         <source>You are not allowed to edit this content.</source>
         <translation>Sie dürfen diesen Inhalt nicht bearbeiten.</translation>
     </message>

@@ -279,6 +279,7 @@ final class AIHooksTest extends TestCase
             'http://127.0.0.1.example.com/', 'http://localhost.example.com/', 'http://[::2]/', 'http://[::ffff:127.0.0.1]/',
             'ftp://127.0.0.1/', 'file:///etc/passwd', 'https://user:pw@api.example.com/', 'http://user:pw@127.0.0.1/', '', null,
         );
+        $refused[] = "https://api.openai.com/v1/chat/completions\n";
         foreach ( $refused as $url )
             $this->assertNotSame( '', expOETiptapAIHttpClient::endpointProblem( $url ), var_export( $url, true ) );
         $this->assertStringContainsString( 'loopback', expOETiptapAIHttpClient::endpointProblem( 'http://api.example.com/v1' ) );

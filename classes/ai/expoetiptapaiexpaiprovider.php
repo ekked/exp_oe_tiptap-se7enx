@@ -70,6 +70,20 @@ class expOETiptapAIExpaiProvider implements expOETiptapAIProvider
     }
 
     /**
+     * Whether expai's data policy has rules ([DataPolicy] of expai.ini). Then it decides on the object of the edited
+     * field, and a request that names none is refused.
+     *
+     * @param expAiConfig|null $config
+     * @return bool false when expai is not there
+     */
+    public static function dataPolicyActive( $config = null )
+    {
+        if ( !class_exists( 'expAiDataPolicy' ) || !class_exists( 'expAiConfig' ) )
+            return false;
+        return ( new expAiDataPolicy( $config ?: expAiConfig::instance(), array() ) )->active();
+    }
+
+    /**
      * What the request is about, for the usage log and the data policy.
      *
      * @param array $context command (string), object_id (int, the content object of the edited field), attribute_id,
@@ -180,6 +194,9 @@ class expOETiptapAIExpaiProvider implements expOETiptapAIProvider
             $text = expAiText::stripReasoning( $text );
         if ( trim( $text ) === '' && isset( $answer['stop_reason'] ) && $answer['stop_reason'] === 'refusal' )
             throw new expOETiptapAIException( 'The AI assistant declined this request.', 'expai: stop_reason refusal' );
+        // a cut answer would replace the editor's text with half of it
+        if ( isset( $answer['stop_reason'] ) && $answer['stop_reason'] === 'max_tokens' )
+            throw new expOETiptapAIException( 'The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.', 'expai: stop_reason max_tokens' );
         return $text;
     }
 
@@ -242,13 +259,18 @@ class expOETiptapAIExpaiProvider implements expOETiptapAIProvider
     /** @return bool the current user has expai's policy expai/write (it has no limitations; any access counts) */
     protected function hasExpaiPolicy()
     {
-        if ( class_exists( 'expAiServerFunctions' ) && method_exists( 'expAiServerFunctions', 'hasPolicy' ) )
-            return (bool) expAiServerFunctions::hasPolicy( 'write' );
-        $user = eZUser::currentUser();
+        // as expAiServerFunctions::hasPolicy( 'write' ): a registered user, any access word but no
+        $user = $this->currentUser();
         if ( !$user instanceof eZUser || !$user->isRegistered() )
             return false;
         $access = $user->hasAccessTo( 'expai', 'write' );
         return isset( $access['accessWord'] ) && $access['accessWord'] !== 'no';
+    }
+
+    /** @return eZUser|null */
+    protected function currentUser()
+    {
+        return eZUser::currentUser();
     }
 
     /** @return bool expai lets the current user use the model (expai/model_use, ProvidersWithoutPolicy[], model choice) */

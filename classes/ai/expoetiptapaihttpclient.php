@@ -44,7 +44,7 @@ class expOETiptapAIHttpClient
      */
     public static function endpointProblem( $url )
     {
-        if ( !is_string( $url ) || !preg_match( '~^(https?)://([^\s/?#@]+?)(?::\d+)?(?:[/?#]\S*)?$~i', $url, $m ) )
+        if ( !is_string( $url ) || !preg_match( '~^(https?)://([^\s/?#@]+?)(?::\d+)?(?:[/?#]\S*)?$~iD', $url, $m ) )
             return 'must be https without credentials';
         if ( strtolower( $m[1] ) === 'https' )
             return '';
@@ -114,6 +114,10 @@ class expOETiptapAIHttpClient
                 return strlen( $chunk );
             },
         ) );
+        // a model on the own machine: never through a proxy (http_proxy of the environment), text and key stay local
+        $host = parse_url( $url, PHP_URL_HOST );
+        if ( is_string( $host ) && self::isLoopbackHost( strpos( $host, ':' ) !== false && $host[0] !== '[' ? '[' . $host . ']' : $host ) )
+            curl_setopt( $ch, CURLOPT_NOPROXY, '*' );
         if ( defined( 'CURLOPT_PROTOCOLS_STR' ) )
             curl_setopt( $ch, CURLOPT_PROTOCOLS_STR, 'http,https' );
         elseif ( defined( 'CURLOPT_PROTOCOLS' ) )

@@ -82,6 +82,30 @@ class expOETiptapAIService
         } );
     }
 
+    /** @return string [AISettings] Provider, lower case */
+    public function providerName()
+    {
+        return strtolower( trim( (string) $this->settings['Provider'] ) );
+    }
+
+    /**
+     * Logs a refused request (switched off, no policy, no or wrong form token, no access to the edited field): the
+     * technical reason only, never the text, the token or the key.
+     *
+     * @param string $detail
+     */
+    public function logRefusal( $detail )
+    {
+        if ( !$this->logger )
+            return;
+        $message = sprintf( 'AI refused provider=%s reason=%s', preg_replace( '/[^\w.-]/', '', (string) $this->settings['Provider'] ),
+                            substr( preg_replace( '/[^\w .:()\/=,-]/', '', (string) $detail ), 0, 200 ) );
+        $key = (string) $this->settings['ApiKey'];
+        if ( $key !== '' )
+            $message = str_replace( $key, '[key]', $message );
+        call_user_func( $this->logger, $message );
+    }
+
     /** @return bool [AISettings] Enabled */
     public function isEnabled()
     {
