@@ -320,6 +320,17 @@ test( 'the status bar keeps a space after "Path:", and "Editing with" gives way 
     assert.match( text, /\.ezoe-engine-switch ~ \.exp-oe-switch-current \{ display: none; \}/ );
 } );
 
+test( 'a text in a right-to-left language is dir="rtl", a left-to-right one has no dir', () => {
+    const rtl = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { language: 'heb-IL', contentLanguage: 'he-IL', contentDirection: 'rtl' } ) );
+    assert.equal( rtl.editor.view.dom.getAttribute( 'dir' ), 'rtl' );
+    assert.equal( rtl.editor.view.dom.getAttribute( 'lang' ), 'he-IL' );
+    const ltr = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { language: 'lat-VA', contentLanguage: 'la-VA', contentDirection: 'ltr' } ) );
+    assert.equal( ltr.editor.view.dom.hasAttribute( 'dir' ), false );
+    // an older template without the option
+    const none = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { language: 'ger-DE' } ) );
+    assert.equal( none.editor.view.dom.hasAttribute( 'dir' ), false );
+} );
+
 test( 'the text carries the BCP 47 tag of its language as lang, never the locale code\'s first part', () => {
     const tagged = X.init( textarea( '<p>Text</p>' ), Object.assign( {}, OPTIONS, { language: 'ger-DE', contentLanguage: 'de-DE' } ) );
     assert.equal( tagged.editor.view.dom.getAttribute( 'lang' ), 'de-DE' );

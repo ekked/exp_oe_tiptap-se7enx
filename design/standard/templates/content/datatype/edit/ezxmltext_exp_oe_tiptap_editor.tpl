@@ -107,6 +107,8 @@ expOETiptapStart( '{$editor_id}', {ldelim}
     language: {json_encode( $attribute.language_code )},
     // the language tag of the text (BCP 47, e.g. en-GB) from its locale file, for the lang attribute of the text
     contentLanguage: {json_encode( $text_locale.http_locale_code )},
+    // 'rtl' for a text in a right-to-left content language (the locale file's TextDirection): dir="rtl" on the text
+    contentDirection: {json_encode( first_set( $text_locale.text_direction, 'ltr' ) )},
     rows: {$editorRow},
     minHeight: {$exp_oe.min_height},
     // exp_oe_tiptap.ini [EditorSettings] ContextMenu

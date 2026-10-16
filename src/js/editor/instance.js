@@ -47,10 +47,22 @@ export function contentLanguageAttribute( tag ) {
     return /^[a-z]{2,3}(-[a-z0-9]{1,8})*$/i.test( value ) ? { lang: value } : {};
 }
 
+/**
+ * The dir attribute of the text: { dir: 'rtl' } for a text in a right-to-left content language (options.contentDirection,
+ * the text_direction of its locale, from the locale file's [LanguageSettings] TextDirection), else nothing: a
+ * left-to-right text keeps the direction of the page.
+ *
+ * @param {string} direction 'rtl' or 'ltr'
+ * @returns {object} { dir: 'rtl' } or {}
+ */
+export function contentDirectionAttribute( direction ) {
+    return String( direction || '' ).trim().toLowerCase() === 'rtl' ? { dir: 'rtl' } : {};
+}
+
 /** Every key of the options contract (doc/plan.md section 5) with its default */
 export function normalizeOptions( options ) {
     const o = Object.assign( {
-        attributeId: 0, contentObjectId: 0, version: 0, language: '', contentLanguage: '', rows: 10,
+        attributeId: 0, contentObjectId: 0, version: 0, language: '', contentLanguage: '', contentDirection: '', rows: 10,
         buttons: null, pathLocation: 'bottom', pathOpenDialog: false, toolbarLocation: 'top', skin: 'o2k7', skinVariant: '', floatingMenus: undefined, contentCss: [],
         xmlTagAlias: {}, customTags: [], customTagControls: false, literal: {}, tableDefinitions: {}, generalDefinitions: {}, embedDefinitions: {},
         linkClasses: {}, linkViewModes: [], customAttributeStyleMap: {}, imageSizes: [], viewModes: [], defaultSize: 'medium',
@@ -167,7 +179,8 @@ export class ExpOETiptapInstance {
                     'aria-multiline': 'true',
                     'aria-label': t( 'Rich text editor' ),
                     spellcheck: 'true',
-                    ...contentLanguageAttribute( o.contentLanguage )
+                    ...contentLanguageAttribute( o.contentLanguage ),
+                    ...contentDirectionAttribute( o.contentDirection )
                 }
             },
             onUpdate: () => {
