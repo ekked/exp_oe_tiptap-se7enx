@@ -115,6 +115,10 @@ final class AIHooksTest extends TestCase
             array( $this->service(), 'GET', 't', 't', true, '/POST only/' ),
             array( $this->service(), 'POST', null, 't', true, '/form token/' ),
             array( $this->service(), 'POST', 'wrong', 't', true, '/form token/' ),
+            // no token in the session: refused, never let through unchecked (there is always one to compare with)
+            array( $this->service(), 'POST', null, null, true, '/form token/' ),
+            array( $this->service(), 'POST', '', '', true, '/form token/' ),
+            array( $this->service(), 'POST', 't', null, true, '/form token/' ),
         );
         foreach ( $cases as list( $service, $method, $given, $expected, $policy, $pattern ) )
         {
@@ -129,7 +133,6 @@ final class AIHooksTest extends TestCase
             }
         }
         $this->service()->checkRequest( 'POST', 't', 't', true );
-        $this->service()->checkRequest( 'POST', null, null, true ); // ezformtoken not active
         $this->assertSame( array(), $this->requests(), 'no provider call for the checks' );
     }
 

@@ -103,7 +103,8 @@ class expOETiptapAIService
      *
      * @param string $method        the request method
      * @param string|null $given    the token of the request (POST ezxform_token or X-CSRF-Token)
-     * @param string|null $expected the session's form token, null when ezformtoken is not active
+     * @param string|null $expected the session's form token: ezformtoken's when it is active, else the extension's own
+     *                              (expOETiptapEditor::expectedToken()); null or '' refuses every request
      * @param bool $hasPolicy       the user has exp_oe_tiptap/ai
      * @throws expOETiptapAIException
      */
@@ -115,7 +116,10 @@ class expOETiptapAIService
             throw new expOETiptapAIException( 'You are not allowed to use the AI assistant.', 'no policy exp_oe_tiptap/ai' );
         if ( strtoupper( (string) $method ) !== 'POST' )
             throw new expOETiptapAIException( 'The AI assistant is called with POST only.', 'method ' . preg_replace( '/[^A-Z]/', '', strtoupper( (string) $method ) ) );
-        if ( $expected !== null && ( !is_string( $given ) || $given === '' || !hash_equals( (string) $expected, $given ) ) )
+        // a token is always required: without ezformtoken the extension's own session token stands in for it
+        if ( !is_string( $expected ) || $expected === '' )
+            throw new expOETiptapAIException( 'The form token is missing or wrong: reload the page and try again.', 'no form token in the session' );
+        if ( !is_string( $given ) || $given === '' || !hash_equals( $expected, $given ) )
             throw new expOETiptapAIException( 'The form token is missing or wrong: reload the page and try again.', 'form token mismatch' );
     }
 

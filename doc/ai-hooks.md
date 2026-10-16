@@ -187,8 +187,11 @@ The class checks access itself; no `Functions[]`/ezjscore policy is needed on to
 - `exp_oe_tiptap/ai` — may use the assistant. The edit template only shows the button with it
   (`ai.enabled` in the editor options), and `expOETiptapServerFunctions::ai()` checks it again for every call.
   Any limitation counts as access.
-- The request must be a POST with the session's form token (`ezxform_token` field or `X-CSRF-Token` header).
-  ezformtoken checks it for every POST anyway; the server function compares it again with `hash_equals`.
+- The request must be a POST with the session's form token (`ezxform_token` field or `X-CSRF-Token` header), always.
+  With ezformtoken active it is ezformtoken's token (ezformtoken checks it for every POST anyway); without
+  ezformtoken it is a token of this extension, 64 random hex characters created once per session, kept in the
+  session (`exp_oe_tiptap_form_token`) and rendered into the editor options. Either way the server function compares
+  it with `hash_equals`; a session without a token refuses the call. There is no path without a token.
 
 ## Privacy: what is sent where
 

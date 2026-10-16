@@ -60,7 +60,7 @@ moved: a mistake in a release is fixed by the next one.
 | Empty text field area after activation | template override cache does not know the new templates | `--clear-id=template-override` |
 | Plain textarea with HTML in it instead of Tiptap | bundle not loaded (404, JS error) | browser console: "exp_oe_tiptap: the editor bundle is not loaded"; rebuild, check `Scripts[]`, check the design path |
 | Content changes after saving from Tiptap | a round-trip gap in the schema | switch the user back to TinyMCE; add the content as a fixture (see content-mapping.md) and fix the schema |
-| "Access denied" on `exp_oe_tiptap/switch` (0.1.0 view) | not a POST, missing or wrong form token, or no `switch` policy | use `/ezoe/engine`; ezformtoken must be active |
+| "Access denied" on `exp_oe_tiptap/switch` (0.1.0 view) | not a POST, missing or wrong form token, or no `switch` policy | use `/ezoe/engine`; reload the edit page (the token belongs to the session) |
 | A user of 0.1.0 who had Tiptap gets TinyMCE | `exp_oe_editor` not migrated yet (`/ezoe/engine` reads only `ezoe_engine`) | opening an edit form migrates it; or run `bin/php/migrate_editor_preference.php` |
 | `exp_oe_tiptap.ini` `DefaultEditor=tiptap` has no effect | not read since 0.1.1 | `ezoe.ini [EditorSettings] EditorEngine=tiptap` |
 | Velocity shows the old editor after deploy | workers keep classes loaded at warm-up | `exp:velocity restart` (or `exp:velocity deploy`) |

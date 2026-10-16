@@ -15,9 +15,10 @@
  *        format (text | markup), strict (1 on the second try)
  *   -> { error_text, content: { text, command, model } }
  *
- * Checks [AISettings] Enabled, the policy exp_oe_tiptap/ai, POST and the form token itself (ezformtoken checks
- * the token too when it is active), then calls the configured provider server side. The API key never leaves
- * the server.
+ * Checks [AISettings] Enabled, the policy exp_oe_tiptap/ai, POST and the form token itself, then calls the configured
+ * provider server side. The token is always required: ezformtoken's when ezformtoken is active (which checks it too),
+ * else the session token of this extension the editor template renders (expOETiptapEditor::expectedToken()). The API
+ * key never leaves the server.
  */
 class expOETiptapServerFunctions extends ezjscServerFunctions
 {
@@ -34,7 +35,7 @@ class expOETiptapServerFunctions extends ezjscServerFunctions
             $service->checkRequest(
                 isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '',
                 self::givenToken(),
-                self::expectedToken(),
+                expOETiptapEditor::expectedToken(),
                 self::hasPolicy()
             );
             $post = static function ( $name )
@@ -58,14 +59,6 @@ class expOETiptapServerFunctions extends ezjscServerFunctions
         if ( !empty( $_SERVER['HTTP_X_CSRF_TOKEN'] ) && is_string( $_SERVER['HTTP_X_CSRF_TOKEN'] ) )
             return $_SERVER['HTTP_X_CSRF_TOKEN'];
         return null;
-    }
-
-    /** @return string|null the session's form token, null when the form token protection is not active */
-    protected static function expectedToken()
-    {
-        if ( !class_exists( 'ezxFormToken' ) || !ezxFormToken::isEnabled() )
-            return null;
-        return ezxFormToken::getToken();
     }
 
     /** @return bool the current user has the policy exp_oe_tiptap/ai (any limitation counts as yes) */

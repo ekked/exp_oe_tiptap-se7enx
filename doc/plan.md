@@ -120,7 +120,7 @@ Links: https://tiptap.dev/product/editor , https://tiptap.dev/product/ai-toolkit
   | `xmlTagAlias`, `customTags`, `literal`, `tableDefinitions`, `generalDefinitions`, `embedDefinitions` | the same structures ezoe's TinyMCE 8 template gets from the input handler |
   | `linkClasses`, `linkViewModes`, `customAttributeStyleMap`, `imageSizes`, `viewModes`, `defaultSize` | content.ini / ezoe.ini, as for TinyMCE 8 |
   | `urls` | `root`, `ezoe` (`/ezoe`), `ezjscore` (`/ezjscore`), both without the trailing slash (ezurl strips it), `contentEdit`, `switch` (`/ezoe/engine` since 0.1.1, the view `exp_oe_tiptap/switch` in 0.1.0) |
-  | `formToken` | the ezformtoken token (the `@$ezxFormToken@` placeholder replaced on output) |
+  | `formToken` | the ezformtoken token (the `@$ezxFormToken@` placeholder replaced on output), or without ezformtoken the extension's session token (`expOETiptapEditor::renderedToken()`) |
   | `switchButtonName`, `disableButtonName` | names of the form buttons the toolbar may click (`''` when absent) |
   | `ai` | `{ enabled: bool, commands: [..], call: 'expoetiptap::ai' }`; `enabled` true only when AI is on and the user has `exp_oe_tiptap/ai` |
   | `i18n` | English text => translation (context `extension/exp_oe_tiptap`), placeholders such as `%editor` kept; a text missing from the map stays English. Sources: the list in `expOETiptapEditor::$strings` plus `strings.json` (a JSON array of English texts) that the build may write next to the bundle |
