@@ -36,7 +36,7 @@ Read by the server function `expoetiptap::ai`; see [ai-hooks.md](ai-hooks.md) fo
 | --- | --- | --- |
 | `Enabled` | `false` | `true` offers the AI commands to users with the policy `exp_oe_tiptap/ai`. |
 | `Provider` | `openai-compatible` | `openai-compatible` (OpenAI chat completions API: OpenAI, Azure OpenAI, Mistral, Ollama, vLLM ...), `anthropic` (Anthropic Messages API), `tiptap-cloud` (Tiptap's hosted service). |
-| `Endpoint` | empty | The provider's API URL. |
+| `Endpoint` | empty | The provider's API URL: https; plain http only to a loopback host (`127.0.0.0/8`, `::1`, `localhost`). |
 | `Model` | empty | The model name the provider expects. |
 | `ApiKey` | empty | The API key. **Only in settings/override.** Never sent to the browser. |
 | `Timeout` | `30` | Seconds to wait for the provider. |

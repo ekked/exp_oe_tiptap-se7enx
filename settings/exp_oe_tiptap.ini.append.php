@@ -60,6 +60,7 @@ Provider=openai-compatible
 
 # The provider's API URL, e.g. https://api.openai.com/v1/chat/completions,
 # https://api.anthropic.com/v1/messages or http://127.0.0.1:11434/v1/chat/completions
+# https only; plain http is accepted for a loopback host (127.0.0.0/8, ::1, localhost) only.
 Endpoint=
 
 # The model name the provider expects.

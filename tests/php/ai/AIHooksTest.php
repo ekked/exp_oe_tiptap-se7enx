@@ -258,6 +258,34 @@ final class AIHooksTest extends TestCase
         $this->assertNotContains( '/v1/chat/completions', $paths );
     }
 
+    /**
+     * https only: plain http would send the text and the key unencrypted. A model on the own machine (loopback)
+     * may be reached with http, as the fake provider of these tests is.
+     */
+    public function testEndpointsMustBeHttpsExceptOnLoopback()
+    {
+        $allowed = array(
+            'https://api.openai.com/v1/chat/completions', 'HTTPS://api.anthropic.com/v1/messages', 'https://10.0.0.5:8443/v1',
+            'http://127.0.0.1:11434/v1/chat/completions', 'http://127.8.9.10/v1', 'http://localhost:8080/v1', 'http://LOCALHOST/',
+            'http://[::1]:11434/v1/chat/completions',
+        );
+        foreach ( $allowed as $url )
+            $this->assertSame( '', expOETiptapAIHttpClient::endpointProblem( $url ), $url );
+        $refused = array(
+            'http://api.openai.com/v1/chat/completions', 'http://10.0.0.5:11434/v1', 'http://192.168.1.2/', 'http://128.0.0.1/',
+            'http://127.0.0.1.example.com/', 'http://localhost.example.com/', 'http://[::2]/', 'http://[::ffff:127.0.0.1]/',
+            'ftp://127.0.0.1/', 'file:///etc/passwd', 'https://user:pw@api.example.com/', 'http://user:pw@127.0.0.1/', '', null,
+        );
+        foreach ( $refused as $url )
+            $this->assertNotSame( '', expOETiptapAIHttpClient::endpointProblem( $url ), var_export( $url, true ) );
+        $this->assertStringContainsString( 'loopback', expOETiptapAIHttpClient::endpointProblem( 'http://api.example.com/v1' ) );
+
+        // the refusal comes before anything is sent, with a clear reason in the log and a fixed text for the editor
+        $e = $this->assertRefused( $this->service( array( 'Endpoint' => 'http://api.example.com/v1/chat/completions' ) ), 'improve', 'x', '/not configured correctly/' );
+        $this->assertStringContainsString( 'use https', $e->getLogDetail() );
+        $this->assertSame( array(), $this->requests() );
+    }
+
     public function testCustomPromptFromSettings()
     {
         $s = $this->service( array( 'Commands' => array( 'improve', 'seo_title' ), 'CommandPrompts' => array( 'seo_title' => 'Write a title in %locale.' ) ) );

@@ -125,7 +125,7 @@ unchanged text is an item that stays where it was; a crossed out chip is an item
 | --- | --- |
 | `Enabled` | `true` switches the assistant on. Default `false`. |
 | `Provider` | `openai-compatible` (also `openai`), `anthropic` or `custom`. `tiptap-cloud` is accepted by the settings but not implemented (see "Owner decisions"). |
-| `Endpoint` | The provider URL, http or https without user and password. Defaults: `https://api.openai.com/v1/chat/completions`, `https://api.anthropic.com/v1/messages`. |
+| `Endpoint` | The provider URL: https without user and password. Plain http only to a loopback host (`127.0.0.0/8`, `::1`, `localhost`), for a model on the own machine; any other http endpoint is refused before anything is sent. Defaults: `https://api.openai.com/v1/chat/completions`, `https://api.anthropic.com/v1/messages`. |
 | `Model` | The model name the provider expects. Required. |
 | `ApiKey` | The key. **Only in `settings/override`**, never in a committed file. Optional for local servers. |
 | `ApiKeyEnvironment` | Optional: the name of an environment variable of the PHP process holding the key, used when `ApiKey` is empty. Keeps the key out of every INI file. |
@@ -217,7 +217,8 @@ compatible endpoint keeps everything on the own infrastructure.
   the model invents is not made a link.
 - Provider errors reach the editor as fixed, translated-ready messages ("did not answer in time", "busy or over
   its limit", ...). The provider's own error text is never passed on (it may echo the request or the key).
-- Endpoints must be http or https without credentials; redirects are not followed; the answer is limited to 2 MB;
+- Endpoints must be https without credentials (plain http only to `127.0.0.0/8`, `::1` and `localhost`, so neither the
+  text nor the key ever travels unencrypted over a network); redirects are not followed; the answer is limited to 2 MB;
   only http and https protocols are allowed for curl.
 
 ## Adding a command
