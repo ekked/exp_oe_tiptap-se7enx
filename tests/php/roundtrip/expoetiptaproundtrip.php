@@ -28,6 +28,10 @@ class expOETiptapRoundtrip
      * mysql:<name> for a MySQL/MariaDB database on the server of the siteaccess (a copy, whose name ends with _sandbox
      * or _rt and differs from the siteaccess's live database).
      *
+     * For MySQL this is a name guard only: the database is opened on the server of the siteaccess with its user and
+     * password, and nothing proves it is a copy except its name. An SQLite file is compared with the live file by
+     * device and inode (isSameFile()).
+     *
      * @param string $value
      * @param string $liveImplementation [DatabaseSettings] DatabaseImplementation of the siteaccess
      * @param string $liveDatabase       [DatabaseSettings] Database of the siteaccess
@@ -50,13 +54,41 @@ class expOETiptapRoundtrip
         }
         if ( $value === '' || $value[0] !== '/' || !is_file( $value ) )
             throw new RuntimeException( "Sandbox database '$value' is neither an absolute path of an existing SQLite file nor mysql:<name>" );
-        if ( !self::isMySQL( $liveImplementation ) )
-        {
-            $live = realpath( eZSQLite3DB::filePath( (string)$liveDatabase ) );
-            if ( $live && realpath( $value ) === $live )
-                throw new RuntimeException( 'Refusing to use the live database' );
-        }
+        if ( !self::isMySQL( $liveImplementation ) && self::isSameFile( $value, eZSQLite3DB::filePath( (string)$liveDatabase ) ) )
+            throw new RuntimeException( 'Refusing to use the live database' );
         return array( 'type' => 'sqlite', 'path' => realpath( $value ) );
+    }
+
+    /**
+     * The directory the round trip reads its fixture pairs from: tests/fixtures/ of the extension, or the directory
+     * EXPOETIPTAP_FIXTURES_DIR names (pairs from bin/php/export_roundtrip_fixtures.php).
+     *
+     * @param string|false $value the value of EXPOETIPTAP_FIXTURES_DIR
+     * @return string|false the absolute path, or false when the directory named does not exist
+     */
+    public static function fixturesDir( $value )
+    {
+        $value = trim( (string)$value );
+        if ( $value === '' )
+            return realpath( __DIR__ . '/../../fixtures' );
+        return is_dir( $value ) ? realpath( $value ) : false;
+    }
+
+    /**
+     * Whether two paths name the same file: same device and inode (stat()), so neither a different spelling on a case
+     * insensitive file system nor a hard or symbolic link lets the live SQLite file pass for a copy.
+     *
+     * @param string $a
+     * @param string $b
+     * @return bool
+     */
+    public static function isSameFile( $a, $b )
+    {
+        $sa = @stat( (string)$a );
+        $sb = @stat( (string)$b );
+        if ( !$sa || !$sb )
+            return false;
+        return $sa['dev'] === $sb['dev'] && $sa['ino'] === $sb['ino'];
     }
 
     /** @return bool the database implementation is MySQL or MariaDB */
@@ -434,6 +466,7 @@ class expOETiptapRoundtrip
         while ( $i > 0 && ( ord( $a[$i] ?? "\0" ) & 0xC0 ) === 0x80 )
             $i--;
         $from = max( 0, $i - 60 );
-        return 'expected …' . substr( $a, $from, 160 ) . "…\n      got …" . substr( $b, $from, 160 ) . '…';
+        // mb_strcut(): never half a character, so the detail stays valid UTF-8 (report.json)
+        return 'expected …' . mb_strcut( $a, $from, 160, 'UTF-8' ) . "…\n      got …" . mb_strcut( $b, $from, 160, 'UTF-8' ) . '…';
     }
 }

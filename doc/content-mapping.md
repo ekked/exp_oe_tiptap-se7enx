@@ -127,13 +127,21 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   siteaccesses `run.sh` accepts.
 - `tests/php/roundtrip/run.sh <siteaccess> <sandbox> <work-dir>`, run from the installation root. `<siteaccess>` is
   the siteaccess whose settings the parser uses (content.ini custom tags, classes, custom attributes; usually the
-  admin siteaccess of the site the content comes from); it must exist under `settings/siteaccess/`, and `run.php`
-  checks that it really runs in it. `<sandbox>` is a **copy** of that site's database: the absolute path of an SQLite
+  admin siteaccess of the site the content comes from); its settings must exist under `settings/siteaccess/` or
+  `extension/*/settings/siteaccess/`, and `run.php` checks that it really runs in it. `<sandbox>` is a **copy** of that site's database: the absolute path of an SQLite
   file, or `mysql:<name>` for a MySQL/MariaDB database on the server of the siteaccess (its user and password), whose
-  name must end with `_sandbox` or `_rt` and differ from the siteaccess's own database. Anything else is refused before
-  anything runs. (The form of 0.1.x, `run.sh <copy.db> <work-dir>`, still works and uses the siteaccess `admin`.)
-  To run it on your own content, take the fixtures from it (ezxml and `inputXML()`'s HTML, as `tests/fixtures/`), copy
-  the database, e.g. `mysqldump site | mysql site_rt`, and run `run.sh <admin siteaccess> mysql:site_rt /tmp/rt`.
+  name must end with `_sandbox` or `_rt` and differ from the siteaccess's own database. For MySQL that is a name
+  check only (the database is opened on the siteaccess's server with its user); an SQLite copy is compared with the
+  live file by device and inode, so another spelling or a link of the live file is refused. Anything else is refused
+  before anything runs. (The form of 0.1.x, `run.sh <copy.db> <work-dir>`, is kept; it uses the siteaccess named
+  `admin` and fails where there is none.)
+  To run it on your own content, export the fixtures from it with
+  `php extension/exp_oe_tiptap/bin/php/export_roundtrip_fixtures.php -s <admin siteaccess> --out=/abs/dir` (read only;
+  every ezxmltext field with content of every published object's current version, ezxml and `inputXML()`'s HTML as in
+  `tests/fixtures/`; `--class=`, `--limit=`, `--offset=`, and it refuses to write into `tests/fixtures/` without
+  `--into-tests`), copy the database, e.g. `mysqldump site | mysql site_rt`, and run
+  `run.sh --fixtures=/abs/dir <admin siteaccess> mysql:site_rt /tmp/rt` (or set `EXPOETIPTAP_FIXTURES_DIR`; the work
+  directory must be another one). Keep the exported fixtures out of the repository: they are the site's content.
   First every fixture
   goes ezoe HTML → Tiptap → HTML (`tests/js/schema/roundtrip.mjs`), then `run.php` feeds that HTML to
   `eZOEInputParser` exactly as `validateInput()` does and compares the result with the original ezxml. It does the
