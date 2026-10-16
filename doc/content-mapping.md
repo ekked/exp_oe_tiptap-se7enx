@@ -107,7 +107,9 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   content does not use: anchors, literals, tables with th/colspan/rowspan/width/custom attributes, every kind of
   embed, block and inline custom tags, links to objects and nodes with target/title/id/view, classes and custom
   attributes of paragraphs, headers, lists, list items, strong and emphasize (`s065`, with a custom attribute of
-  ezoe.ini `CustomAttributeStyleMap`) and table rows (`s066`). Their classes and custom attributes are not in the default content.ini: a
+  ezoe.ini `CustomAttributeStyleMap`) and table rows (`s066`), the inline custom tags `math_latex` and `math_mathml`
+  inline and with `custom:display="block"`, MathML in an attribute, one inside bold (`s067`), and lists directly under
+  `<section>` next to the headings of nested sections (`s068`, the known limitation below). Their classes and custom attributes are not in the default content.ini: a
   round trip of them sets them for the parser (`AvailableClasses[]`, `CustomAttributes[]` of each tag). `manifest.json` lists
   the source and the features of each.
 - `node --test tests/js/schema/schema.test.mjs`: 17 unit tests. Every fixture must be stable through Tiptap, attributes
@@ -118,7 +120,21 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   the document and the posted HTML are the same after every pass.
 - `tests/php/EmptyParagraphRoundtripTest.php` (PHPUnit, needs node and `npm ci`): the same through the real
   `inputXML()` and `eZOEInputParser`, three passes, the stored ezxml identical to the original every time. No database.
-- `tests/php/roundtrip/run.sh <copy-of-the-db> <work-dir>`, run from the installation root: first every fixture
+- `tests/php/FixtureParityTest.php` (PHPUnit, needs node and `npm ci`, no database): `s067` and `s068` through the
+  real `inputXML()`, Tiptap and `eZOEInputParser`, with the math tags defined in memory: Tiptap loses nothing ezoe
+  alone keeps; `s067` comes back without loss (a mark around an inline custom tag moves inside it: "equal"); `s068`
+  keeps its headings and loses its lists in both editors. `tests/php/RoundtripSandboxTest.php`: which sandboxes and
+  siteaccesses `run.sh` accepts.
+- `tests/php/roundtrip/run.sh <siteaccess> <sandbox> <work-dir>`, run from the installation root. `<siteaccess>` is
+  the siteaccess whose settings the parser uses (content.ini custom tags, classes, custom attributes; usually the
+  admin siteaccess of the site the content comes from); it must exist under `settings/siteaccess/`, and `run.php`
+  checks that it really runs in it. `<sandbox>` is a **copy** of that site's database: the absolute path of an SQLite
+  file, or `mysql:<name>` for a MySQL/MariaDB database on the server of the siteaccess (its user and password), whose
+  name must end with `_sandbox` or `_rt` and differ from the siteaccess's own database. Anything else is refused before
+  anything runs. (The form of 0.1.x, `run.sh <copy.db> <work-dir>`, still works and uses the siteaccess `admin`.)
+  To run it on your own content, take the fixtures from it (ezxml and `inputXML()`'s HTML, as `tests/fixtures/`), copy
+  the database, e.g. `mysqldump site | mysql site_rt`, and run `run.sh <admin siteaccess> mysql:site_rt /tmp/rt`.
+  First every fixture
   goes ezoe HTML → Tiptap → HTML (`tests/js/schema/roundtrip.mjs`), then `run.php` feeds that HTML to
   `eZOEInputParser` exactly as `validateInput()` does and compares the result with the original ezxml. It does the
   same with the HTML ezoe alone would post (the baseline), so a loss in ezoe is told apart from a loss in Tiptap. The
@@ -162,6 +178,12 @@ alone vs original) and 52/11/0 (Tiptap vs ezoe alone). Other installations can h
 object like that in either editor deletes those lists and embeds**, so run the round trip on your own content first.
 
 ## Known limits
+
+- **Lists directly under `<section>`** (`<section><ul>…</ul></section>`, not inside a paragraph; imported content
+  has them) never reach an editor: `inputXML()` drops them ("Unsupported tag at this level"), and saving the object
+  in TinyMCE or Tiptap stores the text without them. Headings of nested sections are kept. Both editors share this;
+  the fixture `s068-section-lists-headings` asserts the parity. Repair such content into ezoe's dialect (the list
+  inside a `<paragraph>`) before it is edited.
 
 - `style` values are kept as written. The happy-dom test DOM normalises the `style` attribute when it is set (it drops
   the invalid `width: 640`). Browsers keep it. The parser turns `style` into attributes either way.
