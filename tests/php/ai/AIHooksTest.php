@@ -26,7 +26,8 @@ final class AIHooksTest extends TestCase
         fclose( $socket );
         $port = (int) substr( $name, strrpos( $name, ':' ) + 1 );
         self::$base = 'http://127.0.0.1:' . $port;
-        self::$log = EXP_OE_TIPTAP_TEST_ROOT . '/var/tmp/t333-c-fakeai-' . getmypid() . '.log';
+        // the system's temporary directory: var/tmp of the root need not exist (a fresh checkout has no var/tmp)
+        self::$log = rtrim( sys_get_temp_dir(), '/' ) . '/exp_oe_tiptap-fakeai-' . getmypid() . '.log';
         @unlink( self::$log );
         $env = array_merge( getenv(), array( 'FAKE_AI_LOG' => self::$log ) );
         self::$server = proc_open(
