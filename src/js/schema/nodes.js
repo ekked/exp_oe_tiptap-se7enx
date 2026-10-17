@@ -6,7 +6,7 @@
  */
 import { Node } from '@tiptap/core';
 import { Fragment } from '@tiptap/pm/model';
-import { attributeSet, COMMON } from './attributes.js';
+import { attributeSet, cleanClass, COMMON } from './attributes.js';
 
 const BLOCK_ATTRIBUTES = [ 'align' ].concat( COMMON );
 
@@ -455,8 +455,167 @@ export const CustomImage = Node.create( {
     }
 } );
 
+/** The inline custom tags kept as one piece when no list is given (exp_oe_tiptap.ini [EditorSettings] AtomicInlineCustomTags[]) */
+export const DEFAULT_ATOMIC_INLINE_CUSTOM_TAGS = [ 'math_latex', 'math_mathml' ];
+
+/** The inline custom tags whose text is TeX source when no list is given (content.ini [CustomTagSettings] TeXSource[]) */
+export const DEFAULT_TEX_SOURCE_CUSTOM_TAGS = [ 'math_latex' ];
+
+/** The index of the first % of a line that is not escaped (\% is a percent sign, \\% a line break and a comment), or -1 */
+function commentStart( line ) {
+    for ( let i = 0; i < line.length; i++ ) {
+        if ( line[ i ] !== '%' )
+            continue;
+        let backslashes = 0;
+        for ( let j = i - 1; j >= 0 && line[ j ] === '\\'; j-- )
+            backslashes++;
+        if ( backslashes % 2 === 0 )
+            return i;
+    }
+    return -1;
+}
+
+/**
+ * The text of an atomic inline custom tag as it is stored. ezoe's parser removes every line break of a text when it
+ * stores it (eZXMLInputParser, ParseLineBreaks=false): "\cdot<line break>x" became "\cdotx". So a line break and
+ * the white space around it become one space, as TeX reads it (and as eZOEXMLInput::inputXML() writes a stored line
+ * break since #1117). In TeX source (tex) a comment first goes with the rest of its line, the line break and the
+ * indentation of the next line, as eZOEXMLInput::texWithoutLineComments() removes it; a space separates a control
+ * word before the comment from a letter after it ("\cdot%c<line break>x" is "\cdot x", not "\cdotx").
+ * Only ASCII white space counts, as in the PHP code: a non-breaking space stays.
+ *
+ * @param {string} text
+ * @param {boolean} tex
+ * @returns {string}
+ */
+export function storedCustomTagText( text, tex ) {
+    let result = String( text == null ? '' : text );
+    if ( tex && /[\r\n]/.test( result ) ) {
+        const lines = result.split( /\r\n|\r|\n/ );
+        let out = '', afterComment = false;
+        lines.forEach( ( line, i ) => {
+            if ( afterComment ) {
+                line = line.replace( /^[ \t]*/, '' );
+                // a control word: letters after an odd number of backslashes (\\alpha is a line break and "alpha")
+                const word = /(\\+)[A-Za-z]+$/.exec( out );
+                if ( word && word[ 1 ].length % 2 === 1 && /^[A-Za-z]/.test( line ) )
+                    out += ' ';
+            }
+            const last = i === lines.length - 1;
+            const comment = last ? -1 : commentStart( line );
+            afterComment = comment !== -1;
+            out += afterComment ? line.slice( 0, comment ) : line + ( last ? '' : '\n' );
+        } );
+        result = out;
+    }
+    return result.replace( /[ \t]*(?:\r\n|\r|\n)[ \t\r\n\f\v]*/g, ' ' );
+}
+
+/**
+ * The text of the atomic inline custom tag `name` as it is stored (storedCustomTagText()), with the schema's list of
+ * TeX source tags.
+ */
+export function atomicCustomTagText( schema, name, text ) {
+    const type = schema && schema.nodes[ ATOM_NAME ];
+    const tex = type ? ( type.spec.texSourceNames || [] ).indexOf( name ) !== -1 : false;
+    return storedCustomTagText( text, tex );
+}
+
+const ATOM_NAME = 'ezCustomInlineAtom';
+
+/** The name of the custom tag an element of the dialect stands for (its first class that is not ezoe's own) */
+function elementCustomTagName( element ) {
+    return cleanClass( element.getAttribute( 'class' ) ).split( ' ' )[ 0 ] || '';
+}
+
+/** Whether an element holds text only (an atomic custom tag with markup inside stays a mark, as it is) */
+function holdsTextOnly( element ) {
+    return Array.from( element.childNodes ).every( child => child.nodeType === 3 );
+}
+
+/**
+ * The names of the inline custom tags a schema keeps as one piece (ezCustomInlineAtom), [] when it has none.
+ *
+ * @param {import('@tiptap/pm/model').Schema} schema
+ * @returns {string[]}
+ */
+export function atomicCustomTagNames( schema ) {
+    const type = schema && schema.nodes[ ATOM_NAME ];
+    return type ? type.spec.customTagNames || [] : [];
+}
+
+/**
+ * ezxml <custom name> of an inline custom tag that is one piece (IsInline[name]=true, and the name in the option
+ * `names`, from exp_oe_tiptap.ini [EditorSettings] AtomicInlineCustomTags[]): the same
+ * <span class="ezoeItemCustomTag NAME" type="custom" customattributes style align>text</span> as the mark
+ * ezCustomInline, as an inline atom whose text is the attribute `text`.
+ *
+ * Formulas are such tags: the text of math_latex is TeX source, the text of math_mathml the spoken form of the
+ * MathML in its custom attribute. As a mark the text was ordinary text: a second edit of the tag nested a copy of it,
+ * bold around a formula went inside it (the mark of an inline custom tag is the outermost one), two formulas with the
+ * same attributes merged, Enter split one and typing after it went into it. As an atom none of this can happen: the
+ * text is changed in the custom tag dialog (field Content), formatting and links wrap the whole tag.
+ *
+ * Only an element holding text only is read as this node; one with markup inside (stored that way) stays the mark,
+ * so nothing of it is lost. The HTML is written exactly as the mark writes it.
+ */
+export const CustomInlineAtom = Node.create( {
+    name: ATOM_NAME,
+    group: 'inline',
+    inline: true,
+    atom: true,
+    selectable: true,
+    draggable: true,
+    addOptions() {
+        return { names: DEFAULT_ATOMIC_INLINE_CUSTOM_TAGS, texSource: DEFAULT_TEX_SOURCE_CUSTOM_TAGS };
+    },
+    addAttributes() {
+        return Object.assign( attributeSet( [ 'class', 'type', 'customattributes', 'style', 'align' ], [ 'tag' ] ), {
+            tag: { default: 'span', rendered: false, parseHTML: element => element.nodeName.toLowerCase() === 'u' ? 'u' : 'span' },
+            // a line break (pasted, from the source view) is never stored: the text as the server will store it
+            text: { default: '', rendered: false, parseHTML: element => storedCustomTagText( element.textContent,
+                ( this.options.texSource || [] ).indexOf( elementCustomTagName( element ) ) !== -1 ) }
+        } );
+    },
+    extendNodeSchema( extension ) {
+        // leafText: the tag's text in textBetween() (selected text, plain text on the clipboard)
+        return extension.name === ATOM_NAME
+            ? { leafText: node => node.attrs.text || '', customTagNames: ( extension.options.names || [] ).slice(),
+                texSourceNames: ( extension.options.texSource || [] ).slice() }
+            : {};
+    },
+    parseHTML() {
+        const names = this.options.names || [];
+        const accept = element => ( names.indexOf( elementCustomTagName( element ) ) !== -1 && holdsTextOnly( element ) ? null : false );
+        // before the rules of the mark (priority 60)
+        return [
+            { tag: 'span[type="custom"]', priority: 70, getAttrs: accept },
+            { tag: 'u[type="custom"]', priority: 70, getAttrs: accept }
+        ];
+    },
+    renderHTML( { node, HTMLAttributes } ) {
+        return [ node.attrs.tag === 'u' ? 'u' : 'span', HTMLAttributes, node.attrs.text || '' ];
+    },
+    renderText( { node } ) {
+        return node.attrs.text || '';
+    },
+    addCommands() {
+        return {
+            /** Inserts the atomic inline custom tag `name` with `text` (the selected text when not given) over the selection. */
+            insertCustomInlineAtom: ( name, customattributes = null, text = null ) => ( { state, commands } ) => {
+                const { from, to } = state.selection;
+                const content = atomicCustomTagText( state.schema, name, text !== null ? text : state.doc.textBetween( from, to, '\n' ) );
+                return commands.insertContent( {
+                    type: this.name,
+                    attrs: { tag: name === 'underline' ? 'u' : 'span', class: 'ezoeItemCustomTag ' + name, type: 'custom', customattributes, text: content || '\u00a0' }
+                } );
+            }
+        };
+    }
+} );
+
 /** The block and inline nodes (tables are in table.js). Paragraph comes first: it is the default block. */
 export function ezoeNodes() {
     return [ Document, Text, Paragraph, Heading, HardBreak, BlockBreak, BulletList, OrderedList, ListItem, Literal, Anchor,
-             EmbedBlock, EmbedInline, EmbedImage, CustomBlock, CustomImage ];
+             EmbedBlock, EmbedInline, EmbedImage, CustomBlock, CustomImage, CustomInlineAtom ];
 }

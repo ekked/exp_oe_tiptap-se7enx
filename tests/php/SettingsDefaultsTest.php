@@ -36,4 +36,31 @@ final class SettingsDefaultsTest extends TestCase
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
         $this->assertStringContainsString( "\"sourceEditable\": {cond( \$exp_oe.source_editable, 'true', 'false' )}", $tpl );
     }
+
+    /**
+     * AtomicInlineCustomTags[] lists the formulas without a reset line, so a siteaccess's names are added rather than
+     * dropped, and reaches the editor as the option atomicInlineCustomTags
+     */
+    public function testAtomicInlineCustomTagsReachTheEditor()
+    {
+        $file = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/settings/exp_oe_tiptap.ini.append.php' );
+        $this->assertMatchesRegularExpression( '/^AtomicInlineCustomTags\[\]=math_latex$/m', $file );
+        $this->assertMatchesRegularExpression( '/^AtomicInlineCustomTags\[\]=math_mathml$/m', $file );
+        $this->assertDoesNotMatchRegularExpression( '/^AtomicInlineCustomTags\[\]\s*$/m', $file, 'no reset line' );
+        $this->assertContains( 'math_latex', expOETiptapEditor::atomicInlineCustomTags() );
+        $this->assertContains( 'math_mathml', expOETiptapEditor::atomicInlineCustomTags() );
+        $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
+        $this->assertStringContainsString( '"atomicInlineCustomTags": {json_encode( $exp_oe.atomic_inline_custom_tags )}', $tpl );
+        // the TeX source tags of content.ini, for the line comments of a formula's text
+        $this->assertStringContainsString( '"texSourceCustomTags": {json_encode( $exp_oe.tex_source_custom_tags )}', $tpl );
+        $ini = eZINI::instance( 'content.ini' );
+        $saved = $ini->hasVariable( 'CustomTagSettings', 'TeXSource' ) ? $ini->variable( 'CustomTagSettings', 'TeXSource' ) : null;
+        $ini->setVariable( 'CustomTagSettings', 'TeXSource', array( 'math_latex' => 'true', 'math_mathml' => 'false' ) );
+        $names = expOETiptapEditor::texSourceCustomTags();
+        if ( $saved === null )
+            $ini->removeSetting( 'CustomTagSettings', 'TeXSource' );
+        else
+            $ini->setVariable( 'CustomTagSettings', 'TeXSource', $saved );
+        $this->assertSame( array( 'math_latex' ), $names );
+    }
 }

@@ -114,6 +114,10 @@
         <translation>בחירת תוכן</translation>
     </message>
     <message>
+        <source>Content</source>
+        <translation>תוכן</translation>
+    </message>
+    <message>
         <source>Class</source>
         <translation>מחלקה</translation>
     </message>

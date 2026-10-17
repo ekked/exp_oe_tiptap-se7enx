@@ -120,12 +120,43 @@ export function insertNonBreakingSpace( editor ) {
     } ).run();
 }
 
+/**
+ * Replaces the inline atoms that have a text of their own (leafText: the atomic inline custom tags, formulas) in the
+ * textblocks between from and to by that text. A literal holds text only: converting would otherwise drop them with
+ * their text, while the text of an inline custom tag kept as a mark stayed.
+ */
+export function atomsToText( tr, from, to ) {
+    const found = [];
+    tr.doc.nodesBetween( from, to, ( node, pos ) => {
+        if ( node.isInline && node.isAtom && typeof node.type.spec.leafText === 'function' )
+            found.push( { node, pos } );
+        return !node.isInline;
+    } );
+    for ( let i = found.length - 1; i >= 0; i-- ) {
+        const { node, pos } = found[i];
+        const text = node.type.spec.leafText( node );
+        if ( text )
+            tr.replaceWith( pos, pos + node.nodeSize, tr.doc.type.schema.text( text, node.marks ) );
+        else
+            tr.delete( pos, pos + node.nodeSize );
+    }
+    return found.length > 0;
+}
+
 /** Converts the current textblock to the format of <tag> (formatselect) */
 export function setBlockFormat( editor, tag ) {
     const found = nodeForTag( editor, tag );
     if ( !found )
         return false;
-    return editor.chain().focus().setNode( found.name, found.attrs ).run();
+    const chain = editor.chain().focus();
+    if ( found.type.spec.code ) {
+        chain.command( ( { tr } ) => {
+            const { $from, $to } = tr.selection;
+            atomsToText( tr, $from.start(), $to.end() );
+            return true;
+        } );
+    }
+    return chain.setNode( found.name, found.attrs ).run();
 }
 
 /** The tag of formatselect for the current textblock */

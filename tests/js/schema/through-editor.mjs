@@ -6,7 +6,8 @@
  *   node tests/js/schema/through-editor.mjs <edit> < editor.html
  *
  * Edits: tag-paragraph, tag-header, tag-list-item, tag-strong, row, cell-column, cell-row-header, cell-table,
- * nbsp, none. The definitions are the ones FeatureRoundtripTest puts into content.ini.
+ * nbsp, and for inline custom tags (tests/php/InlineCustomTagRoundtripTest.php) custom-edit-formula,
+ * custom-edit-formula-lines, formula-from-two-paragraphs, custom-edit-strike, bold-paragraph, removeformat-paragraph, literal, type-after-formula; none. The definitions are the ones FeatureRoundtripTest puts into content.ini.
  *
  * @license GPL-2.0-or-later
  */
@@ -20,11 +21,17 @@ for await ( const chunk of process.stdin )
 
 GlobalRegistrator.register( { url: 'https://example.test/admin/content/edit/1/1' } );
 const X = ( await import( '../../../src/js/index.js' ) ).default;
+const { NodeSelection, TextSelection } = await import( '@tiptap/pm/state' );
 
 const attr = ( id, extra ) => Object.assign( { id, name: id.charAt( 0 ).toUpperCase() + id.slice( 1 ), type: 'text', title: '' }, extra || {} );
 const OPTIONS = {
     attributeId: 42, contentObjectId: 1, version: 1, language: 'eng-GB', rows: 10, skin: 'a4',
-    buttons: [ 'bold', 'italic', '|', 'bullist', 'numlist', '|', 'table', 'row_props', 'cell_props', '|', 'tag_props', 'nonbreaking' ],
+    buttons: [ 'bold', 'italic', 'removeformat', '|', 'bullist', 'numlist', 'literal', 'custom', '|', 'table', 'row_props', 'cell_props', '|', 'tag_props', 'nonbreaking' ],
+    // strike first: happy-dom selects the wrong option of a longer list built with a selected option
+    customTags: [
+        { name: 'strike', title: 'Strike', inline: true, attributes: [ attr( 'tone' ) ] },
+        { name: 'math_latex', title: 'LaTeX', inline: true, attributes: [ attr( 'display', { type: 'select', selection: { inline: 'inline', block: 'block' } } ), attr( 'alt' ) ] }
+    ],
     generalDefinitions: {
         paragraph: { classes: { intro: 'Introduction' }, attributes: [ attr( 'note' ) ] },
         header: { classes: { title: 'Title' }, attributes: [ attr( 'level' ) ] },
@@ -76,6 +83,31 @@ function at( text ) {
     inst.editor.commands.setTextSelection( pos );
     inst.updateUI();
     return pos;
+}
+/** Selects the first atomic inline custom tag (a formula) as a node */
+function selectFormula() {
+    let pos = null;
+    inst.editor.state.doc.descendants( ( node, p ) => {
+        if ( pos === null && node.type.name === 'ezCustomInlineAtom' )
+            pos = p;
+    } );
+    if ( pos === null )
+        throw new Error( 'no formula' );
+    inst.editor.view.dispatch( inst.editor.state.tr.setSelection( NodeSelection.create( inst.editor.state.doc, pos ) ) );
+    inst.updateUI();
+    return pos;
+}
+/** Selects the whole first paragraph */
+function selectFirstParagraph() {
+    const doc = inst.editor.state.doc;
+    inst.editor.view.dispatch( inst.editor.state.tr.setSelection( TextSelection.create( doc, 1, doc.firstChild.nodeSize - 1 ) ) );
+    inst.updateUI();
+}
+/** Selects from the start of the first paragraph to the end of the second */
+function selectFirstTwoParagraphs() {
+    const doc = inst.editor.state.doc;
+    inst.editor.view.dispatch( inst.editor.state.tr.setSelection( TextSelection.create( doc, 1, doc.firstChild.nodeSize + doc.child( 1 ).nodeSize - 1 ) ) );
+    inst.updateUI();
 }
 /** Opens the tag dialog at text and picks the element by its tag name when the dialog lists several */
 function tagDialog( text, tag ) {
@@ -156,6 +188,51 @@ switch ( edit ) {
         at( 'km' );
         inst.editor.commands.setTextSelection( inst.editor.state.selection.from + 2 );
         inst.runButton( 'nonbreaking' );
+        break;
+    }
+    case 'custom-edit-formula':
+        selectFormula();
+        inst.runButton( 'custom' );
+        fieldOf( 'Alt' ).value = 'neu';
+        fieldOf( 'Content' ).value = 'x^3';
+        ok();
+        break;
+    case 'custom-edit-formula-lines':
+        // line breaks typed into the content, one after a TeX comment and one after a comment that ends a control word
+        selectFormula();
+        inst.runButton( 'custom' );
+        fieldOf( 'Content' ).value = '\\cdot\n  x % Kommentar\n  + \\alpha%\nbeta';
+        ok();
+        break;
+    case 'formula-from-two-paragraphs':
+        selectFirstTwoParagraphs();
+        inst.runButton( 'custom' );
+        set( 'Name', 'math_latex' );
+        fieldOf( 'Alt' ).value = 'a';
+        ok();
+        break;
+    case 'custom-edit-strike':
+        at( 'struck' );
+        inst.runButton( 'custom' );
+        fieldOf( 'Tone' ).value = 'loud';
+        ok();
+        break;
+    case 'bold-paragraph':
+        selectFirstParagraph();
+        inst.runButton( 'bold' );
+        break;
+    case 'removeformat-paragraph':
+        selectFirstParagraph();
+        inst.runButton( 'removeformat' );
+        break;
+    case 'literal':
+        at( 'Text' );
+        inst.runButton( 'literal' );
+        break;
+    case 'type-after-formula': {
+        const pos = selectFormula();
+        inst.editor.commands.setTextSelection( pos + inst.editor.state.doc.nodeAt( pos ).nodeSize );
+        inst.editor.commands.insertContent( ' plus' );
         break;
     }
     case 'none':

@@ -6,7 +6,9 @@
  * ezoe alone (the fixture's HTML posted as it is).
  *
  *  - s067-math-custom-tags: the inline custom tags math_latex and math_mathml, inline and with custom:display="block",
- *    one inside bold; MathML in an attribute. Defined here in memory as a site defines them in content.ini.
+ *    one inside bold; MathML in an attribute. Defined here in memory as a site defines them in content.ini. They are
+ *    atomic inline custom tags in the editor (exp_oe_tiptap.ini AtomicInlineCustomTags[]), so the fixture comes back
+ *    identical, the bold around the formula included.
  *  - s068-section-lists-headings: headings of nested sections, and lists directly under <section> (not in a
  *    paragraph). inputXML() drops such lists before any editor sees them: a known limitation both editors share.
  *    The test asserts parity: Tiptap loses nothing ezoe alone keeps, and the headings stay.
@@ -61,8 +63,8 @@ final class FixtureParityTest extends TestCase
     public static function fixtures()
     {
         return array(
-            'math custom tags' => array( 's067-math-custom-tags', 'identical' ),
-            'lists and headings directly under section' => array( 's068-section-lists-headings', 'lossy' ),
+            'math custom tags' => array( 's067-math-custom-tags', 'identical', 'identical' ),
+            'lists and headings directly under section' => array( 's068-section-lists-headings', 'lossy', null ),
         );
     }
 
@@ -94,7 +96,7 @@ final class FixtureParityTest extends TestCase
     }
 
     #[DataProvider( 'fixtures' )]
-    public function testTiptapLosesNothingEzoeAloneKeeps( $name, $ezoeVersusOriginal )
+    public function testTiptapLosesNothingEzoeAloneKeeps( $name, $ezoeVersusOriginal, $tiptapVersusOriginal )
     {
         $extension = self::node();
         if ( $extension === null )
@@ -112,10 +114,13 @@ final class FixtureParityTest extends TestCase
         $this->assertSame( $ezoeVersusOriginal, expOETiptapRoundtrip::compare( $original, $ezoeXml )['result'], 'ezoe alone vs the original' );
         $versus = expOETiptapRoundtrip::compare( $ezoeXml, $tiptapXml );
         $this->assertNotSame( 'lossy', $versus['result'], 'Tiptap vs ezoe alone: ' . $versus['detail'] );
-        // nothing lost against the original either; "equal" allows the one change Tiptap makes: a mark around an inline
-        // custom tag goes inside it (<strong><custom>x</custom></strong> becomes <custom><strong>x</strong></custom>)
-        if ( $ezoeVersusOriginal === 'identical' )
-            $this->assertContains( expOETiptapRoundtrip::compare( $original, $tiptapXml )['result'], array( 'identical', 'equal' ) );
+        // nothing lost against the original either. Until the formulas were atomic, bold around one went inside it
+        // (<strong><custom>x</custom></strong> became <custom><strong>x</strong></custom>, "equal")
+        if ( $tiptapVersusOriginal !== null )
+        {
+            $compare = expOETiptapRoundtrip::compare( $original, $tiptapXml );
+            $this->assertSame( $tiptapVersusOriginal, $compare['result'], 'Tiptap vs the original: ' . $compare['detail'] );
+        }
     }
 
     public function testTheKnownLimitationIsWhatItSays()

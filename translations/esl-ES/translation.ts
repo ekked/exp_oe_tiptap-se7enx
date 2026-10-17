@@ -112,6 +112,10 @@
         <translation>Elegir contenido</translation>
     </message>
     <message>
+        <source>Content</source>
+        <translation>Contenido</translation>
+    </message>
+    <message>
         <source>Class</source>
         <translation>Clase</translation>
     </message>

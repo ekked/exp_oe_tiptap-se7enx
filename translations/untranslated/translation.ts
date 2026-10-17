@@ -112,6 +112,10 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Content</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Class</source>
         <translation type="unfinished"></translation>
     </message>

@@ -21,16 +21,20 @@ import { shortcutLabel } from './keys.js';
 const BLOCK = 'ezCustomBlock';
 const IMAGE = 'ezCustomImage';
 const INLINE = 'ezCustomInline';
+const ATOM = 'ezCustomInlineAtom';
 export const customTagControlsKey = new PluginKey( 'expOECustomTagControls' );
 
 /**
- * The custom tag the selection is in: { kind: 'block'|'image'|'inline', node, pos, depth, mark }, or null.
+ * The custom tag the selection is in: { kind: 'block'|'image'|'atom'|'inline', node, pos, depth, mark }, or null.
+ * 'atom' is a selected atomic inline custom tag (a formula, nodes.js CustomInlineAtom).
  * @param {import('@tiptap/pm/state').EditorState} state
  */
 export function findCustomTag( state ) {
     const sel = state.selection;
     if ( sel instanceof NodeSelection && sel.node.type.name === IMAGE )
         return { kind: 'image', node: sel.node, pos: sel.from };
+    if ( sel instanceof NodeSelection && sel.node.type.name === ATOM )
+        return { kind: 'atom', node: sel.node, pos: sel.from };
     if ( sel instanceof NodeSelection && sel.node.type.name === BLOCK )
         return { kind: 'block', node: sel.node, pos: sel.from, depth: sel.$from.depth + 1 };
     const $from = sel.$from;
@@ -88,6 +92,14 @@ export function removeCustomTag( state, found ) {
         tr.replaceWith( found.pos, found.pos + found.node.nodeSize, found.node.content );
     else if ( found.kind === 'image' )
         tr.delete( found.pos, found.pos + found.node.nodeSize );
+    else if ( found.kind === 'atom' ) {
+        // its text stays, with the formatting the tag had
+        const text = found.node.attrs.text || '';
+        if ( text === '' )
+            tr.delete( found.pos, found.pos + found.node.nodeSize );
+        else
+            tr.replaceWith( found.pos, found.pos + found.node.nodeSize, state.schema.text( text, found.node.marks ) );
+    }
     else {
         // the whole run of the inline custom tag around the caret
         const range = getMarkRange( state.doc.resolve( found.pos ), found.mark.type, found.mark.attrs );

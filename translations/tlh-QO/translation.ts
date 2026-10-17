@@ -115,6 +115,10 @@
         <translation>De&apos; yIwIv</translation>
     </message>
     <message>
+        <source>Content</source>
+        <translation>De&apos;</translation>
+    </message>
+    <message>
         <source>Class</source>
         <translation>buv</translation>
     </message>
