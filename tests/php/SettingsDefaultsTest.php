@@ -36,7 +36,7 @@ final class SettingsDefaultsTest extends TestCase
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
         $this->assertStringContainsString( "ezini( 'DesignSettings', 'SiteDesign', 'site.ini' )", $tpl );
         $this->assertStringContainsString( "ezini_hasvariable( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )", $tpl );
-        $this->assertStringContainsString( '{if $design_skins|has_attribute( $site_design )}', $tpl );
+        $this->assertStringContainsString( '{if is_set( $design_skins[$site_design] )}', $tpl );
         $design = strpos( $tpl, '{set $tiptap_skin = $design_skins[$site_design]}' );
         $skin = strpos( $tpl, "{set \$tiptap_skin = ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}" );
         $this->assertNotFalse( $design );

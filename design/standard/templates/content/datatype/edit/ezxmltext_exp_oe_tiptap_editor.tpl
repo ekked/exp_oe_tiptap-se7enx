@@ -52,7 +52,7 @@
 {if ezini_hasvariable( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )}
     {set $design_skins = ezini( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )}
 {/if}
-{if $design_skins|has_attribute( $site_design )}
+{if is_set( $design_skins[$site_design] )}
     {if $design_skins[$site_design]|ne( '' )}
         {set $tiptap_skin = $design_skins[$site_design]}
     {/if}
