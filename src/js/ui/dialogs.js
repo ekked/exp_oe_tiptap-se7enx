@@ -8,6 +8,7 @@
  * schema's own parse rules (insertContent / attrsFromElement), so the dialogs never depend on the
  * node and attribute names of the schema.
  */
+import { getMarkRange } from '@tiptap/core';
 import { DOMSerializer as Serializer } from '@tiptap/pm/model';
 import { NodeSelection } from '@tiptap/pm/state';
 import { TableMap, CellSelection } from '@tiptap/pm/tables';
@@ -18,6 +19,7 @@ import {
     linkMark, markForTag, nodeForTag, selectedAncestor, attrsFromElement, dialectElement, makeElement, escapeHtml
 } from '../editor/schema-utils.js';
 import { setBlockFormat } from '../editor/commands.js';
+import * as dialectSchema from '#ezoe-schema';
 import { generalTargets, preferredTarget, TAG_LABELS } from '../editor/tags.js';
 import { helpContent, SHORTCUTS } from './help.js';
 import { readSource, applySource } from '../editor/source.js';
@@ -26,6 +28,9 @@ import { readSource, applySource } from '../editor/source.js';
 const EMBED_ID = /^eZ(Object|Node)_(\d+)$/;
 
 // ---------------------------------------------------------------- helpers
+
+/** The text of an atomic inline custom tag as the server stores it (the fallback schema has no such tags) */
+const atomicCustomTagText = dialectSchema.atomicCustomTagText || ( ( schema, name, text ) => text );
 
 /** openDialog() with the editor's skin and close text; closing gives the focus back to the text */
 function open( ctx, spec ) {
@@ -479,6 +484,20 @@ function selectedCustomTag( ctx ) {
     return null;
 }
 
+/**
+ * The node type of the inline custom tag `name` when the schema keeps it as one piece (an inline atom whose text is an
+ * attribute, as formulas are: exp_oe_tiptap.ini [EditorSettings] AtomicInlineCustomTags[]), else null. Asked from the
+ * schema's own parse rules, like everything else here.
+ */
+export function atomicCustomTagType( editor, name ) {
+    if ( !name )
+        return null;
+    const probe = makeElement( 'span', { 'class': 'ezoeItemCustomTag ' + name, type: 'custom' }, 'x' );
+    const found = nodeForTag( editor, 'span', ( rule, type ) => type.isInline && type.isAtom && /custom/i.test( type.name ) &&
+        attrsFromElement( type, probe ) !== null );
+    return found ? found.type : null;
+}
+
 function customTagName( el ) {
     if ( !el )
         return '';
@@ -505,10 +524,19 @@ function customTagDialog( ctx ) {
     const nameSelect = select( offered.map( ( d ) => [ d.name, d.title || d.name ] ), currentName || ( offered[0] && offered[0].name ) );
     nameSelect.disabled = !!existing;
     const attrBox = h( 'div', { class: 'exp-oe-custom-attributes' } );
+    // the text of an atomic inline custom tag (a formula: TeX source, the spoken form of MathML) is edited here,
+    // it cannot be typed into the tag in the text
+    const existingAtom = !!( existing && existing.node && existing.node.isInline && existing.node.isAtom && existing.node.attrs.text !== undefined );
+    const contentBox = h( 'textarea', { rows: 3, class: 'exp-oe-custom-content' } );
+    contentBox.value = existingAtom ? existing.node.attrs.text : ( existing ? '' : selectedText( editor ) );
+    const atomicDef = ( def ) => !!def && def.inline === true && !!atomicCustomTagType( editor, def.name );
+    const hasContentField = ( def ) => ( existing ? existingAtom : atomicDef( def ) );
     let custom = null;
     const renderAttributes = () => {
         clear( attrBox );
         const def = tags.find( ( d ) => d.name === nameSelect.value ) || { attributes: [] };
+        if ( hasContentField( def ) )
+            attrBox.appendChild( field( t( 'Content' ), contentBox ) );
         custom = attributeFields( t, def.attributes, nameSelect.value === currentName ? stored : {} );
         custom.rows.forEach( ( r ) => attrBox.appendChild( r ) );
         // the example image, images/editor/custom_tags_thumbs/<name>.png (LoveStack commit 63334f1681)
@@ -536,15 +564,29 @@ function customTagDialog( ctx ) {
                         style += styleMap[k] + ': ' + v + ( /^\d+$/.test( v ) && /width|height|margin|padding|border-width|size/.test( styleMap[k] ) ? 'px' : '' ) + '; ';
                 }
                 const attrs = { 'class': 'ezoeItemCustomTag ' + def.name, type: 'custom', customattributes: serializeCustomAttributes( values ), style: style.trim() };
+                // an empty formula is written as ezoe writes an empty inline custom tag, with a non-breaking space
+                // the text as the server stores it (no line breaks, TeX comments removed: atomicCustomTagText())
+                const typed = atomicCustomTagText( editor.schema, nameSelect.value, contentBox.value );
+                const content = typed === '' ? ' ' : typed;
                 if ( existing ) {
-                    const tag = existing.el ? existing.el.tagName.toLowerCase() : 'span';
-                    const elNew = makeElement( tag, attrs );
+                    // an atom keeps its element (<u> or <span>), as its node says
+                    const tag = existingAtom ? ( existing.node.attrs.tag === 'u' ? 'u' : 'span' ) : ( existing.el ? existing.el.tagName.toLowerCase() : 'span' );
+                    const elNew = makeElement( tag, attrs, existingAtom ? escapeHtml( content ) : undefined );
                     const type = existing.mark ? existing.mark.type : existing.node.type;
                     const newAttrs = attrsFromElement( type, elNew );
                     if ( !newAttrs )
                         return true;
-                    if ( existing.mark )
-                        return editor.chain().focus().extendMarkRange( type.name ).setMark( type.name, newAttrs ).run();
+                    if ( existing.mark ) {
+                        // the tag's run gets the new attributes in place of the old ones: an inline custom tag may
+                        // share its text with others (the mark excludes nothing), so setMark() nested a second one
+                        const mark = existing.mark;
+                        return editor.chain().focus().command( ( { tr, state } ) => {
+                            const range = getMarkRange( state.selection.$from, mark.type, mark.attrs ) || { from: state.selection.from, to: state.selection.to };
+                            tr.removeMark( range.from, range.to, mark );
+                            tr.addMark( range.from, range.to, mark.type.create( Object.assign( {}, mark.attrs, newAttrs ) ) );
+                            return true;
+                        } ).run();
+                    }
                     return editor.chain().focus().command( ( { tr } ) => {
                         tr.setNodeMarkup( existing.pos, undefined, Object.assign( {}, existing.node.attrs, newAttrs ) );
                         return true;
@@ -554,7 +596,7 @@ function customTagDialog( ctx ) {
                 if ( def.inline === 'image' ) {
                     html = makeElement( 'img', Object.assign( { src: def.icon, width: 22, height: 22 }, attrs ) ).outerHTML;
                 } else if ( def.inline ) {
-                    const text = selectedText( editor ) || ' ';
+                    const text = atomicDef( def ) ? content : ( selectedText( editor ) || ' ' );
                     html = makeElement( def.name === 'underline' ? 'u' : 'span', attrs, escapeHtml( text ) ).outerHTML;
                 } else {
                     const inner = selectedHTML( editor ) || '<p>' + escapeHtml( def.name ) + '</p>';

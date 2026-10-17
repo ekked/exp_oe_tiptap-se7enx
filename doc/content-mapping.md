@@ -56,6 +56,7 @@ ezoe versions might add. TinyMCE's own attributes are dropped, as TinyMCE drops 
 | `<embed-inline>` | `<span id=... inline="true" ...>preview</span>` (`<img>` for an image) | node `ezEmbedInline`, inline atom | as `ezEmbed` |
 | `<custom>` block | `<div class="ezoeItemCustomTag NAME" type="custom" customattributes style align>blocks</div>`; an empty one holds `<p>NAME</p>` | node `ezCustomBlock` (content `block+`, editable) | *class, type, customattributes, style, align* |
 | `<custom>` inline (`IsInline=true`) | `<span class="ezoeItemCustomTag NAME" type="custom" ...>text</span>`, `<u ...>` for `underline` | mark `ezCustomInline` (several can share the same text) | *class, type, customattributes, style, align*; `tag` (span/u) |
+| `<custom>` inline, atomic (`IsInline=true`, NAME in exp_oe_tiptap.ini `AtomicInlineCustomTags[]`: `math_latex`, `math_mathml`) | the same `<span ...>text</span>`, holding text only | node `ezCustomInlineAtom`, inline atom; the text is the attribute `text` (an element with markup inside stays the mark) | *class, type, customattributes, style, align*; `tag`, `text` |
 | `<custom>` inline image (`IsInline=image`) | `<img src="icon" class="ezoeItemCustomTag NAME" type="custom" customattributes width height>` | node `ezCustomImage`, inline atom | *src, class, type, customattributes, width, height, style, align* |
 | `<custom name="sub\|sup">` | `<sub>` / `<sup>` | marks `subscript` / `superscript` | *class, customattributes, style, align* |
 | `xhtml:id`, `xhtml:title`, `xhtml:width`, `xhtml:colspan`, `xhtml:rowspan` | `html_id`/`id`, `title`, `width`, `colspan`, `rowspan` | attributes as above | |
@@ -64,6 +65,27 @@ ezoe versions might add. TinyMCE's own attributes are dropped, as TinyMCE drops 
 The marks are nested in this order on output, outermost first: inline custom tags, emphasize, strong, sub, sup, link.
 Stored content usually has formatting around a link (`<emphasize>Credit: <link>…</link></emphasize>`). With the link
 innermost, that formatting is not split around it.
+
+### Atomic inline custom tags (formulas)
+
+The inline custom tags of exp_oe_tiptap.ini `[EditorSettings] AtomicInlineCustomTags[]` (by default the formulas
+`math_latex`, whose text is TeX source, and `math_mathml`, whose text is the spoken form of the MathML in its custom
+attribute) are not a mark but an inline atom, `ezCustomInlineAtom`, with the tag's text in the attribute `text`. The
+HTML is written exactly as the mark writes it. As a mark, ordinary edits damaged them: a second edit in the custom tag
+dialog nested a copy of the tag (`<custom><custom>MATH</custom></custom>`), bold, italic or a link around a formula
+went inside it after any edit of the field (`<strong>x <custom>a</custom></strong>` became
+`<strong>x </strong><custom><strong>a</strong></custom>`, markup in the TeX source), two formulas side by side with
+the same attributes merged into one, Enter split a formula and text typed right after it went into it. As an atom
+none of this happens: formatting and links wrap the whole tag, the text is changed in the custom tag dialog (field
+Content), remove formatting keeps the tag, and converting the paragraph to literal keeps its text as plain text. An
+atomic tag that holds markup (stored that way) is read as the mark, so nothing of it is lost. Its text never holds a
+line break: ezoe's parser removes every line break when it stores a text (`\cdot⏎x` became `\cdotx`), so a line
+break typed into the Content field, or between two paragraphs made into a formula, becomes one space; in TeX source
+(content.ini `[CustomTagSettings] TeXSource[NAME]=true`, `math_latex` when the setting is missing) an unescaped `%`
+comment first goes with the rest of its line and the line break, and a control word before it stays separated from
+a letter after it (`\alpha%⏎beta` is `\alpha beta`), the same rule as `eZOEXMLInput::texWithoutLineComments()`. Find and replace, the
+AI commands (the tag is one `⟦C1⟧` token) and the word count do not see the text of an atomic tag. Editing an inline
+custom tag that stays a mark in the dialog replaces its attributes on its run of text, without nesting.
 
 ### Paragraphs only TinyMCE needs (`fromEditorHTML`, `prepareFromEzoe()`)
 
@@ -122,8 +144,13 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   `inputXML()` and `eZOEInputParser`, three passes, the stored ezxml identical to the original every time. No database.
 - `tests/php/FixtureParityTest.php` (PHPUnit, needs node and `npm ci`, no database): `s067` and `s068` through the
   real `inputXML()`, Tiptap and `eZOEInputParser`, with the math tags defined in memory: Tiptap loses nothing ezoe
-  alone keeps; `s067` comes back without loss (a mark around an inline custom tag moves inside it: "equal"); `s068`
-  keeps its headings and loses its lists in both editors. `tests/php/RoundtripSandboxTest.php`: which sandboxes and
+  alone keeps; `s067` comes back identical (the bold around a formula included); `s068`
+  keeps its headings and loses its lists in both editors.
+- `tests/php/InlineCustomTagRoundtripTest.php` (PHPUnit, needs node and `npm ci`, no database): edits made with the
+  editor's dialogs and commands (`tests/js/schema/through-editor.mjs`) on formulas and on an inline custom tag that is
+  a mark, through the real parser and two more passes, stored identically: the custom tag dialog, bold over a
+  sentence with a formula, remove formatting, typing after a formula, literal, two adjacent formulas.
+  `tests/js/ui/inline-custom-atoms.test.mjs`: the same in the editor, plus the option, the controls and the AI markup. `tests/php/RoundtripSandboxTest.php`: which sandboxes and
   siteaccesses `run.sh` accepts.
 - `tests/php/roundtrip/run.sh <siteaccess> <sandbox> <work-dir>`, run from the installation root. `<siteaccess>` is
   the siteaccess whose settings the parser uses (content.ini custom tags, classes, custom attributes; usually the
@@ -226,6 +253,9 @@ Nothing in the schema has to change: custom tags are recognised by their markup,
    - a block tag is inserted with `editor.commands.setCustomBlock(NAME, customattributes)`, which wraps the selection,
      or with `insertCustomBlock(NAME, customattributes)`, which adds an empty one;
    - an inline tag is set with `setCustomInline(NAME, customattributes)` and removed with `unsetCustomInline(NAME)`;
+     for a tag of `AtomicInlineCustomTags[]` (see above) `setCustomInline` inserts it as one piece with the selected
+     text (`insertCustomInlineAtom(NAME, customattributes, text)`); a tag whose text is not ordinary text, such as
+     a formula, belongs into that list;
    - an image tag is inserted with `insertCustomImage({ src, class: 'ezoeItemCustomTag NAME', type: 'custom', customattributes })`.
 
    `customattributes` is ezoe's string. Build it with `serializeCustomAttributes({ name: value })`.

@@ -31,21 +31,28 @@ export const isFallback = false;
 
 /**
  * The Tiptap extensions of the ezoe dialect: document, text, paragraph, heading, hard break, lists, literal,
- * anchor, embeds, custom tags, tables and the marks. History, placeholder, drop cursor and the like are left to
- * the editor (src/js/editor).
+ * anchor, embeds, custom tags (block, image, atomic inline), tables and the marks. History, placeholder, drop cursor
+ * and the like are left to the editor (src/js/editor).
  *
  * @param {object} [options]
  * @param {number[]} [options.headingLevels=[1..6]]
+ * @param {string[]} [options.atomicInlineCustomTags] the inline custom tags kept as one piece (exp_oe_tiptap.ini
+ *        [EditorSettings] AtomicInlineCustomTags[]); without it DEFAULT_ATOMIC_INLINE_CUSTOM_TAGS (the formulas)
+ * @param {string[]} [options.texSourceCustomTags] the inline custom tags whose text is TeX source (content.ini
+ *        [CustomTagSettings] TeXSource[]): their line comments go before line breaks become spaces; without it
+ *        DEFAULT_TEX_SOURCE_CUSTOM_TAGS
  * @returns {import('@tiptap/core').AnyExtension[]}
  */
 export function ezoeExtensions( options = {} ) {
-    const extensions = ezoeNodes().concat( ezoeTables(), ezoeMarks() );
-    if ( options.headingLevels ) {
-        return extensions.map( extension => ( extension.name === 'heading'
-            ? extension.configure( { levels: options.headingLevels } )
-            : extension ) );
-    }
-    return extensions;
+    const atomic = Array.isArray( options.atomicInlineCustomTags ) ? options.atomicInlineCustomTags.map( String ) : null;
+    const tex = Array.isArray( options.texSourceCustomTags ) ? options.texSourceCustomTags.map( String ) : null;
+    return ezoeNodes().concat( ezoeTables(), ezoeMarks() ).map( extension => {
+        if ( extension.name === 'heading' && options.headingLevels )
+            return extension.configure( { levels: options.headingLevels } );
+        if ( extension.name === 'ezCustomInlineAtom' && ( atomic || tex ) )
+            return extension.configure( Object.assign( {}, atomic ? { names: atomic } : {}, tex ? { texSource: tex } : {} ) );
+        return extension;
+    } );
 }
 
 let defaultSchema = null;

@@ -6,6 +6,7 @@
  *   ezxml <link>                      <a href ...>                    link
  *   ezxml <custom name="sub|sup">     <sub> / <sup>                   subscript / superscript
  *   ezxml <custom> (inline)           <span|u class="ezoeItemCustomTag NAME" type="custom">   ezCustomInline
+ *                                     (the atomic ones, formulas: the inline node ezCustomInlineAtom, nodes.js)
  *
  * The order of the marks in the list returned by ezoeMarks() is their nesting order on output (first = outermost):
  * inline custom tags, emphasize, strong, sub, sup, link. Formatting usually spans more than a link inside it
@@ -16,6 +17,7 @@
  */
 import { Mark, mergeAttributes } from '@tiptap/core';
 import { attributeSet, COMMON, customTagName } from './attributes.js';
+import { atomicCustomTagNames } from './nodes.js';
 
 const FORMAT_ATTRIBUTES = COMMON;
 
@@ -132,6 +134,8 @@ export const Link = Mark.create( {
  * <span class="ezoeItemCustomTag NAME" type="custom" customattributes="..">, and <u ...> for "underline".
  * A plain <u> (pasted, or the underline button) is the custom tag "underline" too, as eZOEInputParser reads it.
  * Several inline custom tags can be on the same text, so the mark does not exclude itself.
+ * The tags named in exp_oe_tiptap.ini [EditorSettings] AtomicInlineCustomTags[] (formulas) are the inline atom
+ * ezCustomInlineAtom instead (nodes.js), unless their element holds markup.
  */
 export const CustomInline = Mark.create( {
     name: 'ezCustomInline',
@@ -156,12 +160,16 @@ export const CustomInline = Mark.create( {
     addCommands() {
         return {
             /** Puts the inline custom tag `name` (with custom attributes, as ezoe's string) on the selection. */
-            setCustomInline: ( name, customattributes = null ) => ( { commands } ) => commands.setMark( this.name, {
-                tag: name === 'underline' ? 'u' : 'span',
-                class: 'ezoeItemCustomTag ' + name,
-                type: 'custom',
-                customattributes
-            } ),
+            setCustomInline: ( name, customattributes = null ) => ( { state, commands } ) => (
+                atomicCustomTagNames( state.schema ).indexOf( name ) !== -1
+                    // an atomic tag (a formula) takes the selected text as its text, as one piece
+                    ? commands.insertCustomInlineAtom( name, customattributes )
+                    : commands.setMark( this.name, {
+                        tag: name === 'underline' ? 'u' : 'span',
+                        class: 'ezoeItemCustomTag ' + name,
+                        type: 'custom',
+                        customattributes
+                    } ) ),
             /** Removes the inline custom tag `name` (all inline custom tags without a name) from the selection. */
             unsetCustomInline: name => ( { tr, state, dispatch } ) => {
                 const { from, to } = state.selection;

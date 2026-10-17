@@ -87,7 +87,9 @@
    right-to-left content language (the locale file's TextDirection); contextMenu and sourceEditable are
    exp_oe_tiptap.ini [EditorSettings] ContextMenu and SourceEditable; pathOpenDialog is ezoe.ini [EditorSettings]
    TagPathOpenDialog (a click on a tag of the path opens its dialog); customTagControls is ezoe.ini [EditorSettings]
-   CustomTagControls (the bar on the focused custom tag, its shortcuts and the labels); formToken is ezformtoken's
+   CustomTagControls (the bar on the focused custom tag, its shortcuts and the labels); atomicInlineCustomTags is
+   exp_oe_tiptap.ini [EditorSettings] AtomicInlineCustomTags[] (inline custom tags kept as one piece),
+   texSourceCustomTags the names of content.ini [CustomTagSettings] TeXSource[] (their text is TeX source); formToken is ezformtoken's
    placeholder (its output filter puts the token in) or, without an active ezformtoken, the session token of
    exp_oe_tiptap; i18n maps English texts
    to their translation (context extension/exp_oe_tiptap), texts missing there stay English. Every value from the
@@ -115,6 +117,8 @@
     "xmlTagAlias": {$input_handler.json_xml_tag_alias},
     "customTags": {json_encode( $input_handler.custom_tag_definitions )},
     "customTagControls": {cond( $input_handler.custom_tag_controls_enabled, 'true', 'false' )},
+    "atomicInlineCustomTags": {json_encode( $exp_oe.atomic_inline_custom_tags )},
+    "texSourceCustomTags": {json_encode( $exp_oe.tex_source_custom_tags )},
     "literal": {json_encode( $input_handler.literal_definition )},
     "tableDefinitions": {json_encode( $input_handler.table_definitions )},
     "generalDefinitions": {json_encode( $input_handler.general_definitions )},

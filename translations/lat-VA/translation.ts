@@ -115,6 +115,10 @@
         <translation>Contentum eligere</translation>
     </message>
     <message>
+        <source>Content</source>
+        <translation>Contentum</translation>
+    </message>
+    <message>
         <source>Class</source>
         <translation>Classis</translation>
     </message>

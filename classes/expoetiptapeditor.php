@@ -196,7 +196,7 @@ class expOETiptapEditor
      *
      * @return array editor, label, other, other_label, can_switch, switch_action, tiptap_available, ai_enabled,
      *               ai_commands, scripts, styles, asset_loading, cache_key, min_height, upload_extensions,
-     *               upload_from_url, i18n, form_token
+     *               upload_from_url, i18n, form_token, atomic_inline_custom_tags, tex_source_custom_tags
      */
     public static function editorInfo()
     {
@@ -235,6 +235,10 @@ class expOETiptapEditor
             'context_menu'     => self::setting( 'EditorSettings', 'ContextMenu', 'enabled' ) !== 'disabled',
             // [EditorSettings] SourceEditable: the source view (button code) can be changed and applied
             'source_editable'  => self::setting( 'EditorSettings', 'SourceEditable', 'enabled' ) !== 'disabled',
+            // [EditorSettings] AtomicInlineCustomTags[]: inline custom tags kept as one piece (formulas)
+            'atomic_inline_custom_tags' => self::atomicInlineCustomTags(),
+            // content.ini [CustomTagSettings] TeXSource[]: inline custom tags whose text is TeX source
+            'tex_source_custom_tags' => self::texSourceCustomTags(),
             // the upload rules of ezoe's embed dialog (ezoe.ini [EditorSettings] UploadFileExtensions[], UploadFromUrl)
             'upload_extensions' => self::hasRegistry() ? expOEEditor::uploadExtensions() : array(),
             'upload_from_url'   => class_exists( 'expOEUrlFetcher' ) ? (bool) expOEUrlFetcher::enabled() : false,
@@ -242,6 +246,37 @@ class expOETiptapEditor
             // options.formToken: ezformtoken's placeholder, or the extension's session token without ezformtoken
             'form_token'        => self::renderedToken(),
         );
+    }
+
+    /**
+     * @return array|null [EditorSettings] AtomicInlineCustomTags[], the names of inline custom tags kept as one piece;
+     *                    null when the setting is missing (a stale INI cache): the editor then takes its own default,
+     *                    the same names as this extension's settings
+     */
+    public static function atomicInlineCustomTags()
+    {
+        if ( self::setting( 'EditorSettings', 'AtomicInlineCustomTags' ) === null )
+            return null;
+        return array_values( array_unique( array_filter( array_map( 'strval', (array) self::setting( 'EditorSettings', 'AtomicInlineCustomTags', array() ) ), 'strlen' ) ) );
+    }
+
+    /**
+     * @return array|null the names of content.ini [CustomTagSettings] TeXSource[NAME]=true (the text of the tag is TeX
+     *                    source, as eZOEXMLInput::isTeXSourceTag() reads it); null when the setting is missing: the
+     *                    editor then takes math_latex
+     */
+    public static function texSourceCustomTags()
+    {
+        $ini = eZINI::instance( 'content.ini' );
+        if ( !$ini->hasVariable( 'CustomTagSettings', 'TeXSource' ) )
+            return null;
+        $names = array();
+        foreach ( (array) $ini->variable( 'CustomTagSettings', 'TeXSource' ) as $name => $value )
+        {
+            if ( $value === 'true' )
+                $names[] = (string) $name;
+        }
+        return $names;
     }
 
     /** @return bool whether the current user may use the AI commands: [AISettings] Enabled and exp_oe_tiptap/ai */

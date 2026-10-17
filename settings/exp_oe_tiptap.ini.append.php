@@ -45,6 +45,16 @@ ContextMenu=enabled
 # here would hide every siteaccess's choice. Set it per siteaccess or in settings/override/.
 #SourceEditable=enabled
 
+# Inline custom tags (content.ini [CustomTagSettings] IsInline[NAME]=true) the editor keeps as one piece: the tag
+# and its text are a unit, its text is edited in the custom tag dialog (field Content), formatting and links wrap
+# the whole tag. For tags whose text is not ordinary text, such as formulas (TeX source, the spoken form of MathML).
+# Other inline custom tags are formatting on the text, as in ezoe. The stored XML is the same either way.
+# No reset line ("AtomicInlineCustomTags[]") here on purpose: an extension's own settings are read after a
+# siteaccess's, and a reset would drop the names a siteaccess adds. A siteaccess adds its own tags with
+# AtomicInlineCustomTags[]=NAME; settings/override/ can start the list empty to replace it.
+AtomicInlineCustomTags[]=math_latex
+AtomicInlineCustomTags[]=math_mathml
+
 
 [AISettings]
 # The AI commands of the editor (improve, shorten, ...). Off by default. When enabled, only users with the
