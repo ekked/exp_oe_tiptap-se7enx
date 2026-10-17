@@ -31,7 +31,9 @@ final class AIRequestContextTest extends TestCase
             4 => array( 'creator_id' => 99, 'status' => eZContentObjectVersion::STATUS_DRAFT ),
             5 => array( 'creator_id' => self::USER, 'status' => eZContentObjectVersion::STATUS_INTERNAL_DRAFT ),
         ) ), 60 => new AIRequestContextTestObject( 60, array( 1 => array( 'creator_id' => self::USER, 'status' => eZContentObjectVersion::STATUS_DRAFT ) ) ) );
-        $this->attributes = array( '812/3' => 57, '812/5' => 57, '900/3' => 60 );
+        // attribute id/version => object id and language of the field
+        $this->attributes = array( '812/3' => array( 57, 'ger-DE' ), '812/5' => array( 57, 'ger-DE' ), '813/3' => array( 57, 'eng-GB' ),
+                                   '900/3' => array( 60, 'ger-DE' ) );
     }
 
     private function context()
@@ -42,7 +44,10 @@ final class AIRequestContextTest extends TestCase
             static function ( $id ) use ( &$objects ) { return isset( $objects[$id] ) ? $objects[$id] : null; },
             static function ( $id, $version ) use ( $attributes )
             {
-                return isset( $attributes[$id . '/' . $version] ) ? new AIRequestContextTestRow( array( 'contentobject_id' => $attributes[$id . '/' . $version] ) ) : null;
+                if ( !isset( $attributes[$id . '/' . $version] ) )
+                    return null;
+                list( $object, $language ) = $attributes[$id . '/' . $version];
+                return new AIRequestContextTestRow( array( 'contentobject_id' => $object, 'language_code' => $language ) );
             },
             static function () { return self::USER; },
             static function () { return array( 'eng-GB', 'ger-DE' ); }
@@ -111,6 +116,27 @@ final class AIRequestContextTest extends TestCase
         $this->assertSame( array(), $this->objects[57]->asked, 'edit access is not even asked' );
     }
 
+    public function testTheFieldMustBeOfTheRequestedLanguage()
+    {
+        // 813 is the eng-GB field of object 57: the request names ger-DE
+        $e = $this->refused( $this->ids( 57, 3, 813, 'ger-DE' ), '/does not belong to this content/' );
+        $this->assertSame( 'language of the attribute and language of the request do not match', $e->getLogDetail() );
+        $this->assertSame( $this->ids( 57, 3, 813, 'eng-GB' ), $this->context()->check( $this->ids( 57, 3, 813, 'eng-GB' ) ) );
+        $this->assertSame( $this->ids( 57, 3, 813, '' ), $this->context()->check( $this->ids( 57, 3, 813 ) ), 'no language named: any field of the object' );
+    }
+
+    public function testAKernelWithoutEditAccessUsesCanEditInTheLanguage()
+    {
+        $this->objects[57] = new AIRequestContextTestOldKernelObject( 57, array(
+            3 => array( 'creator_id' => self::USER, 'status' => eZContentObjectVersion::STATUS_DRAFT ) ) );
+        $this->assertFalse( method_exists( $this->objects[57], 'editAccess' ) );
+        $this->assertSame( $this->ids( 57, 3, 812, 'ger-DE' ), $this->context()->check( $this->ids( 57, 3, 812, 'ger-DE' ) ) );
+        $this->assertSame( $this->ids( 57, 3, 812, '' ), $this->context()->check( $this->ids( 57, 3, 812 ) ) );
+        $this->assertSame( array( array( false, false, false, 'ger-DE' ), array( false, false, false, false ) ), $this->objects[57]->asked );
+        $this->objects[57]->allowed = false;
+        $this->refused( $this->ids( 57, 3, 812, 'ger-DE' ), '/not allowed to edit this content/' );
+    }
+
     public function testInvalidLanguage()
     {
         $this->refused( $this->ids( 57, 3, 812, null ), '/language of the field is not valid/' );
@@ -174,6 +200,32 @@ class AIRequestContextTestObject
     public function editAccess( $version, $language = false )
     {
         $this->asked[] = array( (int) $version->attribute( 'version' ), $language );
+        return $this->allowed;
+    }
+}
+
+/** A content object of a kernel without editAccess(): canEdit() answers $allowed and records its arguments */
+class AIRequestContextTestOldKernelObject
+{
+    public $allowed = true;
+    public $asked = array();
+    private $id;
+    private $versions;
+
+    public function __construct( $id, array $versions )
+    {
+        $this->id = $id;
+        $this->versions = $versions;
+    }
+
+    public function version( $number )
+    {
+        return isset( $this->versions[$number] ) ? new AIRequestContextTestRow( $this->versions[$number] + array( 'version' => $number ) ) : null;
+    }
+
+    public function canEdit( $originalClassID = false, $parentClassID = false, $returnAccessList = false, $language = false )
+    {
+        $this->asked[] = array( $originalClassID, $parentClassID, $returnAccessList, $language );
         return $this->allowed;
     }
 }

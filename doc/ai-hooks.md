@@ -275,8 +275,9 @@ ExpaiModel=
 - **Data policy:** the editor sends the edited field (`contentObjectId`, `version`, `attributeId`, `languageCode`). The
   server function checks it as the edit form does (`expOETiptapAIRequestContext`): the version is a draft of the
   current user, the user may edit the object in that language (`eZContentObject::editAccess()`, including the
-  `content/edit/access` listeners), the attribute belongs to the object, and the language is one of the site (an
-  invalid one is refused, not ignored). expai's data policy (`[DataPolicy]` of expai.ini) then decides on **the object
+  `content/edit/access` listeners; on a kernel without `editAccess()`, `eZContentObject::canEdit()` in that language),
+  the attribute belongs to the object and, when a language is named, is the field of that language, and the language
+  is one of the site (an invalid one is refused, not ignored). expai's data policy (`[DataPolicy]` of expai.ini) then decides on **the object
   of the edited field** whether the text may go to the model's provider: the policy relies on that object, so while a
   data policy is configured a request without it is refused already in the server function.
 - **Limits and usage log:** the request runs through `expAiUsageRecorder`: `[Limits]` of expai apply, and every

@@ -13,8 +13,9 @@
  *
  *  - the version is a draft (draft or internal draft) of the current user;
  *  - the user may edit the object in that language (eZContentObject::editAccess(), which also runs the listeners of
- *    content/edit/access);
- *  - the attribute, when named, belongs to the object in that version;
+ *    content/edit/access; on a kernel without editAccess() eZContentObject::canEdit() in that language);
+ *  - the attribute, when named, belongs to the object in that version and, when a language is named too, is the
+ *    field of that language;
  *  - the language, when named, is a language of the site.
  *
  * The kernel is reached through callables, so the check can be tested without a database. A provider that relies on
@@ -96,14 +97,34 @@ class expOETiptapAIRequestContext
         if ( (int) $version->attribute( 'creator_id' ) !== (int) call_user_func( $this->currentUserID )
              || !in_array( (int) $version->attribute( 'status' ), array( eZContentObjectVersion::STATUS_DRAFT, eZContentObjectVersion::STATUS_INTERNAL_DRAFT ), true ) )
             throw new expOETiptapAIException( 'This is not a draft of yours.', 'version of the request is not a draft of the current user' );
-        if ( !$object->editAccess( $version, $ids['language'] !== '' ? $ids['language'] : false ) )
+        if ( !self::mayEdit( $object, $version, $ids['language'] !== '' ? $ids['language'] : false ) )
             throw new expOETiptapAIException( 'You are not allowed to edit this content.', 'no edit access to the object of the request' );
         if ( (int) $ids['attribute_id'] > 0 )
         {
             $attribute = call_user_func( $this->fetchAttribute, (int) $ids['attribute_id'], (int) $ids['version'] );
             if ( !is_object( $attribute ) || (int) $attribute->attribute( 'contentobject_id' ) !== (int) $ids['object_id'] )
                 throw new expOETiptapAIException( 'The field does not belong to this content.', 'attribute and object of the request do not match' );
+            $attributeLanguage = (string) $attribute->attribute( 'language_code' );
+            if ( $ids['language'] !== '' && $attributeLanguage !== '' && $attributeLanguage !== $ids['language'] )
+                throw new expOETiptapAIException( 'The field does not belong to this content.', 'language of the attribute and language of the request do not match' );
         }
         return $ids;
+    }
+
+    /**
+     * Whether the current user may edit the object in the language: editAccess() where the kernel has it (newer
+     * kernels; it checks the version too and runs the listeners of content/edit/access), else canEdit() in that
+     * language, the check older kernels make on the edit form.
+     *
+     * @param object $object eZContentObject
+     * @param object $version eZContentObjectVersion
+     * @param string|false $language
+     * @return bool
+     */
+    protected static function mayEdit( $object, $version, $language )
+    {
+        if ( method_exists( $object, 'editAccess' ) )
+            return (bool) $object->editAccess( $version, $language );
+        return (bool) $object->canEdit( false, false, false, $language );
     }
 }
