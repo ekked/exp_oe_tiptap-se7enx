@@ -12,9 +12,15 @@
  * The language is added to the name when it is not the object's initial language. The pairs are what
  * tests/php/roundtrip/run.sh reads with EXPOETIPTAP_FIXTURES_DIR (or run.sh --fixtures=<dir>).
  *
- * Read only: nothing is written to the database, and template compiling and caching are turned off so rendering
- * embed previews writes nothing to the cache. The content is the site's own content, so --out must lie outside the
- * extension's tests/fixtures/ (which is committed) unless --into-tests is given.
+ * Not strictly read only. eZOEXMLInput::inputXML() can create image aliases of embedded images: that writes rows
+ * (the image attribute's alias list) and image files under var/storage. The whole export therefore runs in one
+ * database transaction that is always rolled back, so no row it wrote is kept; the script refuses to run when
+ * [DatabaseSettings] Transactions is not enabled. What the rollback cannot undo: alias files written to disk stay
+ * in var/storage (with no row pointing to them; the next request that needs them makes them again), tables of an
+ * engine without transactions (MyISAM) keep their rows, and a cluster file handler with a database of its own
+ * (DFS) keeps its metadata rows. Run it on a copy of the site where that matters. Template compiling and caching
+ * are turned off so rendering embed previews writes nothing to the cache. The content is the site's own content,
+ * so --out must lie outside the extension's tests/fixtures/ (which is committed) unless --into-tests is given.
  *
  * Run from the Exponential root, always with the siteaccess whose database and settings you mean:
  *   php extension/exp_oe_tiptap/bin/php/export_roundtrip_fixtures.php -s <admin siteaccess> --out=/abs/path/fixtures
@@ -102,6 +108,14 @@ $ini->setVariable( 'TemplateSettings', 'TemplateCache', 'disabled' );
 $db = eZDB::instance();
 $cli->output( sprintf( 'Siteaccess %s, database %s (%s); no other siteaccess or database was read', $siteAccess,
                        (string) $db->DB, get_class( $db ) ) );
+// inputXML() may create image aliases (rows and files): every row is written inside one transaction that is rolled
+// back at the end, so without transactions the export would keep them
+if ( $ini->variable( 'DatabaseSettings', 'Transactions' ) !== 'enabled' )
+{
+    $cli->error( 'FAIL: [DatabaseSettings] Transactions is not enabled for this siteaccess; the export runs in a '
+               . 'transaction that is rolled back, so that the image aliases inputXML() may create are not kept' );
+    $script->shutdown( 1 );
+}
 
 $where = "a.data_type_string = 'ezxmltext' AND o.status = " . (int) eZContentObject::STATUS_PUBLISHED;
 if ( $classes )
@@ -127,46 +141,59 @@ $failed = 0;
 $seen = 0;
 $batch = 200;
 $position = 0;
-while ( true )
+$db->begin();
+try
 {
-    $rows = $db->arrayQuery( $sql, array( 'offset' => $position, 'limit' => $batch ) );
-    if ( !$rows )
-        break;
-    $position += count( $rows );
-    foreach ( $rows as $row )
+    while ( true )
     {
-        $xml = (string) $row['data_text'];
-        if ( !expOETiptapExportHasContent( $xml ) )
+        // a rollback inside the kernel ends every level of the transaction: open it again, so later writes are rolled back too
+        if ( $db->transactionCounter() < 1 )
+            $db->begin();
+        $rows = $db->arrayQuery( $sql, array( 'offset' => $position, 'limit' => $batch ) );
+        if ( !$rows )
+            break;
+        $position += count( $rows );
+        foreach ( $rows as $row )
         {
-            ++$skipped;
-            continue;
+            $xml = (string) $row['data_text'];
+            if ( !expOETiptapExportHasContent( $xml ) )
+            {
+                ++$skipped;
+                continue;
+            }
+            // --offset and --limit count attributes with content, the ones that become fixtures
+            if ( $seen++ < $offset )
+                continue;
+            if ( $limit && $written + $failed >= $limit )
+                break 2;
+            $name = sprintf( '%s-%s-%s-o%d', $prefix, $row['class_identifier'], $row['attribute_identifier'], $row['contentobject_id'] );
+            if ( $row['language_code'] !== $row['initial_language'] )
+                $name .= '-' . $row['language_code'];
+            $name = str_replace( '_', '-', $name );
+            try
+            {
+                $html = expOETiptapRoundtrip::xmlToEditorHTML( $xml );
+            }
+            catch ( Throwable $e )
+            {
+                ++$failed;
+                $cli->warning( "SKIP $name: inputXML() failed: " . $e->getMessage() );
+                continue;
+            }
+            file_put_contents( "$out/$name.xml", $xml );
+            file_put_contents( "$out/$name.html", $html );
+            ++$written;
+            if ( $written % 500 === 0 )
+                $cli->output( "  $written written" );
         }
-        // --offset and --limit count attributes with content, the ones that become fixtures
-        if ( $seen++ < $offset )
-            continue;
-        if ( $limit && $written + $failed >= $limit )
-            break 2;
-        $name = sprintf( '%s-%s-%s-o%d', $prefix, $row['class_identifier'], $row['attribute_identifier'], $row['contentobject_id'] );
-        if ( $row['language_code'] !== $row['initial_language'] )
-            $name .= '-' . $row['language_code'];
-        $name = str_replace( '_', '-', $name );
-        try
-        {
-            $html = expOETiptapRoundtrip::xmlToEditorHTML( $xml );
-        }
-        catch ( Throwable $e )
-        {
-            ++$failed;
-            $cli->warning( "SKIP $name: inputXML() failed: " . $e->getMessage() );
-            continue;
-        }
-        file_put_contents( "$out/$name.xml", $xml );
-        file_put_contents( "$out/$name.html", $html );
-        ++$written;
-        if ( $written % 500 === 0 )
-            $cli->output( "  $written written" );
+        eZContentObject::clearCache();
     }
-    eZContentObject::clearCache();
+}
+finally
+{
+    // always: what inputXML() wrote to the database (image alias rows) is not kept
+    if ( $db->transactionCounter() > 0 )
+        $db->rollback();
 }
 
 $cli->output( sprintf( '%s: %d fixtures written to %s, %d empty fields skipped, %d failed (siteaccess %s, database %s)',

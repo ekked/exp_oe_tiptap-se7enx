@@ -136,7 +136,11 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   before anything runs. (The form of 0.1.x, `run.sh <copy.db> <work-dir>`, is kept; it uses the siteaccess named
   `admin` and fails where there is none.)
   To run it on your own content, export the fixtures from it with
-  `php extension/exp_oe_tiptap/bin/php/export_roundtrip_fixtures.php -s <admin siteaccess> --out=/abs/dir` (read only;
+  `php extension/exp_oe_tiptap/bin/php/export_roundtrip_fixtures.php -s <admin siteaccess> --out=/abs/dir` (not
+  strictly read only: `inputXML()` can create image aliases of embedded images, so the export runs in one database
+  transaction that is always rolled back, and it refuses to run without `[DatabaseSettings] Transactions=enabled`;
+  alias files it wrote under `var/storage` stay on disk, as do rows in tables without transactions (MyISAM) and the
+  metadata of a cluster file handler with a database of its own, so export from a copy where that matters;
   every ezxmltext field with content of every published object's current version, ezxml and `inputXML()`'s HTML as in
   `tests/fixtures/`; `--class=`, `--limit=`, `--offset=`, and it refuses to write into `tests/fixtures/` without
   `--into-tests`), copy the database, e.g. `mysqldump site | mysql site_rt`, and run

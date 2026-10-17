@@ -193,6 +193,19 @@ final class RoundtripSandboxTest extends TestCase
         $this->assertStringContainsString( "expOETiptapRoundtrip::xmlToEditorHTML( \$xml )", $script, 'the same path as tests/fixtures/' );
     }
 
+    public function testExporterRollsBackWhatInputXMLWrites()
+    {
+        $script = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/bin/php/export_roundtrip_fixtures.php' );
+        // inputXML() may create image aliases: the export runs in a transaction that is always rolled back
+        $this->assertStringContainsString( "'DatabaseSettings', 'Transactions' ) !== 'enabled'", $script );
+        $begin = strpos( $script, '$db->begin();' );
+        $this->assertNotFalse( $begin );
+        $this->assertLessThan( strpos( $script, '->arrayQuery(' ), $begin, 'the transaction is open before the first query' );
+        $this->assertMatchesRegularExpression( '/\}\s*finally\s*\{[^}]*\$db->rollback\(\);/', $script, 'rolled back in finally' );
+        $this->assertStringNotContainsString( '$db->commit()', $script );
+        $this->assertStringNotContainsString( 'nothing is written', $script, 'no claim that the export writes nothing' );
+    }
+
     public function testRunShFindsASiteaccessThatOnlyAnExtensionDefines()
     {
         $own = array_map( 'basename', glob( EXP_OE_TIPTAP_TEST_ROOT . '/settings/siteaccess/*', GLOB_ONLYDIR ) ?: array() );
