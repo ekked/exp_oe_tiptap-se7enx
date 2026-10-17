@@ -46,8 +46,12 @@
 {* The look of Tiptap: exp_oe_tiptap.ini [EditorSettings] Skin (a4 = admin4's look with Tiptap's own icons), else ezoe's
    Skin (o2k7, TinyMCE 3's look). The editor content CSS keeps ezoe's skin. *}
 {def $tiptap_skin = $skin}
-{if and( ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' ), ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )|ne( '' ) )}
-    {set $tiptap_skin = ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}
+{* Nested, not and(): and() evaluates every parameter, so ezini() would still be asked for the undefined Skin and
+   log an error on every edit page. *}
+{if ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}
+    {if ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )|ne( '' )}
+        {set $tiptap_skin = ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}
+    {/if}
 {/if}
 {foreach ezini( 'StylesheetSettings', 'EditorCSSFileList', 'design.ini',,true() ) as $css}
     {set $content_css_list = $content_css_list|append( $css|explode( '<skin>' )|implode( $skin ) )}
