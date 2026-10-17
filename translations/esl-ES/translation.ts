@@ -820,6 +820,42 @@
         <translation>Se ha guardado el editor de tu usuario.</translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation>No tienes acceso a Exponential Intelligence.</translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation>No puedes usar el modelo del asistente de IA.</translation>
+    </message>
+    <message>
+        <source>The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.</source>
+        <translation>La respuesta se ha cortado en el límite de tokens. Selecciona menos texto o pide al administrador que aumente el límite.</translation>
+    </message>
+    <message>
+        <source>The language of the field is not valid.</source>
+        <translation>El idioma del campo no es válido.</translation>
+    </message>
+    <message>
+        <source>This is not a draft of yours.</source>
+        <translation>Este borrador no es tuyo.</translation>
+    </message>
+    <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation>No tienes permiso para editar este contenido.</translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation>El campo no pertenece a este contenido.</translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation>No se ha podido encontrar el contenido de este campo.</translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation>Este texto no se puede enviar: la política de datos necesita saber a qué contenido pertenece.</translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation>Falta el token del formulario o es incorrecto: recarga la página y vuelve a intentarlo.</translation>
     </message>

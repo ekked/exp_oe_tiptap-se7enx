@@ -823,6 +823,42 @@
         <translation>Qapla&apos;! lo&apos;wI&apos;lIj choHwI&apos; pollu&apos;ta&apos;.</translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation>Exponential Intelligence &apos;el chaw&apos; Daghajbe&apos;.</translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation>QaHwI&apos; yab Dalo&apos;meH chaw&apos; Daghajbe&apos;.</translation>
+    </message>
+    <message>
+        <source>The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.</source>
+        <translation>mu&apos;Hom veHDaq jang pe&apos;lu&apos;ta&apos;. ghItlh puS yIwIv, pagh veH DuQmeH loHwI&apos; yItlhob.</translation>
+    </message>
+    <message>
+        <source>The language of the field is not valid.</source>
+        <translation>tlhegh Hol lo&apos;laHbe&apos;.</translation>
+    </message>
+    <message>
+        <source>This is not a draft of yours.</source>
+        <translation>nablIj &apos;oHbe&apos; nabvam.</translation>
+    </message>
+    <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation>De&apos;vam DachoHmeH chaw&apos; Daghajbe&apos;.</translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation>De&apos;vam ghajbe&apos; tlheghvam.</translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation>tlheghvam De&apos; tu&apos;lu&apos;laHbe&apos;ta&apos;.</translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation>ghItlhvam ngeHlu&apos;laHbe&apos;: De&apos; chut&apos;e&apos; SovnIS, ghItlhvam ghajbogh De&apos;.</translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation>De&apos; lanmeH ghItlh mu&apos;Hom tu&apos;lu&apos;be&apos; pagh lughbe&apos;: nav yIHevqa&apos; &apos;ej yInIDqa&apos;.</translation>
     </message>

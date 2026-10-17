@@ -822,6 +822,42 @@
         <translation>העורך של המשתמש שלך נשמר.</translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation>אין לך גישה ל־Exponential Intelligence.</translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation>אין לך הרשאה להשתמש במודל של עוזר ה־AI.</translation>
+    </message>
+    <message>
+        <source>The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.</source>
+        <translation>התשובה נקטעה במגבלת הטוקנים. יש לבחור פחות טקסט, או לבקש ממנהל המערכת להעלות את המגבלה.</translation>
+    </message>
+    <message>
+        <source>The language of the field is not valid.</source>
+        <translation>השפה של השדה אינה תקינה.</translation>
+    </message>
+    <message>
+        <source>This is not a draft of yours.</source>
+        <translation>זו אינה טיוטה שלך.</translation>
+    </message>
+    <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation>אין לך הרשאה לערוך תוכן זה.</translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation>השדה אינו שייך לתוכן זה.</translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation>לא ניתן היה למצוא את התוכן של שדה זה.</translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation>לא ניתן לשלוח טקסט זה: מדיניות הנתונים צריכה לדעת לאיזה תוכן הוא שייך.</translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation>אסימון הטופס חסר או שגוי: יש לטעון מחדש את העמוד ולנסות שוב.</translation>
     </message>

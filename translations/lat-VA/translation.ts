@@ -823,6 +823,42 @@
         <translation>Editor usoris tui servatus est.</translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation>Aditum ad Exponential Intelligence non habes.</translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation>Tibi non licet exemplari adiutoris AI uti.</translation>
+    </message>
+    <message>
+        <source>The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.</source>
+        <translation>Responsum ad limitem signorum abscisum est. Minus textus selige, aut administratorem roga ut limitem augeat.</translation>
+    </message>
+    <message>
+        <source>The language of the field is not valid.</source>
+        <translation>Lingua campi valida non est.</translation>
+    </message>
+    <message>
+        <source>This is not a draft of yours.</source>
+        <translation>Haec adumbratio tua non est.</translation>
+    </message>
+    <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation>Tibi non licet haec contenta recensere.</translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation>Campus ad haec contenta non pertinet.</translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation>Contenta huius campi inveniri non potuerunt.</translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation>Hic textus mitti non potest: regula datorum scire debet ad quae contenta pertineat.</translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation>Signum formularii deest aut falsum est: paginam renova et iterum conare.</translation>
     </message>
