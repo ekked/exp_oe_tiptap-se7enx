@@ -99,6 +99,11 @@ final class InputHandlerTest extends TestCase
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
         $this->assertStringContainsString( "concat( \$attribute_base, '_data_text_', \$attribute.id )", $tpl );
         $this->assertStringContainsString( '{$input_handler.input_xml}', $tpl );
-        $this->assertStringContainsString( 'window.ExpOETiptap.init( textarea, options )', $tpl );
+        // the options are JSON after the textarea, the start file calls the bundle (no inline script)
+        $this->assertStringContainsString( '<script type="application/json" data-exp-oe-options-for="{$editor_id|wash}">', $tpl );
+        $this->assertStringContainsString( "<script src=\"{'javascript/exp_oe_tiptap/exp_oe_tiptap_start.js'|ezdesign( 'no' )}\" charset=\"utf-8\" defer></script>", $tpl );
+        $this->assertDoesNotMatchRegularExpression( '/<script(?![^>]*(\\bsrc=|type="application\/json"))[^>]*>/', preg_replace( '/\{\*.*?\*\}/s', '', $tpl ), 'no inline script' );
+        $this->assertStringContainsString( 'window.ExpOETiptap.init( textarea, options )',
+                                           file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/javascript/exp_oe_tiptap/exp_oe_tiptap_start.js' ) );
     }
 }

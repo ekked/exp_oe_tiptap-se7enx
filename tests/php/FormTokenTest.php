@@ -74,7 +74,7 @@ final class FormTokenTest extends TestCase
         $editor = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/expoetiptapeditor.php' );
         $this->assertMatchesRegularExpression( '/hash_equals\(/', $editor );
         $template = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
-        $this->assertStringContainsString( 'formToken: {json_encode( $exp_oe.form_token )}', $template );
-        $this->assertStringNotContainsString( 'formToken: "@$ezxFormToken@"', $template );
+        $this->assertStringContainsString( '"formToken": {json_encode( $exp_oe.form_token )}', $template );
+        $this->assertStringNotContainsString( '"formToken": "@$ezxFormToken@"', $template );
     }
 }

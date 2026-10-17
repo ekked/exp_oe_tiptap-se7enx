@@ -34,6 +34,6 @@ final class SettingsDefaultsTest extends TestCase
         $php = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/classes/expoetiptapeditor.php' );
         $this->assertStringContainsString( "self::setting( 'EditorSettings', 'SourceEditable', 'enabled' ) !== 'disabled'", $php );
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
-        $this->assertStringContainsString( "sourceEditable: {cond( \$exp_oe.source_editable, 'true', 'false' )}", $tpl );
+        $this->assertStringContainsString( "\"sourceEditable\": {cond( \$exp_oe.source_editable, 'true', 'false' )}", $tpl );
     }
 }
