@@ -67,6 +67,9 @@ site; the page says so in its status column.
   the Control key on a Mac too, and show ⌃: Ctrl+M in the source view's field (Cmd+M minimises the window) and
   Ctrl with a right click for the browser's own menu.
 - Typing shortcuts: `**bold**`, `*italic*`, `# ` for a heading, `- ` or `1. ` for a list at the start of a line.
+- A typed address becomes a link when you type a space or Enter after it: words starting with `http://`, `https://`
+  or `www.` (a `www.` address is linked as `https://www.`..., the text stays as typed). Punctuation at its end stays
+  outside the link.
 - Paste from Word, Google Docs and web pages is cleaned to what a text field can store: paragraphs, headings, lists
   (Word's bulleted and numbered paragraphs become real lists), tables, links, bold, italic, underline, sub- and
   superscript. Fonts, colors, Word's comments, header and footer, bookmarks and images of the clipboard are left out;

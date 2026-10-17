@@ -1,7 +1,7 @@
 /**
  * Autolink (TinyMCE's autolink plugin, #1121): a URL typed in a text and closed by a space or Enter becomes a link.
  *
- * Only http(s):// and www. words are linked (www. gets http:// as href). Not linked: a word that already carries the
+ * Only http(s):// and www. words are linked (www. gets https:// as href). Not linked: a word that already carries the
  * link mark, a word in a literal (pre) block, and every word if the schema has no link mark. Punctuation at the end of
  * the word (. , ; : ! ? ) ] ' " and closing quotes) stays outside the link, a closing ) only if the URL has no
  * unclosed ( of its own (Wikipedia). The URL may follow whitespace or ( [ „ « ". An inline atom (hard break, embed,
@@ -35,7 +35,7 @@ export function urlAtEnd( text ) {
     return {
         start: text.length - rest.length - url.length,
         url,
-        href: /^www\./i.test( url ) ? 'http://' + url : url,
+        href: /^www\./i.test( url ) ? 'https://' + url : url,
         trailing: rest.length
     };
 }

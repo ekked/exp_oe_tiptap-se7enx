@@ -62,7 +62,7 @@ function typed( html, text ) {
 
 test( 'urlAtEnd finds http(s) and www words, not plain words', () => {
     assert.deepEqual( urlAtEnd( 'see https://example.org' ), { start: 4, url: 'https://example.org', href: 'https://example.org', trailing: 0 } );
-    assert.equal( urlAtEnd( 'www.example.org' ).href, 'http://www.example.org' );
+    assert.equal( urlAtEnd( 'www.example.org' ).href, 'https://www.example.org' );
     assert.equal( urlAtEnd( 'example.org' ), null );
     assert.equal( urlAtEnd( 'see ' ), null );
     assert.equal( urlAtEnd( 'https://.' ), null );
@@ -103,13 +103,13 @@ test( 'a URL followed by a space becomes a link and the space stays outside', ()
     assert.equal( typed( '<p></p>', 'siehe https://example.org und' ), '<p>siehe <a href="https://example.org">https://example.org</a> und</p>' );
 } );
 
-test( 'www. gets http:// in the href, the text stays', () => {
-    assert.equal( typed( '<p></p>', 'www.example.org ' ), '<p><a href="http://www.example.org">www.example.org</a> </p>' );
+test( 'www. gets https:// in the href, the text stays', () => {
+    assert.equal( typed( '<p></p>', 'www.example.org ' ), '<p><a href="https://www.example.org">www.example.org</a> </p>' );
 } );
 
 test( 'punctuation after the URL stays outside the link in the editor', () => {
     assert.equal( typed( '<p></p>', 'Mehr unter https://x.org. Dann' ), '<p>Mehr unter <a href="https://x.org">https://x.org</a>. Dann</p>' );
-    assert.equal( typed( '<p></p>', '(www.example.org) ' ), '<p>(<a href="http://www.example.org">www.example.org</a>) </p>' );
+    assert.equal( typed( '<p></p>', '(www.example.org) ' ), '<p>(<a href="https://www.example.org">www.example.org</a>) </p>' );
     assert.equal( typed( '<p></p>', 'https://en.wikipedia.org/wiki/Foo_(bar) ' ),
         '<p><a href="https://en.wikipedia.org/wiki/Foo_(bar)">https://en.wikipedia.org/wiki/Foo_(bar)</a> </p>' );
 } );
