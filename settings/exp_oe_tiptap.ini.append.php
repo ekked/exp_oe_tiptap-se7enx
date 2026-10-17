@@ -12,6 +12,10 @@
 # (settings/siteaccess/<siteaccess>/exp_oe_tiptap.ini.append.php). It is left undefined here on purpose: an
 # extension's own settings are read after a siteaccess's, so a value here would hide every siteaccess's choice.
 #Skin=
+# The skin for a design, used when Skin is not set or empty: DesignSkin[<design>]=<skin>, looked up with the
+# siteaccess's site.ini [DesignSettings] SiteDesign. admin4 gets its own look, so an admin4 siteaccess needs no Skin of
+# its own. A siteaccess adds its designs (DesignSkin[mydesign]=a4); to keep ezoe's look in admin4 it sets Skin=o2k7.
+DesignSkin[admin4]=a4
 # Which editor a user gets is ezoe's choice since 0.1.1: Tiptap is the engine "tiptap" of ezoe's registry
 # (settings/ezoe.ini.append.php). The site default is ezoe.ini [EditorSettings] EditorEngine (EditorEngine=tiptap
 # makes Tiptap the default), the switch buttons are ezoe.ini EngineSwitch, a user's own choice is the preference

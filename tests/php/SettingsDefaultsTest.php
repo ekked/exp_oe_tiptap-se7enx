@@ -24,6 +24,25 @@ final class SettingsDefaultsTest extends TestCase
         $this->assertStringContainsString( "ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )", $tpl );
     }
 
+    /**
+     * admin4 gets the skin a4 through DesignSkin[], looked up with the SiteDesign, and a siteaccess's Skin is applied
+     * after it, so it still decides
+     */
+    public function testAdmin4GetsTheSkinA4UnlessTheSiteaccessSetsASkin()
+    {
+        $file = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/settings/exp_oe_tiptap.ini.append.php' );
+        $this->assertMatchesRegularExpression( '/^DesignSkin\[admin4\]=a4$/m', $file );
+        $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
+        $this->assertStringContainsString( "ezini( 'DesignSettings', 'SiteDesign', 'site.ini' )", $tpl );
+        $this->assertStringContainsString( "ezini_hasvariable( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )", $tpl );
+        $this->assertStringContainsString( '{if $design_skins|has_attribute( $site_design )}', $tpl );
+        $design = strpos( $tpl, '{set $tiptap_skin = $design_skins[$site_design]}' );
+        $skin = strpos( $tpl, "{set \$tiptap_skin = ezini( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}" );
+        $this->assertNotFalse( $design );
+        $this->assertNotFalse( $skin );
+        $this->assertLessThan( $skin, $design, 'Skin is set after DesignSkin[], so it wins' );
+    }
+
     /** SourceEditable is named, left to the siteaccess as Skin is, and editable unless it says disabled */
     public function testSourceEditableIsEnabledUnlessASiteaccessDisablesIt()
     {

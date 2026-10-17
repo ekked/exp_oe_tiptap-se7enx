@@ -43,9 +43,20 @@
      $editor_id        = concat( $attribute_base, '_data_text_', $attribute.id )
      $switch_name      = ''
      $disable_name     = ''}
-{* The look of Tiptap: exp_oe_tiptap.ini [EditorSettings] Skin (a4 = admin4's look with Tiptap's own icons), else ezoe's
-   Skin (o2k7, TinyMCE 3's look). The editor content CSS keeps ezoe's skin. *}
-{def $tiptap_skin = $skin}
+{* The look of Tiptap: exp_oe_tiptap.ini [EditorSettings] Skin (a4 = admin4's look with Tiptap's own icons), else
+   DesignSkin[] of the siteaccess's SiteDesign (admin4: a4), else ezoe's Skin (o2k7, TinyMCE 3's look). The editor
+   content CSS keeps ezoe's skin. *}
+{def $tiptap_skin  = $skin
+     $site_design  = ezini( 'DesignSettings', 'SiteDesign', 'site.ini' )
+     $design_skins = hash()}
+{if ezini_hasvariable( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )}
+    {set $design_skins = ezini( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )}
+{/if}
+{if $design_skins|has_attribute( $site_design )}
+    {if $design_skins[$site_design]|ne( '' )}
+        {set $tiptap_skin = $design_skins[$site_design]}
+    {/if}
+{/if}
 {* Nested, not and(): and() evaluates every parameter, so ezini() would still be asked for the undefined Skin and
    log an error on every edit page. *}
 {if ezini_hasvariable( 'EditorSettings', 'Skin', 'exp_oe_tiptap.ini' )}
@@ -153,5 +164,5 @@
 {rdelim}
 {/set-block}
 <script type="application/json" data-exp-oe-options-for="{$editor_id|wash}">{$exp_oe_options_json|explode( '<' )|implode( '\u003c' )|explode( '>' )|implode( '\u003e' )}</script>
-{undef $exp_oe_options_json $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $link_classes $link_class_names $image_sizes $view_modes $cur_locale $text_locale $editor_id $switch_name $disable_name}
+{undef $exp_oe_options_json $exp_oe $layout_settings $content_css_list $skin $tiptap_skin $site_design $design_skins $link_classes $link_class_names $image_sizes $view_modes $cur_locale $text_locale $editor_id $switch_name $disable_name}
 {/default}
