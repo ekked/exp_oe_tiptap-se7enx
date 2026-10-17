@@ -32,6 +32,7 @@ final class SettingsDefaultsTest extends TestCase
     {
         $file = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/settings/exp_oe_tiptap.ini.append.php' );
         $this->assertMatchesRegularExpression( '/^DesignSkin\[admin4\]=a4$/m', $file );
+        $this->assertMatchesRegularExpression( '/^DesignSkin\[admin4l\]=a4$/m', $file );
         $tpl = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/design/standard/templates/content/datatype/edit/ezxmltext_exp_oe_tiptap_editor.tpl' );
         $this->assertStringContainsString( "ezini( 'DesignSettings', 'SiteDesign', 'site.ini' )", $tpl );
         $this->assertStringContainsString( "ezini_hasvariable( 'EditorSettings', 'DesignSkin', 'exp_oe_tiptap.ini' )", $tpl );

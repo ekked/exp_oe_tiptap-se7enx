@@ -16,6 +16,8 @@
 # siteaccess's site.ini [DesignSettings] SiteDesign. admin4 gets its own look, so an admin4 siteaccess needs no Skin of
 # its own. A siteaccess adds its designs (DesignSkin[mydesign]=a4); to keep ezoe's look in admin4 it sets Skin=o2k7.
 DesignSkin[admin4]=a4
+# admin4l draws the admin page from layouts with admin4's markup and stylesheets, so it gets the same look
+DesignSkin[admin4l]=a4
 # Which editor a user gets is ezoe's choice since 0.1.1: Tiptap is the engine "tiptap" of ezoe's registry
 # (settings/ezoe.ini.append.php). The site default is ezoe.ini [EditorSettings] EditorEngine (EditorEngine=tiptap
 # makes Tiptap the default), the switch buttons are ezoe.ini EngineSwitch, a user's own choice is the preference
