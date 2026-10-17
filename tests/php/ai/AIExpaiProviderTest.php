@@ -125,6 +125,8 @@ final class AIExpaiProviderTest extends TestCase
 
     public function testRequestGoesThroughExpaisRecorderWithItsModel()
     {
+        if ( !method_exists( 'expAiText', 'stripReasoning' ) )
+            $this->markTestSkipped( 'the installed expai is older than 0.0.1.5 (no expAiText::stripReasoning())' );
         AIExpaiProviderTestModel::$answers[] = array( 'content' => array( array( 'type' => 'thinking', 'thinking' => 'hidden' ),
                                                                          array( 'type' => 'text', 'text' => "<think>pondering</think>\nBetter text." ) ),
                                                      'stop_reason' => 'end_turn', 'model' => 'fake-large-2' );
