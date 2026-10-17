@@ -21,6 +21,7 @@ import { AIPanel } from '../ui/ai-panel.js';
 import { createDialogs } from '../ui/dialogs.js';
 import { customTagControls } from '../ui/customtag-controls.js';
 import { pasteExtension } from './paste.js';
+import { Autolink } from './autolink.js';
 import { h, translator } from '../ui/dom.js';
 
 /** ezoe.ini [EditorLayout] Buttons[] defaults, used when the template gives no list */
@@ -163,7 +164,7 @@ export class ExpOETiptapInstance {
 
         // the editor
         this.pasteAsText = false;
-        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ), pasteExtension( this ), SearchExtension ],
+        const extensions = [].concat( this.schema.extensions( o ) || [], [ UndoRedo, Dropcursor, Gapcursor, tinyMCEKeys( this ), pasteExtension( this ), SearchExtension, Autolink ],
                                       o.customTagControls ? [ customTagControls( this ) ] : [] );
         const content = this.schema.load( textarea.value, getSchema( extensions ) );
         const mount = h( 'div', { class: 'exp-oe-mount' } );

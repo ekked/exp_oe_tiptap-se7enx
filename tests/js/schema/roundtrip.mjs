@@ -3,26 +3,41 @@
  * Writes <outdir>/<name>.html for tests/php/roundtrip/run.php, which feeds it to eZOEInputParser.
  *
  *   node tests/js/schema/roundtrip.mjs <outdir>
+ *   EXPOETIPTAP_FIXTURES_DIR=/abs/path/fixtures node tests/js/schema/roundtrip.mjs <outdir>
+ *
+ * The fixtures are read from tests/fixtures/ unless EXPOETIPTAP_FIXTURES_DIR names another directory of pairs
+ * (bin/php/export_roundtrip_fixtures.php writes them from a site's own content).
  *
  * @license GPL-2.0-or-later
  */
-import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { Window } from 'happy-dom';
 import { fromEditorHTML, toEditorHTML, cleanupForEzoe } from '../../../src/js/schema/index.js';
 
 const root = resolve( dirname( fileURLToPath( import.meta.url ) ), '../../..' );
-const fixtures = resolve( root, 'tests/fixtures' );
+const fixtures = process.env.EXPOETIPTAP_FIXTURES_DIR ? resolve( process.env.EXPOETIPTAP_FIXTURES_DIR ) : resolve( root, 'tests/fixtures' );
+if ( !existsSync( fixtures ) ) {
+    console.log( 'FAIL no fixtures directory ' + fixtures );
+    process.exit( 1 );
+}
 const outdir = process.argv[ 2 ];
 if ( !outdir ) {
     console.log( 'FAIL usage: node tests/js/schema/roundtrip.mjs <outdir>' );
     process.exit( 1 );
 }
+if ( resolve( outdir ) === fixtures ) {
+    console.log( 'FAIL the output directory must not be the fixtures directory' );
+    process.exit( 1 );
+}
 mkdirSync( outdir, { recursive: true } );
 
-const window = new Window();
-const options = { document: window.document };
+// happy-dom keeps what a window parsed alive until the window closes: a fresh window every WINDOW_FIXTURES fixtures
+// keeps a run over thousands of a site's own fields (EXPOETIPTAP_FIXTURES_DIR) within the heap
+const WINDOW_FIXTURES = 200;
+let window = new Window();
+let options = { document: window.document };
 
 /**
  * The baseline: what ezoe's TinyMCE would post for the same content without Tiptap, approximated as the HTML after
@@ -43,6 +58,11 @@ function ezoeBaseline( html ) {
 let count = 0;
 let unstable = 0;
 for ( const file of readdirSync( fixtures ).filter( name => name.endsWith( '.html' ) ).sort() ) {
+    if ( count && count % WINDOW_FIXTURES === 0 ) {
+        await window.happyDOM.close();
+        window = new Window();
+        options = { document: window.document };
+    }
     const html = readFileSync( resolve( fixtures, file ), 'utf8' );
     const out = toEditorHTML( fromEditorHTML( html, options ), options );
     const again = toEditorHTML( fromEditorHTML( out, options ), options );
@@ -55,5 +75,5 @@ for ( const file of readdirSync( fixtures ).filter( name => name.endsWith( '.htm
     count++;
 }
 await window.happyDOM.close();
-console.log( ( unstable ? 'FAIL' : 'PASS' ) + ` ${count} fixtures through Tiptap, ${unstable} not stable on a second pass, written to ${outdir}` );
+console.log( ( unstable ? 'FAIL' : 'PASS' ) + ` ${count} fixtures of ${fixtures} through Tiptap, ${unstable} not stable on a second pass, written to ${outdir}` );
 process.exit( unstable ? 1 : 0 );

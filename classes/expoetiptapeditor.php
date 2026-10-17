@@ -196,7 +196,7 @@ class expOETiptapEditor
      *
      * @return array editor, label, other, other_label, can_switch, switch_action, tiptap_available, ai_enabled,
      *               ai_commands, scripts, styles, asset_loading, cache_key, min_height, upload_extensions,
-     *               upload_from_url, i18n
+     *               upload_from_url, i18n, form_token
      */
     public static function editorInfo()
     {
@@ -239,6 +239,8 @@ class expOETiptapEditor
             'upload_extensions' => self::hasRegistry() ? expOEEditor::uploadExtensions() : array(),
             'upload_from_url'   => class_exists( 'expOEUrlFetcher' ) ? (bool) expOEUrlFetcher::enabled() : false,
             'i18n'              => self::translations(),
+            // options.formToken: ezformtoken's placeholder, or the extension's session token without ezformtoken
+            'form_token'        => self::renderedToken(),
         );
     }
 
@@ -402,15 +404,79 @@ class expOETiptapEditor
             && hash_equals( $expected, $given );
     }
 
-    /** @return string|null the form token of this session (ezformtoken), null when ezformtoken is not installed */
+    /** The session key of the extension's own form token, used when ezformtoken is not active */
+    const SESSION_TOKEN = 'exp_oe_tiptap_form_token';
+
+    /**
+     * Whether ezformtoken protects the forms: it is active and enabled. Only then does its output filter put the
+     * session's token in place of the placeholder @$ezxFormToken@ (the class alone may be autoloadable from an
+     * inactive extension, and its token would then never reach the page).
+     *
+     * @param array|null $activeExtensions eZExtension::activeExtensions() when null
+     * @return bool
+     */
+    public static function formTokenActive( ?array $activeExtensions = null )
+    {
+        if ( $activeExtensions === null )
+            $activeExtensions = eZExtension::activeExtensions();
+        return in_array( 'ezformtoken', $activeExtensions, true ) && class_exists( 'ezxFormToken' ) && ezxFormToken::isEnabled();
+    }
+
+    /**
+     * The extension's own form token of this session, for sites without ezformtoken: 64 random hex characters,
+     * created once per session and kept in it. A new session (log in, log out) gets a new one.
+     *
+     * @param bool $create create it when the session has none (the editor template); false for a check, which must
+     *                     never create the token it compares with
+     * @param array|null $session a session array to use instead of eZSession (tests)
+     * @return string|null null when there is none and $create is false
+     */
+    public static function sessionToken( $create = true, ?array &$session = null )
+    {
+        if ( $session !== null )
+            $token = isset( $session[self::SESSION_TOKEN] ) ? $session[self::SESSION_TOKEN] : null;
+        else
+            // issetkey() starts the session first: a token of the session is never missed (and overwritten) only
+            // because the session had not been started yet
+            $token = eZSession::issetkey( self::SESSION_TOKEN, true ) ? eZSession::get( self::SESSION_TOKEN ) : null;
+        if ( is_string( $token ) && preg_match( '/^[0-9a-f]{64}$/', $token ) )
+            return $token;
+        if ( !$create )
+            return null;
+        $token = bin2hex( random_bytes( 32 ) );
+        if ( $session !== null )
+            $session[self::SESSION_TOKEN] = $token;
+        else
+            eZSession::set( self::SESSION_TOKEN, $token );
+        return $token;
+    }
+
+    /**
+     * The form token the editor template renders as options.formToken: ezformtoken's placeholder, which its output
+     * filter replaces with the session's token, when ezformtoken is active; else the extension's session token.
+     *
+     * @return string
+     */
+    public static function renderedToken()
+    {
+        return self::formTokenActive() ? '@$ezxFormToken@' : self::sessionToken( true );
+    }
+
+    /**
+     * The form token a request must carry: ezformtoken's when it is active, else the extension's session token (never
+     * created here). There is always one to compare with, so a request is never let through unchecked.
+     *
+     * @return string|null null when the session has no token (the request is refused)
+     */
     public static function expectedToken()
     {
-        return class_exists( 'ezxFormToken' ) ? ezxFormToken::getToken() : null;
+        return self::formTokenActive() ? ezxFormToken::getToken() : self::sessionToken( false );
     }
 
     /**
      * The form token check of the switch view: the field ezxform_token, else the X-CSRF-Token header, against the
-     * session's token. Without ezformtoken nothing can be checked and the switch is refused.
+     * session's token (expectedToken(): ezformtoken's, else the extension's). Without a token in the session the
+     * switch is refused.
      *
      * @param array $post   $_POST
      * @param array $server $_SERVER

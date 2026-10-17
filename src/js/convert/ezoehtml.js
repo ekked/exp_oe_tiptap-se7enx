@@ -98,6 +98,11 @@ function isBlockEmbed( node ) {
  * is, without a <p>: eZOEInputParser already puts the embeds, the <br> and the table into one ezxml paragraph, and a
  * block embed written inside a <p> would keep its "ezembed" placeholder as the text of the stored <embed>.
  *
+ * For the same reason the "ezembed" placeholder of the block embeds inside a table that is put into a <p> is emptied:
+ * eZOEInputParser stores it as the text of the <embed> when the embed is the first thing in a table cell
+ * (<p><table><tr><td><div ...>ezembed</div>, measured on the content of a site: a table of embeds in the first cells).
+ * The parser makes the same <embed> of an empty <div>, wherever it stands.
+ *
  * @param {Element} root
  * @returns {Element} root
  */
@@ -112,6 +117,10 @@ export function wrapTables( root ) {
         const p = table.ownerDocument.createElement( 'p' );
         parent.insertBefore( p, table );
         p.appendChild( table );
+        table.querySelectorAll( 'div.ezoeItemNonEditable' ).forEach( embed => {
+            if ( embed.textContent === 'ezembed' )
+                embed.textContent = '';
+        } );
     } );
     return root;
 }

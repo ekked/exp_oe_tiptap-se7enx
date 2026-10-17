@@ -820,6 +820,42 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>You do not have access to Exponential Intelligence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You may not use the model of the AI assistant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The answer was cut off at the token limit. Select less text, or ask the administrator to raise the limit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The language of the field is not valid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is not a draft of yours.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are not allowed to edit this content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The field does not belong to this content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>The content of this field could not be found.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This text cannot be sent: the data policy needs to know which content it belongs to.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The form token is missing or wrong: reload the page and try again.</source>
         <translation type="unfinished"></translation>
     </message>

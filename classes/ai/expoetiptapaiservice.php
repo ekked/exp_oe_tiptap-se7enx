@@ -32,6 +32,9 @@ class expOETiptapAIService
     /** @var expOETiptapAIPrompts */
     protected $prompts;
 
+    /** @var array what the request is about (object_id, attribute_id, version, language), for providers that use it */
+    protected $requestContext = array();
+
     /**
      * @param array $settings [AISettings] values plus 'CommandPrompts' => array( id => prompt )
      * @param expOETiptapAIProvider|null $provider null to create it from the settings when needed
@@ -42,7 +45,7 @@ class expOETiptapAIService
         $this->settings = array_merge( array(
             'Enabled' => 'false', 'Provider' => 'openai-compatible', 'ProviderClass' => '', 'Endpoint' => '', 'Model' => '',
             'ApiKey' => '', 'Timeout' => 30, 'MaxInputLength' => 20000, 'MaxOutputTokens' => 2000, 'Temperature' => '',
-            'Commands' => array_keys( expOETiptapAIPrompts::$builtin ), 'CommandPrompts' => array(),
+            'Commands' => array_keys( expOETiptapAIPrompts::$builtin ), 'CommandPrompts' => array(), 'ExpaiModel' => '',
         ), $settings );
         $this->provider = $provider;
         $this->logger = $logger;
@@ -79,6 +82,30 @@ class expOETiptapAIService
         } );
     }
 
+    /** @return string [AISettings] Provider, lower case */
+    public function providerName()
+    {
+        return strtolower( trim( (string) $this->settings['Provider'] ) );
+    }
+
+    /**
+     * Logs a refused request (switched off, no policy, no or wrong form token, no access to the edited field): the
+     * technical reason only, never the text, the token or the key.
+     *
+     * @param string $detail
+     */
+    public function logRefusal( $detail )
+    {
+        if ( !$this->logger )
+            return;
+        $message = sprintf( 'AI refused provider=%s reason=%s', preg_replace( '/[^\w.-]/', '', (string) $this->settings['Provider'] ),
+                            substr( preg_replace( '/[^\w .:()\/=,-]/', '', (string) $detail ), 0, 200 ) );
+        $key = (string) $this->settings['ApiKey'];
+        if ( $key !== '' )
+            $message = str_replace( $key, '[key]', $message );
+        call_user_func( $this->logger, $message );
+    }
+
     /** @return bool [AISettings] Enabled */
     public function isEnabled()
     {
@@ -103,7 +130,8 @@ class expOETiptapAIService
      *
      * @param string $method        the request method
      * @param string|null $given    the token of the request (POST ezxform_token or X-CSRF-Token)
-     * @param string|null $expected the session's form token, null when ezformtoken is not active
+     * @param string|null $expected the session's form token: ezformtoken's when it is active, else the extension's own
+     *                              (expOETiptapEditor::expectedToken()); null or '' refuses every request
      * @param bool $hasPolicy       the user has exp_oe_tiptap/ai
      * @throws expOETiptapAIException
      */
@@ -115,8 +143,22 @@ class expOETiptapAIService
             throw new expOETiptapAIException( 'You are not allowed to use the AI assistant.', 'no policy exp_oe_tiptap/ai' );
         if ( strtoupper( (string) $method ) !== 'POST' )
             throw new expOETiptapAIException( 'The AI assistant is called with POST only.', 'method ' . preg_replace( '/[^A-Z]/', '', strtoupper( (string) $method ) ) );
-        if ( $expected !== null && ( !is_string( $given ) || $given === '' || !hash_equals( (string) $expected, $given ) ) )
+        // a token is always required: without ezformtoken the extension's own session token stands in for it
+        if ( !is_string( $expected ) || $expected === '' )
+            throw new expOETiptapAIException( 'The form token is missing or wrong: reload the page and try again.', 'no form token in the session' );
+        if ( !is_string( $given ) || $given === '' || !hash_equals( $expected, $given ) )
             throw new expOETiptapAIException( 'The form token is missing or wrong: reload the page and try again.', 'form token mismatch' );
+    }
+
+    /**
+     * What the request is about: the content object, attribute, version and language of the edited field, checked by
+     * the caller. A provider with a method setRequestContext() (expOETiptapAIExpaiProvider) receives it with the command.
+     *
+     * @param array $context object_id, attribute_id, version (int), language (string)
+     */
+    public function setRequestContext( array $context )
+    {
+        $this->requestContext = $context;
     }
 
     /**
@@ -158,6 +200,8 @@ class expOETiptapAIService
         try
         {
             $provider = $this->provider();
+            if ( method_exists( $provider, 'setRequestContext' ) )
+                $provider->setRequestContext( array( 'command' => $command ) + $this->requestContext );
             $model = $provider->modelName();
             $answer = expOETiptapAIPrompts::clean( $provider->complete( $system, $user, array( 'maxTokens' => $maxTokens, 'temperature' => $temperature ) ) );
         }
@@ -203,6 +247,11 @@ class expOETiptapAIService
                 return $this->provider = new expOETiptapAIOpenAIProvider( $this->settings );
             case 'anthropic':
                 return $this->provider = new expOETiptapAIAnthropicProvider( $this->settings );
+            case 'expai':
+                // Exponential Intelligence: its models, keys, master switch, veto hook, data policy, limits and usage log
+                if ( !expOETiptapAIExpaiProvider::available() )
+                    throw new expOETiptapAIException( 'The AI assistant is not configured correctly.', 'Provider=expai, but the extension expai is not active or not installed' );
+                return $this->provider = new expOETiptapAIExpaiProvider( $this->settings );
             case 'custom':
                 $class = (string) $this->settings['ProviderClass'];
                 if ( $class === '' || !preg_match( '/^[A-Za-z_][A-Za-z0-9_\\\\]*$/', $class ) || !class_exists( $class ) ||

@@ -8,7 +8,8 @@
  */
 
 /**
- * JSON POST to an AI provider with curl: http(s) only, no redirects, a total timeout, a connect timeout and a
+ * JSON POST to an AI provider with curl: https only (plain http only to a loopback host, for a model on the own
+ * machine), no redirects, a total timeout, a connect timeout and a
  * limit on the size of the answer. Errors are expOETiptapAIException whose texts never contain the request,
  * the answer or the headers (the API key travels in a header).
  */
@@ -34,6 +35,41 @@ class expOETiptapAIHttpClient
     }
 
     /**
+     * Why an endpoint is refused: https without user and password; plain http only to a loopback host (127.0.0.0/8,
+     * ::1, localhost), where a local model server usually listens without TLS. Anything else would send the text
+     * and the key unencrypted over a network.
+     *
+     * @param mixed $url
+     * @return string '' when the endpoint is allowed, else the reason (for the log, without the URL)
+     */
+    public static function endpointProblem( $url )
+    {
+        if ( !is_string( $url ) || !preg_match( '~^(https?)://([^\s/?#@]+?)(?::\d+)?(?:[/?#]\S*)?$~iD', $url, $m ) )
+            return 'must be https without credentials';
+        if ( strtolower( $m[1] ) === 'https' )
+            return '';
+        if ( self::isLoopbackHost( $m[2] ) )
+            return '';
+        return 'plain http is only allowed to a loopback host (127.0.0.0/8, ::1, localhost), use https';
+    }
+
+    /**
+     * @param string $host host part of a URL, an IPv6 address in brackets
+     * @return bool localhost, an address of 127.0.0.0/8 or ::1
+     */
+    public static function isLoopbackHost( $host )
+    {
+        $host = strtolower( rtrim( (string) $host, '.' ) );
+        if ( $host === 'localhost' )
+            return true;
+        if ( $host === '[::1]' )
+            return true;
+        if ( filter_var( $host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) !== false )
+            return strpos( $host, '127.' ) === 0;
+        return false;
+    }
+
+    /**
      * @param string $url
      * @param array $headers list of "Name: value"
      * @param array $payload encoded as JSON
@@ -42,8 +78,9 @@ class expOETiptapAIHttpClient
      */
     public function postJson( $url, array $headers, array $payload )
     {
-        if ( !is_string( $url ) || !preg_match( '~^https?://[^\s/?#@]+(?::\d+)?(?:[/?#]\S*)?$~i', $url ) )
-            throw new expOETiptapAIException( 'The AI assistant is not configured correctly.', 'invalid endpoint (must be http or https without credentials)' );
+        $problem = self::endpointProblem( $url );
+        if ( $problem !== '' )
+            throw new expOETiptapAIException( 'The AI assistant is not configured correctly.', 'invalid endpoint (' . $problem . ')' );
         if ( !function_exists( 'curl_init' ) )
             throw new expOETiptapAIException( 'The AI assistant is not available on this server.', 'the PHP curl extension is missing' );
 
@@ -77,6 +114,10 @@ class expOETiptapAIHttpClient
                 return strlen( $chunk );
             },
         ) );
+        // a model on the own machine: never through a proxy (http_proxy of the environment), text and key stay local
+        $host = parse_url( $url, PHP_URL_HOST );
+        if ( is_string( $host ) && self::isLoopbackHost( strpos( $host, ':' ) !== false && $host[0] !== '[' ? '[' . $host . ']' : $host ) )
+            curl_setopt( $ch, CURLOPT_NOPROXY, '*' );
         if ( defined( 'CURLOPT_PROTOCOLS_STR' ) )
             curl_setopt( $ch, CURLOPT_PROTOCOLS_STR, 'http,https' );
         elseif ( defined( 'CURLOPT_PROTOCOLS' ) )

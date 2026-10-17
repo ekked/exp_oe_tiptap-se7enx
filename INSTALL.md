@@ -7,7 +7,8 @@
 - PHP 8.0 or later.
 - ezoe and ezjscore active. exp_oe_tiptap uses ezoe's input handler, parser, dialogs and policies; it does not
   replace ezoe.
-- ezformtoken active (recommended everywhere; the 0.1.0 switch view refuses to work without a form token).
+- ezformtoken active (recommended everywhere). Without it the AI calls and the 0.1.0 switch view use a form token of
+  this extension, created per session; a token is required either way.
 - For the AI commands only: PHP curl, and an account with a provider (see below).
 - For building the JavaScript from source only: Node.js 20 or later and npm. The built files are committed, so a
   site does not need Node.
@@ -101,6 +102,9 @@ npm test               # the schema and round-trip tests
 ```
 
 Commit the built files. Browsers reload them by themselves (the URL carries their file time).
+
+To **verify the bundle** of a checkout (that it is what `src/` builds), run `npm ci && npm run build` and check that
+`git status --short design/` lists nothing; see [doc/maintenance.md](doc/maintenance.md#verifying-the-bundle).
 
 ## 7. Enabling the AI commands (optional)
 

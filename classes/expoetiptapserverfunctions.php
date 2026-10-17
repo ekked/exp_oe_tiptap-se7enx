@@ -12,12 +12,19 @@
  *
  *   POST <root>/ezjscore/call  ezjscServer_function_arguments=expoetiptap::ai
  *        ezxform_token (or header X-CSRF-Token), command, text, language (translate), locale,
- *        format (text | markup), strict (1 on the second try)
+ *        format (text | markup), strict (1 on the second try),
+ *        contentObjectId, version, attributeId, languageCode (the edited field, optional)
  *   -> { error_text, content: { text, command, model } }
  *
- * Checks [AISettings] Enabled, the policy exp_oe_tiptap/ai, POST and the form token itself (ezformtoken checks
- * the token too when it is active), then calls the configured provider server side. The API key never leaves
- * the server.
+ * Checks [AISettings] Enabled, the policy exp_oe_tiptap/ai, POST and the form token itself, then calls the configured
+ * provider server side. The token is always required: ezformtoken's when ezformtoken is active (which checks it too),
+ * else the session token of this extension the editor template renders (expOETiptapEditor::expectedToken()). The API
+ * key never leaves the server.
+ *
+ * When the request names the edited field (contentObjectId, version, attributeId, languageCode), it must be a draft
+ * of the current user that the user may edit (expOETiptapAIRequestContext, the check of the edit form); the provider
+ * then knows the content. With Provider=expai and expai's data policy active, the policy decides on the object of the
+ * edited field, so a request without it is refused here already. Refused requests are logged (no text, no token).
  */
 class expOETiptapServerFunctions extends ezjscServerFunctions
 {
@@ -28,15 +35,25 @@ class expOETiptapServerFunctions extends ezjscServerFunctions
      */
     public static function ai( $args )
     {
+        $service = expOETiptapAIService::fromINI();
         try
         {
-            $service = expOETiptapAIService::fromINI();
-            $service->checkRequest(
-                isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '',
-                self::givenToken(),
-                self::expectedToken(),
-                self::hasPolicy()
-            );
+            try
+            {
+                $service->checkRequest(
+                    isset( $_SERVER['REQUEST_METHOD'] ) ? $_SERVER['REQUEST_METHOD'] : '',
+                    self::givenToken(),
+                    expOETiptapEditor::expectedToken(),
+                    self::hasPolicy()
+                );
+                $requireObject = $service->providerName() === 'expai' && expOETiptapAIExpaiProvider::dataPolicyActive();
+                $service->setRequestContext( ( new expOETiptapAIRequestContext() )->check( self::requestIds( $_POST ), $requireObject ) );
+            }
+            catch ( expOETiptapAIException $e )
+            {
+                $service->logRefusal( $e->getLogDetail() );
+                throw $e;
+            }
             $post = static function ( $name )
             {
                 return isset( $_POST[$name] ) && is_string( $_POST[$name] ) ? $_POST[$name] : '';
@@ -60,12 +77,15 @@ class expOETiptapServerFunctions extends ezjscServerFunctions
         return null;
     }
 
-    /** @return string|null the session's form token, null when the form token protection is not active */
-    protected static function expectedToken()
+    /**
+     * The ids of the edited field in a request (expOETiptapAIRequestContext::requestIds()).
+     *
+     * @param array $post
+     * @return array object_id, version, attribute_id, language
+     */
+    public static function requestIds( array $post )
     {
-        if ( !class_exists( 'ezxFormToken' ) || !ezxFormToken::isEnabled() )
-            return null;
-        return ezxFormToken::getToken();
+        return expOETiptapAIRequestContext::requestIds( $post );
     }
 
     /** @return bool the current user has the policy exp_oe_tiptap/ai (any limitation counts as yes) */

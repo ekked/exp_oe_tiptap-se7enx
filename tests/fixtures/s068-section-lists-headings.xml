@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<section xmlns:image="http://ez.no/namespaces/ezpublish3/image/" xmlns:xhtml="http://ez.no/namespaces/ezpublish3/xhtml/" xmlns:custom="http://ez.no/namespaces/ezpublish3/custom/"><paragraph>Intro.</paragraph><ul><li><paragraph>first</paragraph></li><li><paragraph>second</paragraph></li></ul><section><header>Heading one</header><ol><li><paragraph>step</paragraph></li></ol><paragraph>Text.</paragraph><section><header>Heading two</header><ul><li><paragraph>deep</paragraph></li></ul></section></section></section>

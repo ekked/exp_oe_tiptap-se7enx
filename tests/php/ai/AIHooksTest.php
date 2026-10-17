@@ -26,7 +26,8 @@ final class AIHooksTest extends TestCase
         fclose( $socket );
         $port = (int) substr( $name, strrpos( $name, ':' ) + 1 );
         self::$base = 'http://127.0.0.1:' . $port;
-        self::$log = EXP_OE_TIPTAP_TEST_ROOT . '/var/tmp/t333-c-fakeai-' . getmypid() . '.log';
+        // the system's temporary directory: var/tmp of the root need not exist (a fresh checkout has no var/tmp)
+        self::$log = rtrim( sys_get_temp_dir(), '/' ) . '/exp_oe_tiptap-fakeai-' . getmypid() . '.log';
         @unlink( self::$log );
         $env = array_merge( getenv(), array( 'FAKE_AI_LOG' => self::$log ) );
         self::$server = proc_open(
@@ -114,6 +115,10 @@ final class AIHooksTest extends TestCase
             array( $this->service(), 'GET', 't', 't', true, '/POST only/' ),
             array( $this->service(), 'POST', null, 't', true, '/form token/' ),
             array( $this->service(), 'POST', 'wrong', 't', true, '/form token/' ),
+            // no token in the session: refused, never let through unchecked (there is always one to compare with)
+            array( $this->service(), 'POST', null, null, true, '/form token/' ),
+            array( $this->service(), 'POST', '', '', true, '/form token/' ),
+            array( $this->service(), 'POST', 't', null, true, '/form token/' ),
         );
         foreach ( $cases as list( $service, $method, $given, $expected, $policy, $pattern ) )
         {
@@ -128,7 +133,6 @@ final class AIHooksTest extends TestCase
             }
         }
         $this->service()->checkRequest( 'POST', 't', 't', true );
-        $this->service()->checkRequest( 'POST', null, null, true ); // ezformtoken not active
         $this->assertSame( array(), $this->requests(), 'no provider call for the checks' );
     }
 
@@ -255,6 +259,35 @@ final class AIHooksTest extends TestCase
         $paths = array_column( $this->requests(), 'path' );
         $this->assertSame( 1, count( array_keys( $paths, '/redirect' ) ) );
         $this->assertNotContains( '/v1/chat/completions', $paths );
+    }
+
+    /**
+     * https only: plain http would send the text and the key unencrypted. A model on the own machine (loopback)
+     * may be reached with http, as the fake provider of these tests is.
+     */
+    public function testEndpointsMustBeHttpsExceptOnLoopback()
+    {
+        $allowed = array(
+            'https://api.openai.com/v1/chat/completions', 'HTTPS://api.anthropic.com/v1/messages', 'https://10.0.0.5:8443/v1',
+            'http://127.0.0.1:11434/v1/chat/completions', 'http://127.8.9.10/v1', 'http://localhost:8080/v1', 'http://LOCALHOST/',
+            'http://[::1]:11434/v1/chat/completions',
+        );
+        foreach ( $allowed as $url )
+            $this->assertSame( '', expOETiptapAIHttpClient::endpointProblem( $url ), $url );
+        $refused = array(
+            'http://api.openai.com/v1/chat/completions', 'http://10.0.0.5:11434/v1', 'http://192.168.1.2/', 'http://128.0.0.1/',
+            'http://127.0.0.1.example.com/', 'http://localhost.example.com/', 'http://[::2]/', 'http://[::ffff:127.0.0.1]/',
+            'ftp://127.0.0.1/', 'file:///etc/passwd', 'https://user:pw@api.example.com/', 'http://user:pw@127.0.0.1/', '', null,
+        );
+        $refused[] = "https://api.openai.com/v1/chat/completions\n";
+        foreach ( $refused as $url )
+            $this->assertNotSame( '', expOETiptapAIHttpClient::endpointProblem( $url ), var_export( $url, true ) );
+        $this->assertStringContainsString( 'loopback', expOETiptapAIHttpClient::endpointProblem( 'http://api.example.com/v1' ) );
+
+        // the refusal comes before anything is sent, with a clear reason in the log and a fixed text for the editor
+        $e = $this->assertRefused( $this->service( array( 'Endpoint' => 'http://api.example.com/v1/chat/completions' ) ), 'improve', 'x', '/not configured correctly/' );
+        $this->assertStringContainsString( 'use https', $e->getLogDetail() );
+        $this->assertSame( array(), $this->requests() );
     }
 
     public function testCustomPromptFromSettings()

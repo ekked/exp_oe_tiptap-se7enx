@@ -124,8 +124,8 @@ unchanged text is an item that stays where it was; a crossed out chip is an item
 | Setting | Meaning |
 | --- | --- |
 | `Enabled` | `true` switches the assistant on. Default `false`. |
-| `Provider` | `openai-compatible` (also `openai`), `anthropic` or `custom`. `tiptap-cloud` is accepted by the settings but not implemented (see "Owner decisions"). |
-| `Endpoint` | The provider URL, http or https without user and password. Defaults: `https://api.openai.com/v1/chat/completions`, `https://api.anthropic.com/v1/messages`. |
+| `Provider` | `openai-compatible` (also `openai`), `anthropic`, `expai` (see "Through expai") or `custom`. `tiptap-cloud` is accepted by the settings but not implemented (see "Owner decisions"). |
+| `Endpoint` | The provider URL: https without user and password. Plain http only to a loopback host (`127.0.0.0/8`, `::1`, `localhost`), for a model on the own machine; any other http endpoint is refused before anything is sent. Defaults: `https://api.openai.com/v1/chat/completions`, `https://api.anthropic.com/v1/messages`. |
 | `Model` | The model name the provider expects. Required. |
 | `ApiKey` | The key. **Only in `settings/override`**, never in a committed file. Optional for local servers. |
 | `ApiKeyEnvironment` | Optional: the name of an environment variable of the PHP process holding the key, used when `ApiKey` is empty. Keeps the key out of every INI file. |
@@ -133,6 +133,7 @@ unchanged text is an item that stays where it was; a crossed out chip is an item
 | `AnthropicVersion` | Anthropic only: the `anthropic-version` header, default `2023-06-01`. |
 | `AnthropicWorkspaceId` | Anthropic only: the workspace (`wrkspc_...`) a key that is not scoped to a workspace (a user key) works in, sent as the `anthropic-workspace-id` header. Empty: none is sent, as a workspace key needs. |
 | `ProviderClass` | `custom` only: a class implementing `expOETiptapAIProvider`. |
+| `ExpaiModel` | `expai` only: the expai model (alias, or a model id expai knows). Empty: the model expai uses for the user. |
 | `Timeout` | Seconds for the whole provider call (1 to 300, default 30). |
 | `MaxInputLength` | Longest text in characters a command may send (default 20000). The browser checks it first, the server again. |
 | `MaxOutputTokens` | `max_tokens` asked for (16 to 32000, default 2000). The answer is also cut at 8 characters per token. |
@@ -187,8 +188,11 @@ The class checks access itself; no `Functions[]`/ezjscore policy is needed on to
 - `exp_oe_tiptap/ai` — may use the assistant. The edit template only shows the button with it
   (`ai.enabled` in the editor options), and `expOETiptapServerFunctions::ai()` checks it again for every call.
   Any limitation counts as access.
-- The request must be a POST with the session's form token (`ezxform_token` field or `X-CSRF-Token` header).
-  ezformtoken checks it for every POST anyway; the server function compares it again with `hash_equals`.
+- The request must be a POST with the session's form token (`ezxform_token` field or `X-CSRF-Token` header), always.
+  With ezformtoken active it is ezformtoken's token (ezformtoken checks it for every POST anyway); without
+  ezformtoken it is a token of this extension, 64 random hex characters created once per session, kept in the
+  session (`exp_oe_tiptap_form_token`) and rendered into the editor options. Either way the server function compares
+  it with `hash_equals`; a session without a token refuses the call. There is no path without a token.
 
 ## Privacy: what is sent where
 
@@ -198,11 +202,15 @@ The class checks access itself; no `Functions[]`/ezjscore policy is needed on to
 | The command's instruction, the target language, the editor's locale | the provider | with the text |
 | The API key | the provider, as a header | with every call; never to the browser, never into a log |
 | Command, provider, model, input and output length, duration, technical reason | `var/log/exp_oe_tiptap_ai.log` and the debug output | only when a call fails |
+| Provider and technical reason of a refused request (switched off, no policy, form token, no access to the field) | the same log | when a request is refused |
 
 Not sent: the HTML, attributes, link URLs, object and node ids, image sources and sizes, custom attributes, the
 content of embedded objects, tables, literals and custom tags, the user's name or any other field of the form.
 The original nodes behind the references and placeholders stay in the browser.
 Not logged: the text, the answer, the key (a log line that would contain the key has it replaced by `[key]`).
+With `Provider=expai` expai's own rules apply on top: every request is a row of expai's usage log (user, node, model,
+tokens, action `tiptap:<command>`), and with expai's `[UsageSettings] LogRequests=enabled` that row also holds the
+request, the text included. The ids of the edited field go to this server only, never to the provider.
 Answers are not cached.
 
 Whether content may leave the server at all is an owner decision: a self-hosted model behind an OpenAI
@@ -217,7 +225,8 @@ compatible endpoint keeps everything on the own infrastructure.
   the model invents is not made a link.
 - Provider errors reach the editor as fixed, translated-ready messages ("did not answer in time", "busy or over
   its limit", ...). The provider's own error text is never passed on (it may echo the request or the key).
-- Endpoints must be http or https without credentials; redirects are not followed; the answer is limited to 2 MB;
+- Endpoints must be https without credentials (plain http only to `127.0.0.0/8`, `::1` and `localhost`, so neither the
+  text nor the key ever travels unencrypted over a network; requests to a loopback host never use a proxy); redirects are not followed; the answer is limited to 2 MB;
   only http and https protocols are allowed for curl.
 
 ## Adding a command
@@ -237,6 +246,52 @@ compatible endpoint keeps everything on the own infrastructure.
 4. A custom command replaces the input (like improve) and follows the rules of the rewriting commands: every
    placeholder and link must come back. To insert instead, add it to `INSERT_COMMANDS` in `src/js/ui/ai-panel.js`
    and to `expOETiptapAIPrompts::$insertCommands`, and rebuild.
+
+## Through expai
+
+With the extension expai (Exponential Intelligence) active, the commands can use its models instead of a provider
+of their own:
+
+```ini
+[AISettings]
+Enabled=true
+Provider=expai
+# optional: one of expai's models; empty means the model expai uses for the user
+ExpaiModel=
+```
+
+`expOETiptapAIExpaiProvider` then sends every command through expai:
+
+- **Model:** `ExpaiModel` (an expai model alias such as `anthropic.<id>`, or a model id expai knows), or when empty
+  the model expai uses for the current user (the user's allowed choice, else expai's site default). An `ExpaiModel`
+  expai does not know is a configuration error. Keys, endpoints and time limits are expai's; `Endpoint`, `ApiKey`,
+  `Timeout` and `Temperature` of this extension do not apply.
+- **Permissions of expai:** the user needs expai's policy `expai/write` on top of `exp_oe_tiptap/ai`, and expai must
+  allow the model to the user (`expAiConfig::mayUseModel()`: the site default; with `AllowUserModelChoice` the models of
+  `ProvidersWithoutPolicy[]` and of the providers `expai/model_use` allows). This holds for `ExpaiModel` as for the
+  effective model: an `ExpaiModel` other than expai's site default needs model choice on and the user allowed to use it.
+- **Master switch and veto:** expai's `[AISettings] Enabled` and `DisabledSiteAccesses[]` are checked first, then the
+  veto hook of expai (`[RequestVeto]` rules and the `expai/request/veto` listeners) with the purpose `tiptap:<command>`.
+- **Data policy:** the editor sends the edited field (`contentObjectId`, `version`, `attributeId`, `languageCode`). The
+  server function checks it as the edit form does (`expOETiptapAIRequestContext`): the version is a draft of the
+  current user, the user may edit the object in that language (`eZContentObject::editAccess()`, including the
+  `content/edit/access` listeners), the attribute belongs to the object, and the language is one of the site (an
+  invalid one is refused, not ignored). expai's data policy (`[DataPolicy]` of expai.ini) then decides on **the object
+  of the edited field** whether the text may go to the model's provider: the policy relies on that object, so while a
+  data policy is configured a request without it is refused already in the server function.
+- **Limits and usage log:** the request runs through `expAiUsageRecorder`: `[Limits]` of expai apply, and every
+  request is a row of expai's usage log with the action `tiptap:<command>` (`tiptap:improve`, `tiptap:translate` ...)
+  and the main node of the object.
+- **Request and answer:** the system prompt and the user message of this extension become expai's request (the
+  Anthropic Messages shape: `system`, one user message, `max_tokens` = `MaxOutputTokens`); the text blocks of the answer
+  are joined and the reasoning of reasoning models is removed (`expAiText::stripReasoning()`). The checks of the
+  answer (placeholders, links) are the same as with every other provider. An answer cut off at the token limit
+  (`stop_reason` `max_tokens`) is refused with a message instead of replacing the text with half of it.
+- **Errors:** expai's messages (switched off, refused, over a limit, kept away by the data policy) reach the editor in
+  expai's wording; the log line gets the class, the status and a short, cleaned detail.
+
+If expai is not active (`ActiveExtensions`) or not installed, `Provider=expai` fails with "The AI assistant is not
+configured correctly." and the log says why. `Provider=custom` with `ProviderClass` works as before.
 
 ## A provider of your own
 
@@ -265,6 +320,10 @@ or the key into either.
   tests. It covers the OpenAI and Anthropic request formats, key headers, custom providers, access checks,
   limits, timeout, oversized and broken answers, redirects, and that neither key nor text reach messages or logs.
   No real provider is called and no real key is used.
+- `tests/php/ai/AIExpaiProviderTest.php`: `Provider=expai` with expai's settings in memory, a fake expai model and a
+  stand-in for the usage recorder (no database, no network; skipped without expai): model choice, request and answer
+  conversion, reasoning removed, expai's master switch, data policy with and without an object, error conversion,
+  and the configuration error without expai. `tests/php/ai/AIRequestContextTest.php`: the ids of the edited field.
 - `tests/php/ai/AIPromptsTest.php`: the prompts of the markup format for every command (placeholders and links kept,
   summarise and continue without them, translate leaves them alone, the strict retry, custom prompts) and that the
   service passes format and retry flag on. The plain text format is unchanged.

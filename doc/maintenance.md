@@ -18,6 +18,26 @@ files with `ezjscore-packer`).
 
 `node_modules/` stays inside the extension and is git-ignored.
 
+## Verifying the bundle
+
+The committed bundle must be what the committed source builds, so nobody ships code that is not in `src/`. The build
+is reproducible: esbuild's version is pinned in `package-lock.json`, and the output carries no time stamp, path or
+source map. To check a checkout:
+
+```bash
+cd extension/exp_oe_tiptap
+npm ci
+npm run build
+git status --short design/      # nothing: the bundle, the stylesheet and strings.json are byte-identical
+```
+
+Any line `M design/...` means the committed files and the source differ: either the source changed without a
+rebuild (commit the new build with it), or the build was made with other package versions (run `npm ci`, never
+`npm install`, before building). `npm run build:dev` writes a readable bundle with a source map; never commit it.
+Checked for 0.1.5 with Node.js 26.0.0, npm 11.16.0 and esbuild 0.28.2: the rebuilt
+`exp_oe_tiptap.js` (516745 bytes), `exp_oe_tiptap.css` (83238 bytes) and `strings.json` were byte-identical to the
+committed files (also after a change in `src/js/ai/`, rebuilt and committed together with it).
+
 ## Upgrading Tiptap
 
 1. Read Tiptap's changelog for every version between the pinned one and the target.
@@ -60,7 +80,7 @@ moved: a mistake in a release is fixed by the next one.
 | Empty text field area after activation | template override cache does not know the new templates | `--clear-id=template-override` |
 | Plain textarea with HTML in it instead of Tiptap | bundle not loaded (404, JS error) | browser console: "exp_oe_tiptap: the editor bundle is not loaded"; rebuild, check `Scripts[]`, check the design path |
 | Content changes after saving from Tiptap | a round-trip gap in the schema | switch the user back to TinyMCE; add the content as a fixture (see content-mapping.md) and fix the schema |
-| "Access denied" on `exp_oe_tiptap/switch` (0.1.0 view) | not a POST, missing or wrong form token, or no `switch` policy | use `/ezoe/engine`; ezformtoken must be active |
+| "Access denied" on `exp_oe_tiptap/switch` (0.1.0 view) | not a POST, missing or wrong form token, or no `switch` policy | use `/ezoe/engine`; reload the edit page (the token belongs to the session) |
 | A user of 0.1.0 who had Tiptap gets TinyMCE | `exp_oe_editor` not migrated yet (`/ezoe/engine` reads only `ezoe_engine`) | opening an edit form migrates it; or run `bin/php/migrate_editor_preference.php` |
 | `exp_oe_tiptap.ini` `DefaultEditor=tiptap` has no effect | not read since 0.1.1 | `ezoe.ini [EditorSettings] EditorEngine=tiptap` |
 | Velocity shows the old editor after deploy | workers keep classes loaded at warm-up | `exp:velocity restart` (or `exp:velocity deploy`) |

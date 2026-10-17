@@ -145,7 +145,8 @@ expOETiptapStart( '{$editor_id}', {ldelim}
         contentEdit: {'/content/edit'|ezurl},
         'switch': {'/ezoe/engine'|ezurl}
     {rdelim},
-    formToken: "@$ezxFormToken@",
+    // ezformtoken's placeholder (its output filter puts the token in), or the session token of exp_oe_tiptap
+    formToken: {json_encode( $exp_oe.form_token )},
     switchButtonName: {json_encode( $switch_name )},
     disableButtonName: {json_encode( $disable_name )},
     ai: {ldelim}

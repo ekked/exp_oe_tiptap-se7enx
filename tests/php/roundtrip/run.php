@@ -4,10 +4,15 @@
  * ezoe's parser and compares the ezxml with the fixture's original ezxml. The same is done for the baseline (the
  * fixture's HTML posted by ezoe without Tiptap), so a loss of ezoe itself is told from a loss of Tiptap.
  *
- * Needs a COPY of the database the fixtures come from (the parser registers link URLs):
+ * Needs a COPY of the database the fixtures come from (the parser registers link URLs): an SQLite file, or a MySQL
+ * database on the server of the siteaccess whose name ends with _sandbox or _rt (mysql:<name>). run.sh sets it up:
  *
- *   EXPOETIPTAP_SANDBOX_DB=/abs/path/copy.db EXPOETIPTAP_TIPTAP_DIR=/abs/path/step1-output \
- *     php bin/php/ezexec.php -s admin extension/exp_oe_tiptap/tests/php/roundtrip/run.php --allow-root-user
+ *   EXPOETIPTAP_SITEACCESS=<siteaccess> EXPOETIPTAP_SANDBOX=/abs/path/copy.db|mysql:<name>_sandbox \
+ *   EXPOETIPTAP_TIPTAP_DIR=/abs/path/step1-output \
+ *     php bin/php/ezexec.php -s <siteaccess> extension/exp_oe_tiptap/tests/php/roundtrip/run.php --allow-root-user
+ *
+ * EXPOETIPTAP_SANDBOX_DB (an SQLite file) is still read when EXPOETIPTAP_SANDBOX is not set.
+ * EXPOETIPTAP_FIXTURES_DIR names another directory of fixture pairs than tests/fixtures/ (the same as for step 1).
  *
  * Writes report.json and report.md to EXPOETIPTAP_TIPTAP_DIR; exits 1 when Tiptap loses anything ezoe keeps.
  *
@@ -18,10 +23,34 @@
 
 require_once __DIR__ . '/expoetiptaproundtrip.php';
 
-$fixtureDir = realpath( __DIR__ . '/../../fixtures' );
+$fixtureDir = expOETiptapRoundtrip::fixturesDir( getenv( 'EXPOETIPTAP_FIXTURES_DIR' ) );
 $tiptapDir = getenv( 'EXPOETIPTAP_TIPTAP_DIR' );
 $only = getenv( 'EXPOETIPTAP_ONLY' );
-expOETiptapRoundtrip::useSandboxDatabase( getenv( 'EXPOETIPTAP_SANDBOX_DB' ) );
+$siteAccess = getenv( 'EXPOETIPTAP_SITEACCESS' );
+$current = isset( $GLOBALS['eZCurrentAccess']['name'] ) ? $GLOBALS['eZCurrentAccess']['name'] : '';
+if ( $siteAccess && $current !== $siteAccess )
+{
+    // ezexec falls back to the default siteaccess without a word when -s names none it knows
+    echo "FAIL running in the siteaccess '$current', not in '$siteAccess'\n";
+    return false;
+}
+try
+{
+    $sandbox = getenv( 'EXPOETIPTAP_SANDBOX' );
+    $used = expOETiptapRoundtrip::useSandbox( $sandbox ? $sandbox : getenv( 'EXPOETIPTAP_SANDBOX_DB' ) );
+}
+catch ( Exception $e )
+{
+    echo 'FAIL ' . $e->getMessage() . "\n";
+    return false;
+}
+echo "Siteaccess $current, sandbox database $used\n";
+if ( !$fixtureDir )
+{
+    echo 'FAIL no fixtures directory ' . getenv( 'EXPOETIPTAP_FIXTURES_DIR' ) . "\n";
+    return false;
+}
+echo "Fixtures $fixtureDir\n";
 if ( !$tiptapDir || !is_dir( $tiptapDir ) )
 {
     echo "FAIL EXPOETIPTAP_TIPTAP_DIR is not the output directory of tests/js/schema/roundtrip.mjs\n";
@@ -72,7 +101,7 @@ foreach ( $rows as $row )
     if ( $row['tiptap_vs_baseline']['result'] === 'lossy' )
         echo '    ' . str_replace( "\n", "\n    ", $row['tiptap_vs_baseline']['detail'] ) . "\n";
 }
-file_put_contents( "$tiptapDir/report.json", json_encode( array( 'totals' => $totals, 'fixtures' => $rows ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) );
+file_put_contents( "$tiptapDir/report.json", json_encode( array( 'totals' => $totals, 'fixtures' => $rows ), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE ) );
 file_put_contents( "$tiptapDir/report.md", $md );
 
 echo "\nTotals: " . json_encode( $totals ) . "\n";

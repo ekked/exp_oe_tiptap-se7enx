@@ -670,6 +670,28 @@
                 "class",
                 "custom-attributes"
             ]
+        },
+        {
+            "name": "s067-math-custom-tags",
+            "source": "synthetic",
+            "features": [
+                "custom-inline",
+                "custom-attributes",
+                "math_latex",
+                "math_mathml",
+                "custom-display-block"
+            ]
+        },
+        {
+            "name": "s068-section-lists-headings",
+            "source": "synthetic",
+            "features": [
+                "header",
+                "nested-section",
+                "list-under-section",
+                "known-limitation"
+            ],
+            "note": "ul/ol directly under <section> (not in a paragraph) is dropped by eZOEXMLInput::inputXML() before any editor sees it; the fixture checks parity: Tiptap loses nothing ezoe alone keeps"
         }
     ]
 }
