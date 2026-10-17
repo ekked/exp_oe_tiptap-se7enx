@@ -14,11 +14,11 @@ use PHPUnit\Framework\TestCase;
 
 final class RoundtripSandboxTest extends TestCase
 {
-    private function refused( $value, $implementation, $live, $pattern )
+    private function refused( $value, $implementation, $live, $pattern, array $configured = array() )
     {
         try
         {
-            expOETiptapRoundtrip::parseSandbox( $value, $implementation, $live );
+            expOETiptapRoundtrip::parseSandbox( $value, $implementation, $live, $configured );
             $this->fail( 'accepted: ' . $value );
         }
         catch ( RuntimeException $e )
@@ -29,8 +29,8 @@ final class RoundtripSandboxTest extends TestCase
 
     public function testMySQLSandboxNames()
     {
-        $this->assertSame( array( 'type' => 'mysql', 'database' => 'site_sandbox' ), expOETiptapRoundtrip::parseSandbox( 'mysql:site_sandbox', 'ezmysqli', 'site' ) );
-        $this->assertSame( array( 'type' => 'mysql', 'database' => 'site_copy_rt' ), expOETiptapRoundtrip::parseSandbox( 'mysql:site_copy_rt', 'ezmysqli', 'site' ) );
+        $this->assertSame( array( 'type' => 'mysql', 'database' => 'site_sandbox' ), expOETiptapRoundtrip::parseSandbox( 'mysql:site_sandbox', 'ezmysqli', 'site', array() ) );
+        $this->assertSame( array( 'type' => 'mysql', 'database' => 'site_copy_rt' ), expOETiptapRoundtrip::parseSandbox( 'mysql:site_copy_rt', 'ezmysqli', 'site', array() ) );
         $this->refused( 'mysql:site', 'ezmysqli', 'site', '/must end with _sandbox or _rt/' );
         $this->refused( 'mysql:site_live', 'ezmysqli', 'site', '/must end with _sandbox or _rt/' );
         $this->refused( 'mysql:site_sandbox', 'ezmysqli', 'site_sandbox', '/live database/' );
@@ -38,6 +38,93 @@ final class RoundtripSandboxTest extends TestCase
         $this->refused( 'mysql:a-b_sandbox', 'ezmysqli', 'site', '/not a database name/' );
         $this->refused( 'mysql:x_sandbox;drop', 'ezmysqli', 'site', '/not a database name/' );
         $this->refused( 'mysql:', 'ezmysqli', 'site', '/not a database name/' );
+    }
+
+    public function testMySQLSandboxThatIsTheDatabaseOfASiteaccessIsRefused()
+    {
+        $configured = array( 'settings/siteaccess/admin/site.ini.append.php' => array( 'site' ),
+                             'settings/siteaccess/test/site.ini.append.php' => array( 'shop_rt' ),
+                             'settings/override/site.ini.append.php' => array( 'Main_Sandbox' ) );
+        $this->refused( 'mysql:shop_rt', 'ezmysqli', 'site', '#Database of settings/siteaccess/test/site\.ini\.append\.php#', $configured );
+        $this->refused( 'mysql:main_sandbox', 'ezmysqli', 'site', '#Database of settings/override/site\.ini\.append\.php#', $configured );
+        // also when the siteaccess the round trip runs in is SQLite
+        $this->refused( 'mysql:shop_rt', 'sqlite3', 'site.db', '/a live database of the installation/', $configured );
+        $this->assertSame( array( 'type' => 'mysql', 'database' => 'site_rt' ),
+                           expOETiptapRoundtrip::parseSandbox( 'mysql:site_rt', 'ezmysqli', 'site', $configured ) );
+    }
+
+    public function testDatabasesAreReadFromTheDatabaseSettingsBlockOnly()
+    {
+        $text = "<?php /* #?ini charset=\"utf-8\"?\n\n[SiteSettings]\nDatabase=not_this\n\n[DatabaseSettings]\n"
+              . "DatabaseImplementation=ezmysqli\n#Database=commented_out\nDatabase = shop_rt \nDatabase=\n\n"
+              . "[OtherSettings]\nDatabase=nor_this\n*/ ?>\n";
+        $this->assertSame( array( 'shop_rt' ), expOETiptapRoundtrip::databasesInSiteIni( $text ) );
+        $this->assertSame( array(), expOETiptapRoundtrip::databasesInSiteIni( "[DatabaseSettings]\r\nServer=localhost\r\n" ) );
+        $this->assertSame( array( 'a', 'b' ), expOETiptapRoundtrip::databasesInSiteIni( "[DatabaseSettings]\nDatabase=a\n[DatabaseSettings]\nDatabase=b\n" ) );
+    }
+
+    public function testConfiguredDatabasesScanTheSiteaccessesAndTheOverride()
+    {
+        $root = sys_get_temp_dir() . '/exp_oe_tiptap_rt_settings_' . getmypid();
+        $files = array( 'settings/override/site.ini.append.php' => "[DatabaseSettings]\nDatabase=over_sandbox\n",
+                        'settings/siteaccess/one/site.ini.append.php' => "<?php /*\n[DatabaseSettings]\nDatabase=one_rt\n*/ ?>\n",
+                        'settings/siteaccess/two/site.ini.append' => "[DatabaseSettings]\nDatabase=two\n",
+                        'settings/siteaccess/three/site.ini.append.php' => "[SiteSettings]\nSiteName=x\n",
+                        'extension/ext/settings/siteaccess/four/site.ini.append.php' => "[DatabaseSettings]\nDatabase=four_sandbox\n",
+                        'settings/siteaccess/one/image.ini.append.php' => "[DatabaseSettings]\nDatabase=not_site_ini\n" );
+        try
+        {
+            foreach ( $files as $file => $text )
+            {
+                if ( !is_dir( dirname( "$root/$file" ) ) )
+                    mkdir( dirname( "$root/$file" ), 0700, true );
+                file_put_contents( "$root/$file", $text );
+            }
+            $found = expOETiptapRoundtrip::configuredDatabases( $root );
+            ksort( $found );
+            $this->assertSame( array( 'extension/ext/settings/siteaccess/four/site.ini.append.php' => array( 'four_sandbox' ),
+                                      'settings/override/site.ini.append.php' => array( 'over_sandbox' ),
+                                      'settings/siteaccess/one/site.ini.append.php' => array( 'one_rt' ),
+                                      'settings/siteaccess/two/site.ini.append' => array( 'two' ) ), $found );
+            $this->refused( 'mysql:ONE_rt', 'ezmysqli', 'site', '/a live database of the installation/', $found );
+            $this->refused( 'mysql:four_sandbox', 'ezmysqli', 'site', '/a live database of the installation/', $found );
+        }
+        finally
+        {
+            foreach ( array_keys( $files ) as $file )
+                @unlink( "$root/$file" );
+            foreach ( array( 'settings/siteaccess/one', 'settings/siteaccess/two', 'settings/siteaccess/three',
+                             'settings/siteaccess', 'settings/override', 'settings', 'extension/ext/settings/siteaccess/four',
+                             'extension/ext/settings/siteaccess', 'extension/ext/settings', 'extension/ext', 'extension', '' ) as $dir )
+                @rmdir( rtrim( "$root/$dir", '/' ) );
+        }
+    }
+
+    public function testMySQLSandboxWithoutTheMarkerTableIsRefused()
+    {
+        $asked = array();
+        try
+        {
+            expOETiptapRoundtrip::requireSandboxMarker( 'site_rt', static function ( $table ) use ( &$asked )
+            {
+                $asked[] = $table;
+                return false;
+            } );
+            $this->fail( 'accepted a database without the marker table' );
+        }
+        catch ( RuntimeException $e )
+        {
+            $this->assertStringContainsString( "Refusing the database 'site_rt': it has no table exp_oe_tiptap_sandbox", $e->getMessage() );
+        }
+        $this->assertSame( array( 'exp_oe_tiptap_sandbox' ), $asked );
+        expOETiptapRoundtrip::requireSandboxMarker( 'site_rt', static function ( $table )
+        {
+            return $table === 'exp_oe_tiptap_sandbox';
+        } );
+        // the marker is checked before the kernel gets the connection
+        $source = file_get_contents( EXP_OE_TIPTAP_TEST_EXTENSION . '/tests/php/roundtrip/expoetiptaproundtrip.php' );
+        $use = substr( $source, strpos( $source, 'public static function useSandbox(' ) );
+        $this->assertLessThan( strpos( $use, 'eZDB::setInstance( $db )' ), strpos( $use, 'self::requireSandboxMarker(' ) );
     }
 
     public function testSQLiteSandbox()

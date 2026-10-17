@@ -7,8 +7,8 @@
  * identical result from one that only differs in whitespace or inline nesting order, and from a lossy one.
  *
  * The parser registers the URLs of links (eZURL::registerURL()), so the helpers must run against a copy of
- * the database: useSandbox() switches the kernel to it (an SQLite file, or a MySQL database named *_sandbox or *_rt)
- * and refuses anything else.
+ * the database: useSandbox() switches the kernel to it (an SQLite file, or a MySQL database named *_sandbox or *_rt
+ * that is no siteaccess's Database and carries the marker table exp_oe_tiptap_sandbox) and refuses anything else.
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation
  * @license GNU General Public License v2.0 (or any later version)
@@ -24,21 +24,30 @@ class expOETiptapRoundtrip
     const SANDBOX_SUFFIX_PATTERN = '/_(sandbox|rt)$/';
 
     /**
+     * A MySQL sandbox must contain a table of this name. The copy procedure creates it in the copy (never in the live
+     * database), so a database that merely has a sandbox-like name is refused.
+     */
+    const SANDBOX_MARKER_TABLE = 'exp_oe_tiptap_sandbox';
+
+    /**
      * Reads the sandbox argument of run.sh: an absolute path of an SQLite file (a copy of the database), or
      * mysql:<name> for a MySQL/MariaDB database on the server of the siteaccess (a copy, whose name ends with _sandbox
-     * or _rt and differs from the siteaccess's live database).
+     * or _rt and differs from the siteaccess's live database and from the Database of every siteaccess and of the
+     * override).
      *
-     * For MySQL this is a name guard only: the database is opened on the server of the siteaccess with its user and
-     * password, and nothing proves it is a copy except its name. An SQLite file is compared with the live file by
+     * For MySQL the name is checked here; useSandbox() then requires the marker table SANDBOX_MARKER_TABLE in the
+     * database before anything else runs (requireSandboxMarker()). An SQLite file is compared with the live file by
      * device and inode (isSameFile()).
      *
      * @param string $value
      * @param string $liveImplementation [DatabaseSettings] DatabaseImplementation of the siteaccess
      * @param string $liveDatabase       [DatabaseSettings] Database of the siteaccess
+     * @param array|null $configuredDatabases the [DatabaseSettings] Database values of the installation's site.ini
+     *                   files (configuredDatabases()); null reads them from the installation in the current directory
      * @return array ( 'type' => 'sqlite', 'path' => string ) or ( 'type' => 'mysql', 'database' => string )
      * @throws RuntimeException when the value is not a sandbox
      */
-    public static function parseSandbox( $value, $liveImplementation, $liveDatabase )
+    public static function parseSandbox( $value, $liveImplementation, $liveDatabase, $configuredDatabases = null )
     {
         $value = trim( (string)$value );
         if ( stripos( $value, 'mysql:' ) === 0 )
@@ -50,6 +59,16 @@ class expOETiptapRoundtrip
                 throw new RuntimeException( "Refusing the database '$name': the name of a sandbox copy must end with _sandbox or _rt" );
             if ( self::isMySQL( $liveImplementation ) && strcasecmp( $name, (string)$liveDatabase ) === 0 )
                 throw new RuntimeException( 'Refusing to use the live database' );
+            if ( $configuredDatabases === null )
+                $configuredDatabases = self::configuredDatabases( '.' );
+            foreach ( $configuredDatabases as $file => $databases )
+            {
+                foreach ( (array)$databases as $database )
+                {
+                    if ( strcasecmp( $name, (string)$database ) === 0 )
+                        throw new RuntimeException( "Refusing the database '$name': it is the Database of $file, a live database of the installation" );
+                }
+            }
             return array( 'type' => 'mysql', 'database' => $name );
         }
         if ( $value === '' || $value[0] !== '/' || !is_file( $value ) )
@@ -57,6 +76,83 @@ class expOETiptapRoundtrip
         if ( !self::isMySQL( $liveImplementation ) && self::isSameFile( $value, eZSQLite3DB::filePath( (string)$liveDatabase ) ) )
             throw new RuntimeException( 'Refusing to use the live database' );
         return array( 'type' => 'sqlite', 'path' => realpath( $value ) );
+    }
+
+    /**
+     * The [DatabaseSettings] Database values of the installation's site.ini files: every siteaccess's
+     * (settings/siteaccess/<siteaccess>/ and extension/<extension>/settings/siteaccess/<siteaccess>/) and the
+     * override's (settings/override/), site.ini.append.php or site.ini.append. The files are only read.
+     *
+     * @param string $root the installation root
+     * @return array file (relative to $root) => list of Database values
+     */
+    public static function configuredDatabases( $root )
+    {
+        $root = rtrim( (string)$root, '/' );
+        $files = array();
+        foreach ( array( 'settings/override', 'settings/siteaccess/*', 'extension/*/settings/siteaccess/*' ) as $dir )
+        {
+            foreach ( array( 'site.ini.append.php', 'site.ini.append' ) as $name )
+                $files = array_merge( $files, glob( "$root/$dir/$name" ) ?: array() );
+        }
+        $result = array();
+        foreach ( $files as $file )
+        {
+            $text = @file_get_contents( $file );
+            if ( !is_string( $text ) )
+                continue;
+            $databases = self::databasesInSiteIni( $text );
+            if ( $databases )
+                $result[substr( $file, strlen( $root ) + 1 )] = $databases;
+        }
+        return $result;
+    }
+
+    /**
+     * The Database values of the [DatabaseSettings] blocks of a site.ini text (the INI format of the kernel: [Block],
+     * Name=value, # comments, optionally inside the <?php / * ... * / ?> wrapper of .ini.append.php).
+     *
+     * @param string $text
+     * @return string[]
+     */
+    public static function databasesInSiteIni( $text )
+    {
+        $databases = array();
+        $block = '';
+        foreach ( preg_split( '/\r\n|\r|\n/', (string)$text ) as $line )
+        {
+            $line = trim( $line );
+            if ( $line === '' || $line[0] === '#' )
+                continue;
+            if ( preg_match( '/^\[([^\]]+)\]/', $line, $m ) )
+            {
+                $block = trim( $m[1] );
+                continue;
+            }
+            if ( $block === 'DatabaseSettings' && preg_match( '/^Database\s*=\s*(.*)$/', $line, $m ) )
+            {
+                $value = trim( $m[1] );
+                if ( $value !== '' )
+                    $databases[] = $value;
+            }
+        }
+        return array_values( array_unique( $databases ) );
+    }
+
+    /**
+     * Refuses a MySQL sandbox without the marker table SANDBOX_MARKER_TABLE: the copy procedure creates it in the
+     * copy, so a database with a sandbox-like name that is not a prepared copy is never written to.
+     *
+     * @param string $database the sandbox database name
+     * @param callable $hasTable function( string $table ): bool, whether the sandbox database has that table
+     * @throws RuntimeException when the marker table is missing
+     */
+    public static function requireSandboxMarker( $database, $hasTable )
+    {
+        if ( !call_user_func( $hasTable, self::SANDBOX_MARKER_TABLE ) )
+            throw new RuntimeException( "Refusing the database '$database': it has no table " . self::SANDBOX_MARKER_TABLE
+                                      . ' (create it in the copy, never in the live database: CREATE TABLE '
+                                      . self::SANDBOX_MARKER_TABLE . ' ( id INT )' );
     }
 
     /**
@@ -117,11 +213,18 @@ class expOETiptapRoundtrip
                                   array( 'database' => $sandbox['database'], 'use_slave_server' => false ), true );
             if ( !$db->isConnected() )
                 throw new RuntimeException( "Could not connect to the sandbox database '{$sandbox['database']}'" );
-            eZDB::setInstance( $db );
             $rows = $db->arrayQuery( 'SELECT DATABASE() AS name' );
             $used = isset( $rows[0]['name'] ) ? (string)$rows[0]['name'] : '';
             if ( $used !== $sandbox['database'] )
                 throw new RuntimeException( "Database switch failed: connected to '$used'" );
+            // before the kernel uses the connection: the copy must carry the marker table
+            self::requireSandboxMarker( $used, static function ( $table ) use ( $db )
+            {
+                $found = $db->arrayQuery( "SELECT COUNT(*) AS n FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '"
+                                          . $db->escapeString( $table ) . "'" );
+                return isset( $found[0]['n'] ) && (int)$found[0]['n'] > 0;
+            } );
+            eZDB::setInstance( $db );
             $result = 'mysql:' . $used;
         }
         else

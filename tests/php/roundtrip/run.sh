@@ -14,8 +14,11 @@
 #                   mysql:<name>_sandbox        a MySQL/MariaDB database on the server of the siteaccess, with its
 #                   mysql:<name>_rt             user and password; the name must end with _sandbox or _rt and differ
 #                                               from the siteaccess's own database
-#                 The MySQL check is a name check: the database is opened on the server of the siteaccess, with its
-#                 user, so make sure the name really is a copy.
+#                 run.php also refuses a MySQL name that is the Database of any siteaccess's or the override's
+#                 site.ini, and a MySQL database without the marker table exp_oe_tiptap_sandbox. Create it in the
+#                 copy, never in the live database:
+#                   mysqldump site | mysql site_rt
+#                   mysql site_rt -e 'CREATE TABLE exp_oe_tiptap_sandbox ( id INT )'
 #   <work-dir>    receives the HTML out of Tiptap, the ezxml of both paths and report.md / report.json.
 # Exit code 0: Tiptap loses nothing ezoe alone keeps.
 #

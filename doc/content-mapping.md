@@ -130,10 +130,20 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   admin siteaccess of the site the content comes from); its settings must exist under `settings/siteaccess/` or
   `extension/*/settings/siteaccess/`, and `run.php` checks that it really runs in it. `<sandbox>` is a **copy** of that site's database: the absolute path of an SQLite
   file, or `mysql:<name>` for a MySQL/MariaDB database on the server of the siteaccess (its user and password), whose
-  name must end with `_sandbox` or `_rt` and differ from the siteaccess's own database. For MySQL that is a name
-  check only (the database is opened on the siteaccess's server with its user); an SQLite copy is compared with the
+  name must end with `_sandbox` or `_rt`, differ from the siteaccess's own database and from the `[DatabaseSettings]
+  Database` of every siteaccess (`settings/siteaccess/*/`, `extension/*/settings/siteaccess/*/`) and of
+  `settings/override/` (their `site.ini.append.php` or `site.ini.append`, only read), and which must contain the
+  marker table `exp_oe_tiptap_sandbox`. The database is opened on the siteaccess's server with its user, and
+  without the marker table it is refused before the kernel uses the connection. An SQLite copy is compared with the
   live file by device and inode, so another spelling or a link of the live file is refused. Anything else is refused
-  before anything runs. (The form of 0.1.x, `run.sh <copy.db> <work-dir>`, is kept; it uses the siteaccess named
+  before anything runs.
+  The MySQL copy procedure therefore has two steps, the second one run against the copy only, never the live
+  database:
+
+  ```bash
+  mysqldump site | mysql site_rt
+  mysql site_rt -e 'CREATE TABLE exp_oe_tiptap_sandbox ( id INT )'
+  ``` (The form of 0.1.x, `run.sh <copy.db> <work-dir>`, is kept; it uses the siteaccess named
   `admin` and fails where there is none.)
   To run it on your own content, export the fixtures from it with
   `php extension/exp_oe_tiptap/bin/php/export_roundtrip_fixtures.php -s <admin siteaccess> --out=/abs/dir` (not
@@ -143,7 +153,7 @@ break. Tiptap puts the cursor after a last table with its gap cursor. An empty p
   metadata of a cluster file handler with a database of its own, so export from a copy where that matters;
   every ezxmltext field with content of every published object's current version, ezxml and `inputXML()`'s HTML as in
   `tests/fixtures/`; `--class=`, `--limit=`, `--offset=`, and it refuses to write into `tests/fixtures/` without
-  `--into-tests`), copy the database, e.g. `mysqldump site | mysql site_rt`, and run
+  `--into-tests`), copy the database with the marker table as above, and run
   `run.sh --fixtures=/abs/dir <admin siteaccess> mysql:site_rt /tmp/rt` (or set `EXPOETIPTAP_FIXTURES_DIR`; the work
   directory must be another one). Keep the exported fixtures out of the repository: they are the site's content.
   First every fixture
