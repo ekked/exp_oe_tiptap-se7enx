@@ -28,6 +28,9 @@ after( async () => {
 function page( html, bundle )
 {
     document.body.innerHTML = html;
+    // a new page: the start file has not run on it yet
+    delete window.expOETiptapStart;
+    delete window.expOETiptapStartAll;
     const calls = [], errors = [];
     if ( bundle )
         window.ExpOETiptap = { init: ( textarea, options ) => calls.push( { id: textarea.id, options } ) };
@@ -115,4 +118,57 @@ test( 'without the bundle the start waits for the page, then the textarea stays 
     }
     assert.deepEqual( u.calls, [] );
     assert.match( u.errors[0], /bundle is not loaded, editing b as plain text/ );
+} );
+
+test( 'an editor added after DOMContentLoaded and before load starts, at once with the bundle, else on load', () => {
+    Object.defineProperty( document, 'readyState', { configurable: true, get: () => 'interactive' } );
+    try
+    {
+        // DOMContentLoaded is past: the bundle is there, so the editor starts at once
+        const t = page( block( 'late', '{"attributeId": 9}' ), true );
+        assert.deepEqual( t.calls.map( ( c ) => c.id ), [ 'late' ] );
+
+        // DOMContentLoaded is past and the bundle comes later: load starts it, once
+        const u = page( block( 'later', '{}' ), false );
+        assert.deepEqual( u.calls, [] );
+        window.ExpOETiptap = { init: ( textarea ) => u.calls.push( { id: textarea.id } ) };
+        window.dispatchEvent( new Event( 'load' ) );
+        document.dispatchEvent( new Event( 'DOMContentLoaded' ) );
+        window.dispatchEvent( new Event( 'load' ) );
+        assert.deepEqual( u.calls.map( ( c ) => c.id ), [ 'later' ], 'started once' );
+        assert.deepEqual( u.errors, [] );
+    }
+    finally
+    {
+        delete document.readyState;
+    }
+} );
+
+test( 'while the page is loading the start waits for DOMContentLoaded', () => {
+    Object.defineProperty( document, 'readyState', { configurable: true, get: () => 'loading' } );
+    try
+    {
+        const t = page( block( 'parsing', '{}' ), false );
+        window.ExpOETiptap = { init: ( textarea ) => t.calls.push( { id: textarea.id } ) };
+        window.dispatchEvent( new Event( 'load' ) );
+        assert.deepEqual( t.calls, [], 'not on load alone while loading' );
+        document.dispatchEvent( new Event( 'DOMContentLoaded' ) );
+        assert.deepEqual( t.calls.map( ( c ) => c.id ), [ 'parsing' ] );
+    }
+    finally
+    {
+        delete document.readyState;
+    }
+} );
+
+test( 'the file included once per editor starts every editor once and defines its functions once', () => {
+    const t = page( block( 'one', '{"attributeId": 1}' ), true );
+    const start = window.expOETiptapStart, startAll = window.expOETiptapStartAll;
+    // the second editor of the page and its own include of the file
+    document.body.insertAdjacentHTML( 'beforeend', block( 'two', '{"attributeId": 2}' ) );
+    new Function( source )();
+    new Function( source )();
+    assert.deepEqual( t.calls.map( ( c ) => c.id ), [ 'one', 'two' ] );
+    assert.equal( window.expOETiptapStart, start );
+    assert.equal( window.expOETiptapStartAll, startAll );
 } );

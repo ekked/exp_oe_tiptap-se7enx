@@ -5,8 +5,12 @@
  * The template writes each editor's options as JSON, <script type="application/json"
  * data-exp-oe-options-for="<textarea id>">, after the textarea. This file is loaded once per page with defer and
  * calls window.ExpOETiptap.init( textarea, options ) (the built bundle) for each of them, once the bundle is there:
- * at once when it is, else when the page is parsed (the bundle may be loaded at the end of the page with ezjscore).
+ * at once when it is or the page is no longer loading (document.readyState is not 'loading'), else when the page is
+ * parsed (the bundle may be loaded at the end of the page with ezjscore). Without the bundle once the page is parsed,
+ * it waits for DOMContentLoaded or load, whichever comes first, so an editor added between the two still starts.
  * expOETiptapStart( id, options ) stays global as before; expOETiptapStartAll() starts the editors added later.
+ * Included more than once on a page (the template may include it once per editor), the file defines nothing again
+ * and only starts the editors that have not started yet.
  *
  * @copyright Copyright (C) 1998 - 2026 7x & Exponential Foundation. All rights reserved.
  * @license GNU General Public License v2.0 (or any later version)
@@ -14,6 +18,13 @@
 ( function( window, document )
 {
     'use strict';
+
+    // already loaded on this page: start what is new, define nothing twice
+    if ( typeof window.expOETiptapStartAll === 'function' && window.expOETiptapStartAll.expOETiptapStart === true )
+    {
+        window.expOETiptapStartAll();
+        return;
+    }
 
     function error( message, detail )
     {
@@ -24,8 +35,14 @@
     // Starts Tiptap on one textarea, now when the bundle is there or the page is parsed, else when it is
     function expOETiptapStart( id, options )
     {
+        var started = false;
         var start = function()
         {
+            if ( started )
+                return;
+            started = true;
+            document.removeEventListener( 'DOMContentLoaded', start );
+            window.removeEventListener( 'load', start );
             var textarea = document.getElementById( id );
             if ( !textarea )
                 return;
@@ -39,6 +56,12 @@
         };
         if ( window.ExpOETiptap || document.readyState === 'complete' )
             start();
+        else if ( document.readyState !== 'loading' )
+        {
+            // parsed, bundle not there yet: DOMContentLoaded may have fired already, so load counts as well
+            document.addEventListener( 'DOMContentLoaded', start );
+            window.addEventListener( 'load', start );
+        }
         else
             document.addEventListener( 'DOMContentLoaded', start );
     }
@@ -67,6 +90,7 @@
     }
 
     window.expOETiptapStart = expOETiptapStart;
+    expOETiptapStartAll.expOETiptapStart = true;
     window.expOETiptapStartAll = expOETiptapStartAll;
     expOETiptapStartAll();
 } )( window, document );
