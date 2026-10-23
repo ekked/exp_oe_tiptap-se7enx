@@ -29,23 +29,23 @@
     </message>
     <message>
         <source>Accept</source>
-        <translation>Akceptuj</translation>
+        <translation>Akceptować</translation>
     </message>
     <message>
         <source>Align center</source>
-        <translation>Wyśrodkuj</translation>
+        <translation>Wyśrodkować</translation>
     </message>
     <message>
         <source>Align full</source>
-        <translation>Wyjustuj</translation>
+        <translation>Wyjustować</translation>
     </message>
     <message>
         <source>Align left</source>
-        <translation>Wyrównaj do lewej</translation>
+        <translation>Wyrównać do lewej</translation>
     </message>
     <message>
         <source>Align right</source>
-        <translation>Wyrównaj do prawej</translation>
+        <translation>Wyrównać do prawej</translation>
     </message>
     <message>
         <source>Alignment</source>
@@ -89,7 +89,7 @@
     </message>
     <message>
         <source>Browse</source>
-        <translation>Przeglądaj</translation>
+        <translation>Przeglądać</translation>
     </message>
     <message>
         <source>Bullet list</source>
@@ -97,7 +97,7 @@
     </message>
     <message>
         <source>Cancel</source>
-        <translation>Anuluj</translation>
+        <translation>Anulować</translation>
     </message>
     <message>
         <source>Center</source>
@@ -109,7 +109,7 @@
     </message>
     <message>
         <source>Choose content</source>
-        <translation>Wybierz treść</translation>
+        <translation>Wybrać treść</translation>
     </message>
     <message>
         <source>Content</source>
@@ -121,7 +121,7 @@
     </message>
     <message>
         <source>Close</source>
-        <translation>Zamknij</translation>
+        <translation>Zamknąć</translation>
     </message>
     <message>
         <source>Columns</source>
@@ -129,7 +129,7 @@
     </message>
     <message>
         <source>Continue writing</source>
-        <translation>Kontynuuj pisanie</translation>
+        <translation>Kontynuować pisanie</translation>
     </message>
     <message>
         <source>Ctrl</source>
@@ -145,19 +145,19 @@
     </message>
     <message>
         <source>Delete</source>
-        <translation>Usuń</translation>
+        <translation>Usunąć</translation>
     </message>
     <message>
         <source>Delete column</source>
-        <translation>Usuń kolumnę</translation>
+        <translation>Usunąć kolumnę</translation>
     </message>
     <message>
         <source>Delete row</source>
-        <translation>Usuń wiersz</translation>
+        <translation>Usunąć wiersz</translation>
     </message>
     <message>
         <source>Delete table</source>
-        <translation>Usuń tabelę</translation>
+        <translation>Usunąć tabelę</translation>
     </message>
     <message>
         <source>Down</source>
@@ -165,7 +165,7 @@
     </message>
     <message>
         <source>Edit the custom tag</source>
-        <translation>Edytuj niestandardowy znacznik</translation>
+        <translation>Edytować niestandardowy znacznik</translation>
     </message>
     <message>
         <source>Enter</source>
@@ -181,19 +181,19 @@
     </message>
     <message>
         <source>Insert column after</source>
-        <translation>Wstaw kolumnę za</translation>
+        <translation>Wstawić kolumnę za</translation>
     </message>
     <message>
         <source>Insert column before</source>
-        <translation>Wstaw kolumnę przed</translation>
+        <translation>Wstawić kolumnę przed</translation>
     </message>
     <message>
         <source>Insert row after</source>
-        <translation>Wstaw wiersz poniżej</translation>
+        <translation>Wstawić wiersz poniżej</translation>
     </message>
     <message>
         <source>Insert row before</source>
-        <translation>Wstaw wiersz powyżej</translation>
+        <translation>Wstawić wiersz powyżej</translation>
     </message>
     <message>
         <source>Italic (Ctrl+I)</source>
@@ -201,15 +201,15 @@
     </message>
     <message>
         <source>Merge table cells</source>
-        <translation>Scal komórki tabeli</translation>
+        <translation>Scalić komórki tabeli</translation>
     </message>
     <message>
         <source>Move the custom tag down</source>
-        <translation>Przesuń niestandardowy znacznik w dół</translation>
+        <translation>Przesunąć niestandardowy znacznik w dół</translation>
     </message>
     <message>
         <source>Move the custom tag up</source>
-        <translation>Przesuń niestandardowy znacznik w górę</translation>
+        <translation>Przesunąć niestandardowy znacznik w górę</translation>
     </message>
     <message>
         <source>Ordered list</source>
@@ -217,7 +217,7 @@
     </message>
     <message>
         <source>Remove the custom tag</source>
-        <translation>Usuń niestandardowy znacznik</translation>
+        <translation>Usunąć niestandardowy znacznik</translation>
     </message>
     <message>
         <source>Czech</source>
@@ -241,15 +241,15 @@
     </message>
     <message>
         <source>Disable editor</source>
-        <translation>Wyłącz edytor</translation>
+        <translation>Wyłączyć edytor</translation>
     </message>
     <message>
         <source>Discard draft</source>
-        <translation>Odrzuć wersję roboczą</translation>
+        <translation>Odrzucić wersję roboczą</translation>
     </message>
     <message>
         <source>Drag to resize</source>
-        <translation>Przeciągnij, aby zmienić rozmiar</translation>
+        <translation>Przeciągnąć, aby zmienić rozmiar</translation>
     </message>
     <message>
         <source>Dutch</source>
@@ -289,7 +289,7 @@
     </message>
     <message>
         <source>Fix spelling and grammar</source>
-        <translation>Popraw pisownię i gramatykę</translation>
+        <translation>Poprawić pisownię i gramatykę</translation>
     </message>
     <message>
         <source>Format</source>
@@ -361,7 +361,7 @@
     </message>
     <message>
         <source>Improve writing</source>
-        <translation>Popraw styl</translation>
+        <translation>Poprawić styl</translation>
     </message>
     <message>
         <source>In use now: %editor. Saved only for your user; the text of your content is the same with either editor.</source>
@@ -369,7 +369,7 @@
     </message>
     <message>
         <source>Indent</source>
-        <translation>Zwiększ wcięcie</translation>
+        <translation>Zwiększyć wcięcie</translation>
     </message>
     <message>
         <source>Indent / outdent list item, next / previous table cell</source>
@@ -385,47 +385,47 @@
     </message>
     <message>
         <source>Insert</source>
-        <translation>Wstaw</translation>
+        <translation>Wstawić</translation>
     </message>
     <message>
         <source>Insert below</source>
-        <translation>Wstaw poniżej</translation>
+        <translation>Wstawić poniżej</translation>
     </message>
     <message>
         <source>Insert custom tag</source>
-        <translation>Wstaw niestandardowy znacznik</translation>
+        <translation>Wstawić niestandardowy znacznik</translation>
     </message>
     <message>
         <source>Insert page break</source>
-        <translation>Wstaw podział strony</translation>
+        <translation>Wstawić podział strony</translation>
     </message>
     <message>
         <source>Insert special character</source>
-        <translation>Wstaw znak specjalny</translation>
+        <translation>Wstawić znak specjalny</translation>
     </message>
     <message>
         <source>Insert/edit anchor</source>
-        <translation>Wstaw/edytuj kotwicę</translation>
+        <translation>Wstawić/edytować kotwicę</translation>
     </message>
     <message>
         <source>Insert/edit file</source>
-        <translation>Wstaw/edytuj plik</translation>
+        <translation>Wstawić/edytować plik</translation>
     </message>
     <message>
         <source>Insert/edit image</source>
-        <translation>Wstaw/edytuj obraz</translation>
+        <translation>Wstawić/edytować obraz</translation>
     </message>
     <message>
         <source>Insert/edit link</source>
-        <translation>Wstaw/edytuj link</translation>
+        <translation>Wstawić/edytować link</translation>
     </message>
     <message>
         <source>Insert/edit object</source>
-        <translation>Wstaw/edytuj obiekt</translation>
+        <translation>Wstawić/edytować obiekt</translation>
     </message>
     <message>
         <source>Insert/edit table</source>
-        <translation>Wstaw/edytuj tabelę</translation>
+        <translation>Wstawić/edytować tabelę</translation>
     </message>
     <message>
         <source>Italian</source>
@@ -441,11 +441,11 @@
     </message>
     <message>
         <source>Justify</source>
-        <translation>Wyjustuj</translation>
+        <translation>Wyjustować</translation>
     </message>
     <message>
         <source>Keep original</source>
-        <translation>Zachowaj oryginał</translation>
+        <translation>Zachować oryginał</translation>
     </message>
     <message>
         <source>Left</source>
@@ -477,11 +477,11 @@
     </message>
     <message>
         <source>Make longer</source>
-        <translation>Wydłuż</translation>
+        <translation>Wydłużyć</translation>
     </message>
     <message>
         <source>Make shorter</source>
-        <translation>Skróć</translation>
+        <translation>Skrócić</translation>
     </message>
     <message>
         <source>Model</source>
@@ -489,7 +489,7 @@
     </message>
     <message>
         <source>Move to the toolbar</source>
-        <translation>Przejdź do paska narzędzi</translation>
+        <translation>Przejść do paska narzędzi</translation>
     </message>
     <message>
         <source>Name</source>
@@ -545,11 +545,11 @@
     </message>
     <message>
         <source>Open in new window</source>
-        <translation>Otwórz w nowym oknie</translation>
+        <translation>Otworzyć w nowym oknie</translation>
     </message>
     <message>
         <source>Outdent</source>
-        <translation>Zmniejsz wcięcie</translation>
+        <translation>Zmniejszyć wcięcie</translation>
     </message>
     <message>
         <source>Paragraph</source>
@@ -557,7 +557,7 @@
     </message>
     <message>
         <source>Paste as text</source>
-        <translation>Wklej jako tekst</translation>
+        <translation>Wkleić jako tekst</translation>
     </message>
     <message>
         <source>Path</source>
@@ -581,23 +581,23 @@
     </message>
     <message>
         <source>Please enter a number: %s</source>
-        <translation>Wprowadź liczbę: %s</translation>
+        <translation>Wprowadzić liczbę: %s</translation>
     </message>
     <message>
         <source>Please enter a valid anchor name</source>
-        <translation>Wprowadź prawidłową nazwę kotwicy</translation>
+        <translation>Wprowadzić prawidłową nazwę kotwicy</translation>
     </message>
     <message>
         <source>Please enter a whole number: %s</source>
-        <translation>Wprowadź liczbę całkowitą: %s</translation>
+        <translation>Wprowadzić liczbę całkowitą: %s</translation>
     </message>
     <message>
         <source>Please enter an e-mail address: %s</source>
-        <translation>Wprowadź adres e-mail: %s</translation>
+        <translation>Wprowadzić adres e-mail: %s</translation>
     </message>
     <message>
         <source>Please fill in: %s</source>
-        <translation>Wypełnij: %s</translation>
+        <translation>Wypełnić: %s</translation>
     </message>
     <message>
         <source>Polish</source>
@@ -621,23 +621,23 @@
     </message>
     <message>
         <source>Redo</source>
-        <translation>Ponów</translation>
+        <translation>Ponowić</translation>
     </message>
     <message>
         <source>Redo (Ctrl+Y)</source>
-        <translation>Ponów (Ctrl+Y)</translation>
+        <translation>Ponowić (Ctrl+Y)</translation>
     </message>
     <message>
         <source>Reject</source>
-        <translation>Odrzuć</translation>
+        <translation>Odrzucić</translation>
     </message>
     <message>
         <source>Remove formatting</source>
-        <translation>Usuń formatowanie</translation>
+        <translation>Usunąć formatowanie</translation>
     </message>
     <message>
         <source>Remove link</source>
-        <translation>Usuń link</translation>
+        <translation>Usunąć link</translation>
     </message>
     <message>
         <source>Rich text editor</source>
@@ -657,11 +657,11 @@
     </message>
     <message>
         <source>Save</source>
-        <translation>Zapisz</translation>
+        <translation>Zapisać</translation>
     </message>
     <message>
         <source>Search</source>
-        <translation>Wyszukaj</translation>
+        <translation>Wyszukać</translation>
     </message>
     <message>
         <source>Select text inside one table cell, or text outside the table.</source>
@@ -669,7 +669,7 @@
     </message>
     <message>
         <source>Send for publishing</source>
-        <translation>Wyślij do publikacji</translation>
+        <translation>Wysłać do publikacji</translation>
     </message>
     <message>
         <source>Shift</source>
@@ -693,15 +693,15 @@
     </message>
     <message>
         <source>Split merged table cells</source>
-        <translation>Podziel scalone komórki tabeli</translation>
+        <translation>Podzielić scalone komórki tabeli</translation>
     </message>
     <message>
         <source>Store draft</source>
-        <translation>Zapisz wersję roboczą</translation>
+        <translation>Zapisać wersję roboczą</translation>
     </message>
     <message>
         <source>Store draft (Ctrl+S)</source>
-        <translation>Zapisz wersję roboczą (Ctrl+S)</translation>
+        <translation>Zapisać wersję roboczą (Ctrl+S)</translation>
     </message>
     <message>
         <source>Subscript</source>
@@ -709,7 +709,7 @@
     </message>
     <message>
         <source>Summarize</source>
-        <translation>Podsumuj</translation>
+        <translation>Podsumować</translation>
     </message>
     <message>
         <source>Superscript</source>
@@ -721,15 +721,15 @@
     </message>
     <message>
         <source>Switch editor</source>
-        <translation>Przełącz edytor</translation>
+        <translation>Przełączyć edytor</translation>
     </message>
     <message>
         <source>Switch to %editor</source>
-        <translation>Przełącz na %editor</translation>
+        <translation>Przełączyć na %editor</translation>
     </message>
     <message>
         <source>Switch to %s</source>
-        <translation>Przełącz na %s</translation>
+        <translation>Przełączyć na %s</translation>
     </message>
     <message>
         <source>Switching the editor is disabled on this site.</source>
@@ -905,15 +905,15 @@
     </message>
     <message>
         <source>Toggle fullscreen mode</source>
-        <translation>Przełącz tryb pełnoekranowy</translation>
+        <translation>Przełączyć tryb pełnoekranowy</translation>
     </message>
     <message>
         <source>Translate</source>
-        <translation>Przetłumacz</translation>
+        <translation>Przetłumaczyć</translation>
     </message>
     <message>
         <source>Try again</source>
-        <translation>Spróbuj ponownie</translation>
+        <translation>Spróbować ponownie</translation>
     </message>
     <message>
         <source>Turkish</source>
@@ -941,11 +941,11 @@
     </message>
     <message>
         <source>Undo</source>
-        <translation>Cofnij</translation>
+        <translation>Cofnąć</translation>
     </message>
     <message>
         <source>Undo (Ctrl+Z)</source>
-        <translation>Cofnij (Ctrl+Z)</translation>
+        <translation>Cofnąć (Ctrl+Z)</translation>
     </message>
     <message>
         <source>Unexpected answer from the server</source>
@@ -957,7 +957,7 @@
     </message>
     <message>
         <source>Unlink</source>
-        <translation>Usuń link</translation>
+        <translation>Usunąć link</translation>
     </message>
     <message>
         <source>Unordered list</source>
@@ -965,11 +965,11 @@
     </message>
     <message>
         <source>Upload</source>
-        <translation>Prześlij</translation>
+        <translation>Przesłać</translation>
     </message>
     <message>
         <source>Upload new file</source>
-        <translation>Prześlij nowy plik</translation>
+        <translation>Przesłać nowy plik</translation>
     </message>
     <message>
         <source>Uploaded</source>
@@ -981,7 +981,7 @@
     </message>
     <message>
         <source>View</source>
-        <translation>Wyświetl</translation>
+        <translation>Wyświetlić</translation>
     </message>
     <message>
         <source>Width</source>
@@ -1033,7 +1033,7 @@
     </message>
     <message>
         <source>Convert to paragraph</source>
-        <translation>Zamień na akapit</translation>
+        <translation>Zamienić na akapit</translation>
     </message>
     <message>
         <source>Data cell</source>
@@ -1041,7 +1041,7 @@
     </message>
     <message>
         <source>Edit link</source>
-        <translation>Edytuj link</translation>
+        <translation>Edytować link</translation>
     </message>
     <message>
         <source>Header cell</source>
@@ -1049,11 +1049,11 @@
     </message>
     <message>
         <source>Insert link</source>
-        <translation>Wstaw link</translation>
+        <translation>Wstawić link</translation>
     </message>
     <message>
         <source>Insert table</source>
-        <translation>Wstaw tabelę</translation>
+        <translation>Wstawić tabelę</translation>
     </message>
     <message>
         <source>Leave empty to remove the link.</source>
@@ -1201,7 +1201,7 @@
     </message>
     <message>
         <source>Apply to</source>
-        <translation>Zastosuj do</translation>
+        <translation>Zastosować do</translation>
     </message>
     <message>
         <source>Cell</source>
@@ -1217,7 +1217,7 @@
     </message>
     <message>
         <source>Paste as text (Ctrl+Shift+V)</source>
-        <translation>Wklej jako tekst (Ctrl+Shift+V)</translation>
+        <translation>Wkleić jako tekst (Ctrl+Shift+V)</translation>
     </message>
     <message>
         <source>Commands at the cursor</source>
@@ -1229,23 +1229,23 @@
     </message>
     <message>
         <source>Edit anchor</source>
-        <translation>Edytuj kotwicę</translation>
+        <translation>Edytować kotwicę</translation>
     </message>
     <message>
         <source>Edit custom tag</source>
-        <translation>Edytuj niestandardowy znacznik</translation>
+        <translation>Edytować niestandardowy znacznik</translation>
     </message>
     <message>
         <source>Edit embedded object</source>
-        <translation>Edytuj osadzony obiekt</translation>
+        <translation>Edytować osadzony obiekt</translation>
     </message>
     <message>
         <source>Edit file</source>
-        <translation>Edytuj plik</translation>
+        <translation>Edytować plik</translation>
     </message>
     <message>
         <source>Edit image</source>
-        <translation>Edytuj obraz</translation>
+        <translation>Edytować obraz</translation>
     </message>
     <message>
         <source>Literal text properties</source>
@@ -1261,19 +1261,19 @@
     </message>
     <message>
         <source>Find</source>
-        <translation>Znajdź</translation>
+        <translation>Znaleźć</translation>
     </message>
     <message>
         <source>Find (Ctrl+F)</source>
-        <translation>Znajdź (Ctrl+F)</translation>
+        <translation>Znaleźć (Ctrl+F)</translation>
     </message>
     <message>
         <source>Find and replace</source>
-        <translation>Znajdź i zastąp</translation>
+        <translation>Znaleźć i zastąpić</translation>
     </message>
     <message>
         <source>Match case</source>
-        <translation>Uwzględniaj wielkość liter</translation>
+        <translation>Uwzględniać wielkość liter</translation>
     </message>
     <message>
         <source>Next / previous match</source>
@@ -1293,15 +1293,15 @@
     </message>
     <message>
         <source>Replace</source>
-        <translation>Zastąp</translation>
+        <translation>Zastąpić</translation>
     </message>
     <message>
         <source>Replace all</source>
-        <translation>Zastąp wszystko</translation>
+        <translation>Zastąpić wszystko</translation>
     </message>
     <message>
         <source>Replace with</source>
-        <translation>Zastąp przez</translation>
+        <translation>Zastąpić przez</translation>
     </message>
     <message>
         <source>A custom tag of the site (fact box, quote, underline ...): a box around paragraphs or a mark on text, with its own attributes.</source>
@@ -1369,23 +1369,23 @@
     </message>
     <message>
         <source>Close a menu, the search bar or a dialog</source>
-        <translation>Zamknij menu, pasek wyszukiwania lub okno dialogowe</translation>
+        <translation>Zamknąć menu, pasek wyszukiwania lub okno dialogowe</translation>
     </message>
     <message>
         <source>Delete the column at the cursor.</source>
-        <translation>Usuń kolumnę w miejscu kursora.</translation>
+        <translation>Usunąć kolumnę w miejscu kursora.</translation>
     </message>
     <message>
         <source>Delete the row at the cursor.</source>
-        <translation>Usuń wiersz w miejscu kursora.</translation>
+        <translation>Usunąć wiersz w miejscu kursora.</translation>
     </message>
     <message>
         <source>Delete the table at the cursor.</source>
-        <translation>Usuń tabelę w miejscu kursora.</translation>
+        <translation>Usunąć tabelę w miejscu kursora.</translation>
     </message>
     <message>
         <source>Discard the draft.</source>
-        <translation>Odrzuć wersję roboczą.</translation>
+        <translation>Odrzucić wersję roboczą.</translation>
     </message>
     <message>
         <source>Drag the bottom right corner to make the editor taller or shorter.</source>
@@ -1409,7 +1409,7 @@
     </message>
     <message>
         <source>Find a word or text (Ctrl+F).</source>
-        <translation>Znajdź słowo lub tekst (Ctrl+F).</translation>
+        <translation>Znaleźć słowo lub tekst (Ctrl+F).</translation>
     </message>
     <message>
         <source>Find a word or text and replace it, one by one or all at once.</source>
@@ -1425,11 +1425,11 @@
     </message>
     <message>
         <source>Insert a column after the one at the cursor.</source>
-        <translation>Wstaw kolumnę za kolumną w miejscu kursora.</translation>
+        <translation>Wstawić kolumnę za kolumną w miejscu kursora.</translation>
     </message>
     <message>
         <source>Insert a column before the one at the cursor.</source>
-        <translation>Wstaw kolumnę przed kolumną w miejscu kursora.</translation>
+        <translation>Wstawić kolumnę przed kolumną w miejscu kursora.</translation>
     </message>
     <message>
         <source>Insert a custom tag, or edit the one at the cursor: select text first to put it into the tag, choose the tag and fill in its attributes.</source>
@@ -1437,19 +1437,19 @@
     </message>
     <message>
         <source>Insert a page break (the custom tag "pagebreak").</source>
-        <translation>Wstaw podział strony (niestandardowy znacznik „pagebreak”).</translation>
+        <translation>Wstawić podział strony (niestandardowy znacznik „pagebreak”).</translation>
     </message>
     <message>
         <source>Insert a row above the one at the cursor.</source>
-        <translation>Wstaw wiersz nad wierszem w miejscu kursora.</translation>
+        <translation>Wstawić wiersz nad wierszem w miejscu kursora.</translation>
     </message>
     <message>
         <source>Insert a row below the one at the cursor.</source>
-        <translation>Wstaw wiersz pod wierszem w miejscu kursora.</translation>
+        <translation>Wstawić wiersz pod wierszem w miejscu kursora.</translation>
     </message>
     <message>
         <source>Insert a special character.</source>
-        <translation>Wstaw znak specjalny.</translation>
+        <translation>Wstawić znak specjalny.</translation>
     </message>
     <message>
         <source>Insert a table, or edit the table at the cursor: width, border, class and custom attributes.</source>
@@ -1509,19 +1509,19 @@
     </message>
     <message>
         <source>Move the custom tag up or down</source>
-        <translation>Przesuń niestandardowy znacznik w górę lub w dół</translation>
+        <translation>Przesunąć niestandardowy znacznik w górę lub w dół</translation>
     </message>
     <message>
         <source>Move the list item one level down (into a nested list).</source>
-        <translation>Przesuń element listy o poziom niżej (do listy zagnieżdżonej).</translation>
+        <translation>Przesunąć element listy o poziom niżej (do listy zagnieżdżonej).</translation>
     </message>
     <message>
         <source>Move the list item one level up (out of a nested list).</source>
-        <translation>Przesuń element listy o poziom wyżej (z listy zagnieżdżonej).</translation>
+        <translation>Przesunąć element listy o poziom wyżej (z listy zagnieżdżonej).</translation>
     </message>
     <message>
         <source>Open this help (Alt+0).</source>
-        <translation>Otwórz tę pomoc (Alt+0).</translation>
+        <translation>Otworzyć tę pomoc (Alt+0).</translation>
     </message>
     <message>
         <source>Paste as text: while it is on, everything is pasted without formatting. Ctrl+Shift+V does it for one paste.</source>
@@ -1537,7 +1537,7 @@
     </message>
     <message>
         <source>Remove the link at the cursor; its text stays.</source>
-        <translation>Usuń link w miejscu kursora; jego tekst pozostaje.</translation>
+        <translation>Usunąć link w miejscu kursora; jego tekst pozostaje.</translation>
     </message>
     <message>
         <source>Right click (or Shift+F10) for the commands at the cursor; Ctrl+right click for the browser's own menu.</source>
@@ -1545,27 +1545,27 @@
     </message>
     <message>
         <source>Send the object for publishing.</source>
-        <translation>Wyślij obiekt do publikacji.</translation>
+        <translation>Wysłać obiekt do publikacji.</translation>
     </message>
     <message>
         <source>Split a merged cell into its cells again.</source>
-        <translation>Podziel scaloną komórkę z powrotem na komórki.</translation>
+        <translation>Podzielić scaloną komórkę z powrotem na komórki.</translation>
     </message>
     <message>
         <source>Store the draft (Ctrl+S).</source>
-        <translation>Zapisz wersję roboczą (Ctrl+S).</translation>
+        <translation>Zapisać wersję roboczą (Ctrl+S).</translation>
     </message>
     <message>
         <source>Store the draft and continue in the other editor.</source>
-        <translation>Zapisz wersję roboczą i kontynuuj w drugim edytorze.</translation>
+        <translation>Zapisać wersję roboczą i kontynuować w drugim edytorze.</translation>
     </message>
     <message>
         <source>Subscript the selected text, or remove it.</source>
-        <translation>Zastosuj indeks dolny do zaznaczonego tekstu lub go usuń.</translation>
+        <translation>Zastosować indeks dolny do zaznaczonego tekstu lub go usunąć.</translation>
     </message>
     <message>
         <source>Superscript the selected text, or remove it.</source>
-        <translation>Zastosuj indeks górny do zaznaczonego tekstu lub go usuń.</translation>
+        <translation>Zastosować indeks górny do zaznaczonego tekstu lub go usunąć.</translation>
     </message>
     <message>
         <source>Tables with rows, header and data cells; cells can be merged.</source>
@@ -1621,7 +1621,7 @@
     </message>
     <message>
         <source>Underline the selected text, or remove the underline (the custom tag "underline").</source>
-        <translation>Podkreśl zaznaczony tekst lub usuń podkreślenie (niestandardowy znacznik „underline”).</translation>
+        <translation>Podkreślić zaznaczony tekst lub usunąć podkreślenie (niestandardowy znacznik „underline”).</translation>
     </message>
     <message>
         <source>Undo the last change. Press again to undo more.</source>
@@ -1641,7 +1641,7 @@
     </message>
     <message>
         <source>Copy</source>
-        <translation>Kopiuj</translation>
+        <translation>Kopiować</translation>
     </message>
     <message>
         <source>HTML</source>
@@ -1661,7 +1661,7 @@
     </message>
     <message>
         <source>Insert non-breaking space (Ctrl+Shift+Space)</source>
-        <translation>Wstaw spację nierozdzielającą (Ctrl+Shift+Space)</translation>
+        <translation>Wstawić spację nierozdzielającą (Ctrl+Shift+Space)</translation>
     </message>
     <message>
         <source>%1 becomes a paragraph</source>
@@ -1673,11 +1673,11 @@
     </message>
     <message>
         <source>Apply</source>
-        <translation>Zastosuj</translation>
+        <translation>Zastosować</translation>
     </message>
     <message>
         <source>Apply anyway</source>
-        <translation>Zastosuj mimo to</translation>
+        <translation>Zastosować mimo to</translation>
     </message>
     <message>
         <source>Apply anyway takes the text as listed; or change the source.</source>
@@ -1725,7 +1725,7 @@
     </message>
     <message>
         <source>Wrap lines</source>
-        <translation>Zawijaj wiersze</translation>
+        <translation>Zawijać wiersze</translation>
     </message>
     <message>
         <source>The changes are not applied. Cancel again (or Escape) to discard them.</source>
